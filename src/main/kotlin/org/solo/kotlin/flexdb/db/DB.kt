@@ -10,7 +10,23 @@ import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 
 @Suppress("unused")
-data class DB(val root: Path, val schema: Path, val logs: Path, val users: Path, val pswd: Path, val p: String) {
+data class DB(val root: Path, val p: String) {
+    var schema: Path
+        private set
+    var logs: Path
+        private set
+    var users: Path
+        private set
+    var pswd: Path
+        private set
+
+    init {
+        schema = schemafullPath(root)
+        logs = logsPath(root)
+        users = usersPath(root)
+        pswd = pswdPath(root)
+    }
+
     private val hasher = Argon2PasswordEncoder()
 
     @Throws(IOException::class, IllegalArgumentException::class, GeneralSecurityException::class)

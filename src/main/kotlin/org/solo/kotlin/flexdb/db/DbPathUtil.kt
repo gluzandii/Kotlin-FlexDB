@@ -48,10 +48,6 @@ fun setGlobalDB(path: Path, p: String): DB {
 
     GlobalData.db = DB(
         root = path,
-        schema = schemafullPath(path),
-        logs = logsPath(path),
-        users = usersPath(path),
-        pswd = pswdPath(path),
         p = p
     )
     return GlobalData.db!!
@@ -100,10 +96,6 @@ fun createDB(path: Path, p: String): DB? {
 
     return DB(
         path,
-        schema,
-        logs,
-        users,
-        pswd,
         p
     )
 }
