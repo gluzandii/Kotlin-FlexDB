@@ -16,6 +16,6 @@ object GlobalData {
 
     init {
         AeadConfig.register()
-        handle = KeysetHandle.generateNew(KeyTemplates.get("AES256-GCM"))
+        handle = KeysetHandle.generateNew(KeyTemplates.get("AES256_GCM"))
     }
 }
