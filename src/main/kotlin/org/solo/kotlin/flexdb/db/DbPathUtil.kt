@@ -54,6 +54,18 @@ fun setGlobalDB(path: Path) {
     )
 }
 
+@Throws(IOException::class)
+fun canAccessDB(path: Path, p: String): Boolean {
+    if (!dbExists(path)) {
+        return false
+    }
+
+    val pswd = pswdPath(path)
+    val readAll = pswd.readText()
+    
+    return Crypto.passwordMatches(p, readAll)
+}
+
 @Throws(IllegalArgumentException::class, IOException::class)
 fun createDB(path: Path, p: String): DB? {
     if (dbExists(path)) {
