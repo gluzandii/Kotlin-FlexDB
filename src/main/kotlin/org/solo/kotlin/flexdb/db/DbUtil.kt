@@ -8,9 +8,11 @@ import kotlin.io.path.isRegularFile
 
 inline fun schemafullPath(root: Path) = root.append("schemafull")
 
-inline fun logsPath(root: Path) = root.append("schemafull")
+inline fun logsPath(root: Path) = root.append("logs")
 
-inline fun usersPath(root: Path) = root.append("schemafull")
+inline fun usersPath(root: Path) = root.append("users.json")
+
+inline fun pswdPath(root: Path) = root.append("pswd.txt")
 
 fun dbExists(name: Path): Boolean {
     if (!name.isDirectory()) {
@@ -20,6 +22,7 @@ fun dbExists(name: Path): Boolean {
     val schema = schemafullPath(name)
     val logs = logsPath(name)
     val users = usersPath(name)
+    val pswd = pswdPath(name)
 
     if (!schema.isDirectory()) {
         return false
@@ -31,7 +34,7 @@ fun dbExists(name: Path): Boolean {
         return false
     }
 
-    return true
+    return pswd.isRegularFile()
 }
 
 @Throws(IllegalStateException::class)
@@ -44,6 +47,7 @@ fun setGlobalDB(path: Path) {
         root = path,
         schema = schemafullPath(path),
         logs = logsPath(path),
-        users = usersPath(path)
+        users = usersPath(path),
+        pswd = pswdPath(path)
     )
 }
