@@ -1,10 +1,12 @@
 package org.solo.kotlin.flexdb.db
 
+import org.solo.kotlin.flexdb.Crypto
 import org.solo.kotlin.flexdb.GlobalData
 import org.solo.kotlin.flexdb.internal.append
+import java.io.IOException
 import java.nio.file.Path
-import kotlin.io.path.isDirectory
-import kotlin.io.path.isRegularFile
+import java.time.LocalDateTime
+import kotlin.io.path.*
 
 inline fun schemafullPath(root: Path) = root.append("schemafull")
 
@@ -49,5 +51,41 @@ fun setGlobalDB(path: Path) {
         logs = logsPath(path),
         users = usersPath(path),
         pswd = pswdPath(path)
+    )
+}
+
+@Throws(IllegalArgumentException::class, IOException::class)
+fun createDB(path: Path, p: String): DB? {
+    if (dbExists(path)) {
+        return null
+    }
+
+    val name = path.name
+    val schema = schemafullPath(path)
+    val logs = logsPath(path)
+    val users = usersPath(path)
+    val pswd = pswdPath(path)
+    val hashed = Crypto.hashPassword(p)
+
+    if (path.isDirectory() && !dbExists(path)) {
+        throw IllegalArgumentException("Invalid path: $path given, cannot create FlexDB here.")
+    }
+    if (path.isRegularFile()) {
+        throw IllegalArgumentException("The path: $path leads to a file.")
+    }
+
+    schema.createDirectories()
+    logs.createDirectories()
+
+    logs.append("log1.log").writeText("[${LocalDateTime.now()}] - DB: \"$name\" created.")
+    pswd.writeText(hashed)
+    users.writeBytes(Crypto.encrypt("{\"root\": \"$hashed\"}", p))
+
+    return DB(
+        path,
+        schema,
+        logs,
+        users,
+        pswd
     )
 }
