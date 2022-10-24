@@ -1,8 +1,8 @@
 package org.solo.kotlin.flexdb.db
 
+import org.solo.kotlin.flexdb.GlobalData
 import org.solo.kotlin.flexdb.internal.append
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile
 
@@ -34,4 +34,16 @@ fun dbExists(name: Path): Boolean {
     return true
 }
 
-fun dbExists(name: String) = dbExists(Path(name))
+@Throws(IllegalStateException::class)
+fun setGlobalDB(path: Path) {
+    if (!dbExists(path)) {
+        error("The path: $path is not FlexDB")
+    }
+
+    GlobalData.db = DB(
+        root = path,
+        schema = schemafullPath(path),
+        logs = logsPath(path),
+        users = usersPath(path)
+    )
+}
