@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
 import javax.servlet.http.HttpServletRequest
-import kotlin.io.path.Path
 
 @SpringBootApplication
 class FlexDbApplication
@@ -14,9 +13,10 @@ class FlexDbApplication
 fun main(args: Array<String>) {
     try {
         print("Enter DB to open (Absolute path): ")
-        val name = Path(readln())
+//        val name = Path(readln())
 
 //        createDB(name, "s")
+//        setGlobalDB(name, "s")
         runApplication<FlexDbApplication>(*args)
     } catch (ex: Exception) {
         println("An error occurred.")

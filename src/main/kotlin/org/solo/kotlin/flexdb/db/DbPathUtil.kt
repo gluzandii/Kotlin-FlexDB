@@ -8,13 +8,13 @@ import java.nio.file.Path
 import java.time.LocalDateTime
 import kotlin.io.path.*
 
-inline fun schemafullPath(root: Path) = root.append("schemafull")
+fun schemafullPath(root: Path) = root.append("schemafull")
 
-inline fun logsPath(root: Path) = root.append("logs")
+fun logsPath(root: Path) = root.append("logs")
 
-inline fun usersPath(root: Path) = root.append("users.json")
+fun usersPath(root: Path) = root.append("users.json")
 
-inline fun pswdPath(root: Path) = root.append("pswd.txt")
+fun pswdPath(root: Path) = root.append("pswd.txt")
 
 fun dbExists(name: Path): Boolean {
     if (!name.isDirectory()) {
@@ -39,8 +39,9 @@ fun dbExists(name: Path): Boolean {
     return pswd.isRegularFile()
 }
 
+@Suppress("unused")
 @Throws(IllegalStateException::class)
-fun setGlobalDB(path: Path) {
+fun setGlobalDB(path: Path, p: String): DB {
     if (!dbExists(path)) {
         error("The path: $path is not FlexDB")
     }
@@ -50,10 +51,13 @@ fun setGlobalDB(path: Path) {
         schema = schemafullPath(path),
         logs = logsPath(path),
         users = usersPath(path),
-        pswd = pswdPath(path)
+        pswd = pswdPath(path),
+        p = p
     )
+    return GlobalData.db!!
 }
 
+@Suppress("unused")
 @Throws(IOException::class)
 fun canAccessDB(path: Path, p: String): Boolean {
     if (!dbExists(path)) {
@@ -62,10 +66,11 @@ fun canAccessDB(path: Path, p: String): Boolean {
 
     val pswd = pswdPath(path)
     val readAll = pswd.readText()
-    
+
     return Crypto.passwordMatches(p, readAll)
 }
 
+@Suppress("unused")
 @Throws(IllegalArgumentException::class, IOException::class)
 fun createDB(path: Path, p: String): DB? {
     if (dbExists(path)) {
@@ -98,6 +103,7 @@ fun createDB(path: Path, p: String): DB? {
         schema,
         logs,
         users,
-        pswd
+        pswd,
+        p
     )
 }

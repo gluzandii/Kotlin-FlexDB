@@ -9,11 +9,12 @@ import java.security.GeneralSecurityException
 import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 
-data class DB(val root: Path, val schema: Path, val logs: Path, val users: Path, val pswd: Path) {
+@Suppress("unused")
+data class DB(val root: Path, val schema: Path, val logs: Path, val users: Path, val pswd: Path, val p: String) {
     private val hasher = Argon2PasswordEncoder()
 
     @Throws(IOException::class, IllegalArgumentException::class, GeneralSecurityException::class)
-    fun userExists(name: String, p: String): Boolean {
+    fun userExists(name: String): Boolean {
         val pswdHashed = pswd.readText()
         if (!hasher.matches(p, pswdHashed)) {
             throw IllegalArgumentException("Invalid password provided: $p")
