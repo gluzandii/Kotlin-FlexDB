@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Main-Class: org.solo.kotlin.flexdb.FlexDbApplicationKt
+Main-Class: org.solo.kotlin.flexdb.MainKt
 Class-Path: jackson-annotations-2.13.4.jar logback-classic-1.2.11.jar sn
  akeyaml-1.30.jar log4j-api-2.17.2.jar spring-boot-autoconfigure-2.7.5.j
  ar spring-boot-starter-tomcat-2.7.5.jar tomcat-embed-el-9.0.68.jar jaka
