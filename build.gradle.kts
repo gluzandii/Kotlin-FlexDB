@@ -21,6 +21,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4")
+    implementation("com.google.crypto.tink:tink:1.7.0")
     implementation("org.springframework.security:spring-security-crypto:5.7.4")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
