@@ -12,6 +12,7 @@ class Row(schema: Set<Column>) {
     }
 
     fun schemaMatches(s: Set<Column>) = content.schema.containsAll(s)
+//    fun containsColumn(c: Column) = content.containsColumn(c)
 
     @Throws(Throwable::class)
     operator fun set(colName: Column, value: DbValue<*>?) {

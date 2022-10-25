@@ -20,6 +20,8 @@ class SchemaMap(schema: Set<Column>) {
         }
     }
 
+//    fun containsColumn(col: Column) = hm.containsKey(col)
+
     operator fun get(col: Column) = hm[col]
 
     @Throws(
