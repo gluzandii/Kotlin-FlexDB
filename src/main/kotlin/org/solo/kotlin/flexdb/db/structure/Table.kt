@@ -2,9 +2,10 @@ package org.solo.kotlin.flexdb.db.structure
 
 import org.solo.kotlin.flexdb.db.structure.primitive.Column
 import org.solo.kotlin.flexdb.db.structure.primitive.Row
+import java.nio.file.Path
 import java.util.*
 
-class Table(val name: String, val schema: Set<Column>) {
+class Table(val path: Path, val schema: Set<Column>) {
     private val rows = LinkedList<Row>()
 
     operator fun get(id: Int): Row {
@@ -14,4 +15,6 @@ class Table(val name: String, val schema: Set<Column>) {
 
         return rows[id]
     }
+
+    fun addRow(row: Row) = rows.add(row)
 }
