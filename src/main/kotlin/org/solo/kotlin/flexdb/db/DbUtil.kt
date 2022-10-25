@@ -92,7 +92,7 @@ fun createDB(path: Path, p: String): DB? {
 
     logs.append("log1.log").writeText("[${LocalDateTime.now()}] - DB: \"$name\" created.")
     pswd.writeText(hashed)
-    users.writeBytes(Crypto.encrypt("{\"root\": \"$hashed\"}", p))
+    users.writeBytes(Crypto.encrypt("{\"root\":\"$hashed\"}", p))
 
     return DB(
         path,

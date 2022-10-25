@@ -1,4 +1,4 @@
-package org.solo.kotlin.flexdb.db
+package org.solo.kotlin.flexdb.db.types
 
 @Suppress("unused")
 enum class DbEnumTypes {
