@@ -3,9 +3,7 @@ package org.solo.kotlin.flexdb.db
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.solo.kotlin.flexdb.Crypto
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
-import java.io.IOException
 import java.nio.file.Path
-import java.security.GeneralSecurityException
 import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 
@@ -29,7 +27,7 @@ class DB(val root: Path, val p: String) {
 
     private val hasher = Argon2PasswordEncoder()
 
-    @Throws(IOException::class, IllegalArgumentException::class, GeneralSecurityException::class)
+    @Throws(Throwable::class)
     fun userExists(name: String): Boolean {
         val pswdHashed = pswd.readText()
         if (!hasher.matches(p, pswdHashed)) {

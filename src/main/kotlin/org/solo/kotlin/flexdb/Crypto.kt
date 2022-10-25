@@ -1,17 +1,16 @@
 package org.solo.kotlin.flexdb
 
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
-import java.security.GeneralSecurityException
 
 object Crypto {
     @JvmStatic
-    @Throws(GeneralSecurityException::class)
+    @Throws(Throwable::class)
     fun encrypt(text: String, pswd: String): ByteArray {
         return text.encodeToByteArray()
     }
 
     @JvmStatic
-    @Throws(GeneralSecurityException::class)
+    @Throws(Throwable::class)
     fun decrypt(text: ByteArray, pswd: String): String {
         return String(text)
     }
