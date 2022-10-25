@@ -1,27 +1,6 @@
-package org.solo.kotlin.flexdb.db.types
+package org.solo.kotlin.flexdb.db.structure.primitive
 
-class Column(val name: String, val type: DbEnumTypes?) {
-    override fun hashCode() = name.hashCode()
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Column
-
-        if (name != other.name) return false
-        if (type != other.type) return false
-
-        return true
-    }
-
-    override fun toString() = "Column: {'name': $name, 'type': ${type?.name}}"
-
-    companion object {
-        @JvmStatic
-        fun nameOnly(name: String) = Column(name, null)
-    }
-}
+import org.solo.kotlin.flexdb.db.types.DbValue
 
 class Row(val rowNum: Long, schema: Array<Column>) {
     private val content: MutableMap<Column, DbValue<*>?> = hashMapOf()

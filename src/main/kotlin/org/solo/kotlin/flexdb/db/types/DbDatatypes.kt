@@ -8,7 +8,6 @@ enum class DbEnumTypes {
     Boolean,
 }
 
-
 sealed class DbValue<T>(val value: T, val type: DbEnumTypes)
 
 class DbString(value: String) : DbValue<String>(value, DbEnumTypes.String)
