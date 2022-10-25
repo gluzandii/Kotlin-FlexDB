@@ -8,7 +8,11 @@ enum class DbEnumTypes {
     Boolean,
 }
 
-sealed class DbValue<T>(val value: T, val type: DbEnumTypes)
+sealed class DbValue<T>(val value: T, val type: DbEnumTypes) {
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+}
 
 class DbString(value: String) : DbValue<String>(value, DbEnumTypes.String)
 class DbNumber(value: Long) : DbValue<Long>(value, DbEnumTypes.Number)
