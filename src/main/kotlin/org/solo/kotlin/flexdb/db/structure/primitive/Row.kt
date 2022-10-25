@@ -2,6 +2,7 @@ package org.solo.kotlin.flexdb.db.structure.primitive
 
 import org.solo.kotlin.flexdb.db.types.DbValue
 
+@Suppress("unused")
 class Row(val rowNum: Long, schema: Array<Column>) {
     private val content: MutableMap<Column, DbValue<*>?> = hashMapOf()
 
@@ -22,4 +23,7 @@ class Row(val rowNum: Long, schema: Array<Column>) {
 
     operator fun get(colName: String) = get(Column.nameOnly(colName))
     operator fun get(colName: Column) = content.getOrDefault(colName, null)
+
+    fun containsColumn(colName: String) = containsColumn(Column.nameOnly(colName))
+    fun containsColumn(colName: Column) = content.containsKey(colName)
 }

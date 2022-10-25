@@ -10,6 +10,17 @@ class Column(val name: String, val type: DbEnumTypes?) {
         if (javaClass != other?.javaClass) return false
 
         other as Column
+        if (name != other.name) return false
+
+        return true
+    }
+
+    @Suppress("unused")
+    fun trueEquals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Column
 
         if (name != other.name) return false
         if (type != other.type) return false
