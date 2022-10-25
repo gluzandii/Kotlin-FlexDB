@@ -1,6 +1,15 @@
 package org.solo.kotlin.flexdb.db.types
 
-import org.solo.kotlin.flexdb.db.DbEnumTypes
+@Suppress("unused")
+enum class DbEnumTypes {
+    String,
+    Number,
+    Decimal,
+    Boolean,
+}
+
+
+sealed class DbValue<T>(val value: T, val type: DbEnumTypes)
 
 class DbString(value: String) : DbValue<String>(value, DbEnumTypes.String)
 class DbNumber(value: Long) : DbValue<Long>(value, DbEnumTypes.Number)
