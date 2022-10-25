@@ -1,6 +1,7 @@
 package org.solo.kotlin.flexdb.db.structure.primitive
 
-enum class Constraints {
+@Suppress("unused")
+enum class Constraint {
     Unique,
     NotNull
 }

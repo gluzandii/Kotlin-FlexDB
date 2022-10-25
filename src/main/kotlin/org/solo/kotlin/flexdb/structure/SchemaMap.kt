@@ -1,6 +1,7 @@
 package org.solo.kotlin.flexdb.structure
 
 import org.solo.kotlin.flexdb.db.structure.primitive.Column
+import org.solo.kotlin.flexdb.db.structure.primitive.Constraint
 import org.solo.kotlin.flexdb.db.types.DbValue
 
 class SchemaMap(schema: Set<Column>) {
@@ -27,15 +28,14 @@ class SchemaMap(schema: Set<Column>) {
             throw IllegalArgumentException("Improper column used.")
         }
         if (!hm.containsKey(col)) {
-            throw IllegalArgumentException("This column is not part of the schema");
+            throw IllegalArgumentException("This column is not part of the schema")
         }
 
-        if (value == null) {
-            hm[col] = null
-            return
+        if (col.hasConstraint(Constraint.NotNull) && value == null) {
+            throw NullPointerException("The value provided is null, for a NonNull constraint column")
         }
-        if (col.type != value.type) {
-            throw IllegalArgumentException("Cannot put type of: ${value.type} in ${col.type}")
+        if ((value != null) && (col.type != value.type)) {
+            throw IllegalArgumentException("Cannot put value of type: ${value.type} in ${col.type}")
         }
 
         hm[col] = value

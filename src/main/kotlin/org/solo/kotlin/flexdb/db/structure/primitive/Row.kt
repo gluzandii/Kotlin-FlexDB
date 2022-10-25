@@ -4,7 +4,7 @@ import org.solo.kotlin.flexdb.db.types.DbValue
 import org.solo.kotlin.flexdb.structure.SchemaMap
 
 @Suppress("unused")
-class Row(val id: Int, schema: Set<Column>) {
+class Row(schema: Set<Column>) {
     private val content: SchemaMap
 
     init {
