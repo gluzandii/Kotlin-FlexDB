@@ -10,6 +10,18 @@ import javax.servlet.http.HttpServletRequest
 @SpringBootApplication
 class FlexDbApplication
 
+@RestController
+@Suppress("unused")
+class RestControl {
+    @GetMapping("/")
+    fun root() = mapOf(Pair("status", "OK"))
+
+    @PostMapping("/")
+    fun query(req: HttpServletRequest) {
+
+    }
+}
+
 fun main(args: Array<String>) {
     try {
         print("Enter DB to open (Absolute path): ")
@@ -21,17 +33,5 @@ fun main(args: Array<String>) {
     } catch (ex: Exception) {
         println("An error occurred.")
         ex.printStackTrace()
-    }
-}
-
-@RestController
-@Suppress("unused")
-class RestControl {
-    @GetMapping("/")
-    fun root() = mapOf(Pair("status", "OK"))
-
-    @PostMapping("/")
-    fun query(req: HttpServletRequest) {
-
     }
 }

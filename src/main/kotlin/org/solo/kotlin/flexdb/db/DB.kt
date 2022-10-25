@@ -10,7 +10,7 @@ import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 
 @Suppress("unused")
-data class DB(val root: Path, val p: String) {
+class DB(val root: Path, val p: String) {
     var schema: Path
         private set
     var logs: Path
