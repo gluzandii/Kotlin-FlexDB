@@ -27,9 +27,4 @@ class Column(val name: String, val type: DbEnumTypes?) {
 
         return true
     }
-
-    companion object {
-        @JvmStatic
-        fun nameOnly(name: String) = Column(name, null)
-    }
 }

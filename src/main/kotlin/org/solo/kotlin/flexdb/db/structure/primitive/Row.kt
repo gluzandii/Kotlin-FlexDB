@@ -1,29 +1,20 @@
 package org.solo.kotlin.flexdb.db.structure.primitive
 
 import org.solo.kotlin.flexdb.db.types.DbValue
+import org.solo.kotlin.flexdb.structure.SchemaMap
 
 @Suppress("unused")
-class Row(val rowNum: Long, schema: Array<Column>) {
-    private val content: MutableMap<Column, DbValue<*>?> = hashMapOf()
+class Row(val rowNum: Long, schema: Set<Column>) {
+    private val content: SchemaMap
 
     init {
-        schema.forEach { content[it] = null }
+        content = SchemaMap(schema)
     }
-
-    @Throws(Throwable::class)
-    operator fun set(colName: String, value: DbValue<*>?) = set(Column.nameOnly(colName), value)
 
     @Throws(Throwable::class)
     operator fun set(colName: Column, value: DbValue<*>?) {
-        if (!content.containsKey(colName)) {
-            throw IllegalArgumentException("The key: ${colName.name} does not exist in the row.")
-        }
         content[colName] = value
     }
-
-    operator fun get(colName: String) = get(Column.nameOnly(colName))
-    operator fun get(colName: Column) = content.getOrDefault(colName, null)
-
-    fun containsColumn(colName: String) = containsColumn(Column.nameOnly(colName))
-    fun containsColumn(colName: Column) = content.containsKey(colName)
+    
+    operator fun get(colName: Column) = content[colName]
 }
