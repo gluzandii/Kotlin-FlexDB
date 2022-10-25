@@ -3,7 +3,6 @@ package org.solo.kotlin.flexdb.db
 import org.solo.kotlin.flexdb.Crypto
 import org.solo.kotlin.flexdb.GlobalData
 import org.solo.kotlin.flexdb.internal.append
-import java.io.IOException
 import java.nio.file.Path
 import java.time.LocalDateTime
 import kotlin.io.path.*
@@ -40,7 +39,7 @@ fun dbExists(name: Path): Boolean {
 }
 
 @Suppress("unused")
-@Throws(IllegalStateException::class)
+@Throws(Throwable::class)
 fun setGlobalDB(path: Path, p: String): DB {
     if (!dbExists(path)) {
         error("The path: $path is not FlexDB")
@@ -54,7 +53,7 @@ fun setGlobalDB(path: Path, p: String): DB {
 }
 
 @Suppress("unused")
-@Throws(IOException::class)
+@Throws(Throwable::class)
 fun canAccessDB(path: Path, p: String): Boolean {
     if (!dbExists(path)) {
         return false
@@ -67,7 +66,7 @@ fun canAccessDB(path: Path, p: String): Boolean {
 }
 
 @Suppress("unused")
-@Throws(IllegalArgumentException::class, IOException::class)
+@Throws(Throwable::class)
 fun createDB(path: Path, p: String): DB? {
     if (dbExists(path)) {
         return null
