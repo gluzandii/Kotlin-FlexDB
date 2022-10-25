@@ -25,9 +25,8 @@ dependencies {
 
     implementation("org.springframework.security:spring-security-crypto:5.7.4")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
-
-    implementation("commons-io:commons-io:2.11.0")
-    implementation("org.apache.commons:commons-compress:1.21")
+    
+    implementation("net.lingala.zip4j:zip4j:2.11.2")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

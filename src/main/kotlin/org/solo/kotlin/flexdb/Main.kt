@@ -32,7 +32,7 @@ fun main(args: Array<String>) {
         createDB(name, "s")
 //        setGlobalDB(name, "s")
         runApplication<FlexDbApplication>(*args)
-    } catch (ex: Exception) {
+    } catch (ex: Throwable) {
         println("An error occurred.")
         ex.printStackTrace()
     }
