@@ -2,6 +2,7 @@ package org.solo.kotlin.flexdb.db
 
 import org.solo.kotlin.flexdb.Crypto
 import org.solo.kotlin.flexdb.GlobalData
+import org.solo.kotlin.flexdb.InvalidPasswordProvidedException
 import org.solo.kotlin.flexdb.internal.append
 import java.io.IOException
 import java.nio.file.Path
@@ -39,10 +40,13 @@ fun dbExists(name: Path): Boolean {
     return pswd.isRegularFile()
 }
 
-@Suppress("unused")
+@Throws(InvalidPasswordProvidedException::class)
 fun setGlobalDB(path: Path, p: String): DB {
     if (!dbExists(path)) {
         error("The path: $path is not FlexDB")
+    }
+    if (!canAccessDB(path, p)) {
+        throw InvalidPasswordProvidedException("The password: $p is invalid.")
     }
 
     GlobalData.db = DB(
@@ -52,7 +56,6 @@ fun setGlobalDB(path: Path, p: String): DB {
     return GlobalData.db!!
 }
 
-@Suppress("unused")
 @Throws(IOException::class)
 fun canAccessDB(path: Path, p: String): Boolean {
     if (!dbExists(path)) {

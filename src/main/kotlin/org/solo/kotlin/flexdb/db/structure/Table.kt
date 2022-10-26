@@ -7,6 +7,7 @@ import org.solo.kotlin.flexdb.db.structure.primitive.Column
 import org.solo.kotlin.flexdb.db.structure.primitive.Constraint
 import org.solo.kotlin.flexdb.db.structure.primitive.Row
 import org.solo.kotlin.flexdb.db.types.*
+import java.io.IOException
 import java.nio.file.Path
 import kotlin.io.path.name
 
@@ -20,6 +21,7 @@ class Table(val path: Path, private val schema: Set<Column>) {
         get() = path.name
 
     init {
+        setupRows()
         for (i in schema) {
             if (i.hasConstraint(Constraint.Unique)) {
                 unique[i] = checkUniqueness(i)
@@ -27,8 +29,9 @@ class Table(val path: Path, private val schema: Set<Column>) {
         }
     }
 
+    @Throws(IOException::class)
     private fun setupRows() {
-
+        
     }
 
     @Throws(MismatchedSchemaException::class)
