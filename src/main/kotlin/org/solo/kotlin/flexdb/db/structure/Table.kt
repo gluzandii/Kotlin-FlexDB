@@ -8,19 +8,27 @@ import org.solo.kotlin.flexdb.db.structure.primitive.Constraint
 import org.solo.kotlin.flexdb.db.structure.primitive.Row
 import org.solo.kotlin.flexdb.db.types.*
 import java.nio.file.Path
+import kotlin.io.path.name
 
 @Suppress("unused")
 class Table(val path: Path, private val schema: Set<Column>) {
     private val rows = ArrayList<Row>()
 
-    private val mp = hashMapOf<Column, MutableSet<DbValue<*>>>()
+    private val unique = hashMapOf<Column, MutableSet<DbValue<*>>>()
+
+    val name: String
+        get() = path.name
 
     init {
         for (i in schema) {
             if (i.hasConstraint(Constraint.Unique)) {
-                mp[i] = checkUniqueness(i)
+                unique[i] = checkUniqueness(i)
             }
         }
+    }
+
+    private fun setupRows() {
+
     }
 
     @Throws(MismatchedSchemaException::class)
