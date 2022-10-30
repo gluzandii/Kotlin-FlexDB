@@ -34,5 +34,7 @@ abstract class DbEngine(val db: DB) {
         synchronized(db) {
             p = db.tablePath(name) ?: throw TableAlreadyExistsException("The table: $name already exists.")
         }
+
+        return true
     }
 }

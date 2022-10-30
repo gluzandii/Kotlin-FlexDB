@@ -1,8 +1,8 @@
-package org.solo.kotlin.flexdb.db.structure.primitive
+package org.solo.kotlin.flexdb.json
 
-import org.solo.kotlin.flexdb.db.types.DbEnumTypes
+import org.solo.kotlin.flexdb.db.structure.primitive.Column
 
-class Column(val name: String, val type: DbEnumTypes, val constraints: Set<DbConstraint>) {
+internal class InternalColumn(val name: String, val type: String, val constraints: Set<String>?) {
     override fun hashCode() = name.hashCode()
 
     override operator fun equals(other: Any?): Boolean {
@@ -20,13 +20,11 @@ class Column(val name: String, val type: DbEnumTypes, val constraints: Set<DbCon
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as Column
+        other as InternalColumn
 
         if (name != other.name) return false
         if (type != other.type) return false
 
         return true
     }
-
-    fun hasConstraint(c: DbConstraint) = constraints.contains(c)
 }

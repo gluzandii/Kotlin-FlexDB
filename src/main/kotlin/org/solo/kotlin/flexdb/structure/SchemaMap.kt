@@ -4,7 +4,7 @@ import org.solo.kotlin.flexdb.InvalidColumnProvidedException
 import org.solo.kotlin.flexdb.MismatchedTypeException
 import org.solo.kotlin.flexdb.NullUsedInNonNullColumnException
 import org.solo.kotlin.flexdb.db.structure.primitive.Column
-import org.solo.kotlin.flexdb.db.structure.primitive.Constraint
+import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbValue
 
 class SchemaMap(schema: Set<Column>) {
@@ -31,7 +31,7 @@ class SchemaMap(schema: Set<Column>) {
             throw InvalidColumnProvidedException("This column is not part of the schema")
         }
 
-        if (col.hasConstraint(Constraint.NotNull) && value == null) {
+        if (col.hasConstraint(DbConstraint.NotNull) && value == null) {
             throw NullUsedInNonNullColumnException("The value provided is null, for a NonNull constraint column")
         }
         if ((value != null) && (col.type != value.type)) {

@@ -64,7 +64,7 @@ object ZipUtil {
             ZipFile(f, password.toCharArray())
         }
 
-        val list = mutableListOf<InZipFile>()
+        val list = arrayListOf<InZipFile>()
 
         for (i in zipFile.fileHeaders) {
             if (i.isDirectory) {

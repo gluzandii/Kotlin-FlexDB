@@ -18,6 +18,7 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("de.undercouch:bson4jackson:2.13.1")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -25,7 +26,7 @@ dependencies {
 
     implementation("org.springframework.security:spring-security-crypto:5.7.4")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
-    
+
     implementation("net.lingala.zip4j:zip4j:2.11.2")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")

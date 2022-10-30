@@ -1,10 +1,10 @@
 package org.solo.kotlin.flexdb.db.types
 
 enum class DbEnumTypes {
-    String,
-    Number,
-    Decimal,
-    Boolean,
+    DbString,
+    DbNumber,
+    DbDecimal,
+    DbBoolean,
 }
 
 sealed class DbValue<T>(val value: T, val type: DbEnumTypes) {
@@ -27,7 +27,7 @@ sealed class DbValue<T>(val value: T, val type: DbEnumTypes) {
     }
 }
 
-class DbString(value: String) : DbValue<String>(value, DbEnumTypes.String)
-class DbNumber(value: Long) : DbValue<Long>(value, DbEnumTypes.Number)
-class DbDecimal(value: Double) : DbValue<Double>(value, DbEnumTypes.Decimal)
-class DbBoolean(value: Boolean) : DbValue<Boolean>(value, DbEnumTypes.Boolean)
+class DbString(value: String) : DbValue<String>(value, DbEnumTypes.DbString)
+class DbNumber(value: Long) : DbValue<Long>(value, DbEnumTypes.DbNumber)
+class DbDecimal(value: Double) : DbValue<Double>(value, DbEnumTypes.DbDecimal)
+class DbBoolean(value: Boolean) : DbValue<Boolean>(value, DbEnumTypes.DbBoolean)
