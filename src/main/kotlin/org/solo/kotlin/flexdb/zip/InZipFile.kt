@@ -1,7 +1,7 @@
 package org.solo.kotlin.flexdb.zip
 
 data class InZipFile(val content: ByteArray, val name: String) {
-    override fun equals(other: Any?): Boolean {
+    override operator fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
@@ -13,13 +13,13 @@ data class InZipFile(val content: ByteArray, val name: String) {
         return true
     }
 
+    override fun toString(): String {
+        return name
+    }
+
     override fun hashCode(): Int {
         var result = content.contentHashCode()
         result = 31 * result + name.hashCode()
         return result
-    }
-
-    override fun toString(): String {
-        return name
     }
 }

@@ -2,8 +2,10 @@ package org.solo.kotlin.flexdb.db
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.solo.kotlin.flexdb.Crypto
+import org.solo.kotlin.flexdb.internal.append
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 import java.nio.file.Path
+import kotlin.io.path.isRegularFile
 import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 
@@ -42,6 +44,18 @@ class DB(val root: Path, val p: String) {
             return mp.containsKey(name)
         } catch (ex: Exception) {
             throw RuntimeException("Unable to parse json data in: $users")
+        }
+    }
+
+    private inline fun tableExists(name: String): Boolean {
+        return schema.append(name).isRegularFile()
+    }
+
+    fun tablePath(name: String): Path? {
+        return if (!tableExists(name)) {
+            return null
+        } else {
+            schema.append(name)
         }
     }
 }

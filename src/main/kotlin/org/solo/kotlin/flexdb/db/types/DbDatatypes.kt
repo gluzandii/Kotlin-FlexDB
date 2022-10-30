@@ -1,6 +1,5 @@
 package org.solo.kotlin.flexdb.db.types
 
-@Suppress("unused")
 enum class DbEnumTypes {
     String,
     Number,
@@ -10,7 +9,21 @@ enum class DbEnumTypes {
 
 sealed class DbValue<T>(val value: T, val type: DbEnumTypes) {
     override fun hashCode(): Int {
-        return value.hashCode()
+        var result = value?.hashCode() ?: 0
+        result = 31 * result + type.hashCode()
+        return result
+    }
+
+    override operator fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DbValue<*>
+
+        if (value != other.value) return false
+        if (type != other.type) return false
+
+        return true
     }
 }
 
