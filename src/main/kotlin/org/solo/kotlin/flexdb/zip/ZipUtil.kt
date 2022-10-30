@@ -34,7 +34,7 @@ object ZipUtil {
 
     @JvmStatic
     @Throws(IOException::class)
-    fun decompress(file: Path, password: String): List<InZipFile> {
+    fun decompress(file: Path, password: String?): List<InZipFile> {
         if (!file.exists()) {
             throw FileNotFoundException("The file does not exist at the path: $file")
         }
@@ -42,10 +42,19 @@ object ZipUtil {
             throw FileNotFoundException("The path: $file does not point to a file.")
         }
 
-        val zipFile = ZipFile(file.toFile(), password.toCharArray())
+        val f = file.toFile()
+        val zipFile = if (password == null) {
+            ZipFile(f)
+        } else {
+            ZipFile(f, password.toCharArray())
+        }
+
         val list = mutableListOf<InZipFile>()
 
         for (i in zipFile.fileHeaders) {
+            if (i.isDirectory) {
+                continue
+            }
             zipFile.getInputStream(i).use {
                 val zipIn = it!!
                 val bytes = zipIn.readBytes()
