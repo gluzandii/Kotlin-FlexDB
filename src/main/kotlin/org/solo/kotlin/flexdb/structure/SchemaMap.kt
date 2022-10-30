@@ -14,13 +14,10 @@ class SchemaMap(schema: Set<Column>) {
         get() = hm.keys
 
     init {
-        schema.forEach {
-
-            hm[it] = null
-        }
+        schema.forEach { hm[it] = null }
     }
 
-//    fun containsColumn(col: Column) = hm.containsKey(col)
+    fun containsColumn(col: Column) = hm.containsKey(col)
 
     operator fun get(col: Column) = hm[col]
 
