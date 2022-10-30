@@ -1,0 +1,14 @@
+{
+    "columns": {
+        "name": {
+            "type": "DbString",
+            "constraints": null
+        },
+        "email": {
+            "type": "DbString",
+            "constraints": [
+                "Unique"
+            ]
+        }
+    }
+}

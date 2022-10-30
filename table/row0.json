@@ -1,8 +1,4 @@
 {
-    "columns": {
-        "name": "String",
-        "email": "String"
-    },
     "data": [
         {
             "index": 0,

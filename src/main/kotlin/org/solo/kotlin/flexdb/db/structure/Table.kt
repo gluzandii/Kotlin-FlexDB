@@ -5,17 +5,12 @@ import org.solo.kotlin.flexdb.db.structure.primitive.Column
 import org.solo.kotlin.flexdb.db.structure.primitive.Row
 import org.solo.kotlin.flexdb.db.types.*
 import java.io.IOException
-import java.nio.file.Path
-import kotlin.io.path.name
 
 @Suppress("unused")
-class Table(private val path: Path, private val schema: Set<Column>) {
+class Table(val name: String, private val schema: Set<Column>) {
     private val rows = ArrayList<Row>()
 
     private val unique = hashMapOf<Column, MutableSet<DbValue<*>>>()
-
-    val name: String
-        get() = path.name
 
     init {
         setupRows()

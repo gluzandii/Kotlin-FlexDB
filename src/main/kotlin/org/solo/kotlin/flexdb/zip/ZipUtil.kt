@@ -5,6 +5,7 @@ import net.lingala.zip4j.model.ZipParameters
 import net.lingala.zip4j.model.enums.CompressionLevel
 import net.lingala.zip4j.model.enums.CompressionMethod
 import net.lingala.zip4j.model.enums.EncryptionMethod
+import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.nio.file.Path
@@ -25,11 +26,25 @@ object ZipUtil {
 
     @JvmStatic
     @Throws(IOException::class)
-    fun compress(dir: Path, output: Path, password: String) {
+    fun compress(output: Path, password: String?, vararg files: File) {
         output.parent!!.createDirectories()
 
-        val zipFile = ZipFile(output.toFile(), password.toCharArray())
-        zipFile.addFolder(dir.toFile(), zipParameters)
+        val zipFile = if (password == null) {
+            ZipFile(output.toFile())
+        } else {
+            ZipFile(output.toFile(), password.toCharArray())
+        }
+
+        zipFile.use {
+            for (i in files) {
+                if (i.isDirectory) {
+                    it.addFolder(i, zipParameters)
+                    continue
+                }
+
+                it.addFile(i, zipParameters)
+            }
+        }
     }
 
     @JvmStatic
