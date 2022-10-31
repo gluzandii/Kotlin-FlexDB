@@ -7,14 +7,20 @@ import org.solo.kotlin.flexdb.db.structure.primitive.Column
 import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbValue
 
-class SchemaMap(schema: Set<Column>) {
+class RowMap(schema: Set<Column>) {
     private val hm = hashMapOf<Column, DbValue<*>?>()
 
     val schema: Set<Column>
         get() = hm.keys
 
     init {
-        schema.forEach { hm[it] = null }
+        schema.forEach {
+            hm[it] = if (it.hasConstraint(DbConstraint.NotNull)) {
+                it.type.default
+            } else {
+                null
+            }
+        }
     }
 
     fun containsColumn(col: Column) = hm.containsKey(col)

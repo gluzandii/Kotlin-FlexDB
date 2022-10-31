@@ -10,7 +10,7 @@ import java.io.IOException
 class Table(val name: String, private val schema: Set<Column>) {
     private val rows = ArrayList<Row>()
 
-    private val unique = hashMapOf<Column, MutableSet<DbValue<*>>>()
+//    private val unique = hashMapOf<Column, MutableSet<DbValue<*>>>()
 
     init {
         setupRows()
