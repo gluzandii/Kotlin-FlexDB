@@ -1,4 +1,4 @@
-package org.solo.kotlin.flexdb.structure
+package org.solo.kotlin.flexdb.db.structure
 
 import org.solo.kotlin.flexdb.InvalidColumnProvidedException
 import org.solo.kotlin.flexdb.MismatchedTypeException

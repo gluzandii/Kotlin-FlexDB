@@ -1,7 +1,7 @@
 package org.solo.kotlin.flexdb.db.structure.primitive
 
+import org.solo.kotlin.flexdb.db.structure.SchemaMap
 import org.solo.kotlin.flexdb.db.types.DbValue
-import org.solo.kotlin.flexdb.structure.SchemaMap
 
 @Suppress("unused")
 class Row(schema: Set<Column>) {
