@@ -9,7 +9,7 @@ import kotlin.io.path.isRegularFile
 import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 
-@Suppress("unused")
+
 class DB(val root: Path, val p: String) {
     var schema: Path
         private set

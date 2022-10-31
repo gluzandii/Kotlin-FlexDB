@@ -15,7 +15,7 @@ internal class InternalColumn(val name: String, val type: String, val constraint
         return true
     }
 
-    @Suppress("unused")
+
     fun trueEquals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

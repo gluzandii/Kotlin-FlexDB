@@ -17,7 +17,7 @@ import kotlin.system.exitProcess
 class FlexDbApplication
 
 @RestController
-@Suppress("unused")
+
 class RestControl {
     @GetMapping("/")
     fun root() = mapOf(Pair("status", "OK"))
@@ -41,7 +41,7 @@ fun main(args: Array<String>) {
             setGlobalDB(name, "s")
         } else if (name.exists()) {
             println("Something exists at the path: $name, please delete it.")
-            
+
             println("Exiting...")
             exitProcess(1)
         } else {

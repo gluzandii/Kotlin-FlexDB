@@ -3,7 +3,7 @@ package org.solo.kotlin.flexdb.db.structure.primitive
 import org.solo.kotlin.flexdb.db.structure.SchemaMap
 import org.solo.kotlin.flexdb.db.types.DbValue
 
-@Suppress("unused")
+
 class Row(schema: Set<Column>) {
     private val content: SchemaMap
 

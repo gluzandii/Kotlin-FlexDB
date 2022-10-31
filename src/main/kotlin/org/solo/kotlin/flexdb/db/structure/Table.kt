@@ -6,7 +6,7 @@ import org.solo.kotlin.flexdb.db.structure.primitive.Row
 import org.solo.kotlin.flexdb.db.types.*
 import java.io.IOException
 
-@Suppress("unused")
+
 class Table(val name: String, private val schema: Set<Column>) {
     private val rows = ArrayList<Row>()
 

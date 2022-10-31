@@ -68,7 +68,7 @@ fun canAccessDB(path: Path, p: String): Boolean {
     return Crypto.passwordMatches(p, readAll)
 }
 
-@Suppress("unused")
+
 @Throws(IOException::class)
 fun createDB(path: Path, p: String): DB? {
     if (dbExists(path)) {
