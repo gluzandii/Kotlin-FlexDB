@@ -49,7 +49,7 @@ object ZipUtil {
 
     @JvmStatic
     @Throws(IOException::class)
-    fun decompress(file: Path, password: String?): List<InZipFile> {
+    fun decompress(file: Path, password: String?): List<ZipArchiveItem> {
         if (!file.exists()) {
             throw FileNotFoundException("The file does not exist at the path: $file")
         }
@@ -64,7 +64,7 @@ object ZipUtil {
             ZipFile(f, password.toCharArray())
         }
 
-        val list = arrayListOf<InZipFile>()
+        val list = arrayListOf<ZipArchiveItem>()
 
         for (i in zipFile.fileHeaders) {
             if (i.isDirectory) {
@@ -74,7 +74,7 @@ object ZipUtil {
                 val zipIn = it!!
                 val bytes = zipIn.readBytes()
 
-                list.add(InZipFile(bytes, i.fileName!!))
+                list.add(ZipArchiveItem(bytes, i.fileName!!))
             }
         }
 

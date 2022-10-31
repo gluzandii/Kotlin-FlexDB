@@ -1,11 +1,11 @@
 package org.solo.kotlin.flexdb.zip
 
-data class InZipFile(val content: ByteArray, val name: String) {
+data class ZipArchiveItem(val content: ByteArray, val name: String) {
     override operator fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as InZipFile
+        other as ZipArchiveItem
 
         if (!content.contentEquals(other.content)) return false
         if (name != other.name) return false

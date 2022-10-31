@@ -19,12 +19,8 @@ class Column(val name: String, val type: DbEnumTypes, val constraints: Set<DbCon
         return true
     }
 
-    fun trueEquals(other: Any?): Boolean {
-        return if (other !is Column) {
-            false
-        } else {
-            this == other && this.type == other.type
-        }
+    fun trueEquals(other: Column): Boolean {
+        return (other.type == type) && (other.constraints == constraints) && equals(other)
     }
 
     fun hasConstraint(c: DbConstraint) = constraints.contains(c)
