@@ -64,20 +64,48 @@ object ZipUtil {
             ZipFile(f, password.toCharArray())
         }
 
-        val list = arrayListOf<ZipArchiveItem>()
+        zipFile.use {
+            val list = arrayListOf<ZipArchiveItem>()
 
-        for (i in zipFile.fileHeaders) {
-            if (i.isDirectory) {
-                continue
+            for (i in it.fileHeaders) {
+                if (i.isDirectory) {
+                    continue
+                }
+                zipFile.getInputStream(i).use { zipIn ->
+                    list.add(ZipArchiveItem(zipIn!!.readBytes(), i.fileName!!))
+                }
             }
-            zipFile.getInputStream(i).use {
-                val zipIn = it!!
-                val bytes = zipIn.readBytes()
 
-                list.add(ZipArchiveItem(bytes, i.fileName!!))
-            }
+            return list
+        }
+    }
+
+    @JvmStatic
+    @Throws(IOException::class)
+    fun decompressFile(file: Path, password: String?, fileName: String): ZipArchiveItem? {
+        if (!file.exists()) {
+            throw FileNotFoundException("The file does not exist at the path: $file")
+        }
+        if (!file.isRegularFile()) {
+            throw FileNotFoundException("The path: $file does not point to a file.")
         }
 
-        return list
+        val f = file.toFile()
+        val zipFile = if (password == null) {
+            ZipFile(f)
+        } else {
+            ZipFile(f, password.toCharArray())
+        }
+
+        zipFile.use {
+            val header = zipFile.getFileHeader(fileName)
+
+            if (header.isDirectory) {
+                return null
+            }
+            zipFile.getInputStream(header).use { zipIn ->
+                return ZipArchiveItem(zipIn!!.readBytes(), header.fileName!!)
+            }
+        }
     }
 }
