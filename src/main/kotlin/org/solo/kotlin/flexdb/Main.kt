@@ -1,8 +1,6 @@
 package org.solo.kotlin.flexdb
 
-import org.solo.kotlin.flexdb.db.createDB
-import org.solo.kotlin.flexdb.db.dbExists
-import org.solo.kotlin.flexdb.db.setGlobalDB
+import org.solo.kotlin.flexdb.db.DbUtil
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.web.bind.annotation.GetMapping
@@ -37,8 +35,8 @@ fun main(args: Array<String>) {
 
         GlobalData.pswd = pswd
 
-        if (dbExists(name)) {
-            setGlobalDB(name, "s")
+        if (DbUtil.dbExists(name)) {
+            DbUtil.setGlobalDB(name, "s")
         } else if (name.exists()) {
             println("Something exists at the path: $name, please delete it.")
 
@@ -47,8 +45,9 @@ fun main(args: Array<String>) {
         } else {
             print("Create db at: $name (y/N): ")
             val input = System.`in`.read().toChar()
+            
             if (input == 'Y' || input == 'y') {
-                createDB(name, "s")
+                DbUtil.createDB(name, "s")
             } else {
                 println("Exiting...")
                 exitProcess(1)

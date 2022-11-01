@@ -25,13 +25,18 @@ sealed class DbValue<T>(val value: T, val type: DbEnumTypes) {
     }
 
     override operator fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as DbValue<*>
-
-        if (value != other.value) return false
-        if (type != other.type) return false
+        if (this === other) {
+            return true
+        }
+        if (other !is DbValue<*>) {
+            return false
+        }
+        if (value != other.value) {
+            return false
+        }
+        if (type != other.type) {
+            return false
+        }
 
         return true
     }

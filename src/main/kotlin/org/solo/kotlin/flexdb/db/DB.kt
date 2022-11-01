@@ -21,14 +21,14 @@ class DB(val root: Path, val p: String) {
         private set
 
     init {
-        schema = schemafullPath(root)
-        logs = logsPath(root)
-        users = usersPath(root)
-        pswd = pswdPath(root)
+        schema = DbUtil.schemafullPath(root)
+        logs = DbUtil.logsPath(root)
+        users = DbUtil.usersPath(root)
+        pswd = DbUtil.pswdPath(root)
     }
 
     private val hasher = Argon2PasswordEncoder()
-    
+
     fun userExists(name: String): Boolean {
         val pswdHashed = pswd.readText()
         if (!hasher.matches(p, pswdHashed)) {
