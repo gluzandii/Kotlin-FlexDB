@@ -1,5 +1,8 @@
 package org.solo.kotlin.flexdb.db.structure.primitive
 
+import org.solo.kotlin.flexdb.InvalidColumnProvidedException
+import org.solo.kotlin.flexdb.MismatchedTypeException
+import org.solo.kotlin.flexdb.NullUsedInNonNullColumnException
 import org.solo.kotlin.flexdb.db.structure.RowMap
 import org.solo.kotlin.flexdb.db.types.DbValue
 
@@ -19,7 +22,11 @@ class Row(val id: Int, schema: Set<Column>) {
         return content.containsColumn(c)
     }
 
-    @Throws(Throwable::class)
+    @Throws(
+        NullUsedInNonNullColumnException::class,
+        MismatchedTypeException::class,
+        InvalidColumnProvidedException::class
+    )
     operator fun set(colName: Column, value: DbValue<*>?) {
         content[colName] = value
     }

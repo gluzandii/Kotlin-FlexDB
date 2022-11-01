@@ -28,8 +28,7 @@ class DB(val root: Path, val p: String) {
     }
 
     private val hasher = Argon2PasswordEncoder()
-
-    @Throws(Throwable::class)
+    
     fun userExists(name: String): Boolean {
         val pswdHashed = pswd.readText()
         if (!hasher.matches(p, pswdHashed)) {

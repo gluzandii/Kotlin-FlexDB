@@ -4,13 +4,11 @@ import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 
 object Crypto {
     @JvmStatic
-    @Throws(Throwable::class)
     fun encrypt(text: String, pswd: String): ByteArray {
         return text.encodeToByteArray()
     }
 
     @JvmStatic
-    @Throws(Throwable::class)
     fun decrypt(text: ByteArray, pswd: String): String {
         return String(text)
     }
