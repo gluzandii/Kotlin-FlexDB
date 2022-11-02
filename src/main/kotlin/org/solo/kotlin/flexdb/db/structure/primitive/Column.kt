@@ -25,5 +25,7 @@ class Column(val name: String, val type: DbEnumTypes, val constraints: Set<DbCon
         return (other.type == type) && (other.constraints == constraints) && equals(other)
     }
 
-    fun hasConstraint(c: DbConstraint) = constraints.contains(c)
+    fun hasConstraint(c: DbConstraint): Boolean {
+        return constraints.contains(c)
+    }
 }

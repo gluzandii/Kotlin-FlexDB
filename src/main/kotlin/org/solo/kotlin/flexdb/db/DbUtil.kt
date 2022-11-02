@@ -11,16 +11,24 @@ import kotlin.io.path.*
 
 object DbUtil {
     @JvmStatic
-    fun schemafullPath(root: Path) = root.append("schemafull")
+    fun schemafullPath(root: Path): Path {
+        return root.append("schemafull")
+    }
 
     @JvmStatic
-    fun logsPath(root: Path) = root.append("logs")
+    fun logsPath(root: Path): Path {
+        return root.append("logs")
+    }
 
     @JvmStatic
-    fun usersPath(root: Path) = root.append("users.json")
+    fun usersPath(root: Path): Path {
+        return root.append("users.json")
+    }
 
     @JvmStatic
-    fun pswdPath(root: Path) = root.append("pswd.txt")
+    fun pswdPath(root: Path): Path {
+        return root.append("pswd.txt")
+    }
 
     @JvmStatic
     fun dbExists(name: Path): Boolean {

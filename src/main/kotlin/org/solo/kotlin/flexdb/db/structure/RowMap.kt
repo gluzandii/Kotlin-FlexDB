@@ -23,9 +23,13 @@ class RowMap(schema: Set<Column>) {
         }
     }
 
-    fun containsColumn(col: Column) = hm.containsKey(col)
+    fun containsColumn(col: Column): Boolean {
+        return hm.containsKey(col)
+    }
 
-    operator fun get(col: Column) = hm[col]
+    operator fun get(col: Column): DbValue<*>? {
+        return hm[col]
+    }
 
     @Throws(
         NullUsedInNonNullColumnException::class,

@@ -15,10 +15,11 @@ import kotlin.system.exitProcess
 class FlexDbApplication
 
 @RestController
-
-class RestControl {
+class DbRestController {
     @GetMapping("/")
-    fun root() = mapOf(Pair("status", "OK"))
+    fun root(): Map<String, String> {
+        return mapOf(Pair("status", "OK"))
+    }
 
     @PostMapping("/")
     fun query(req: HttpServletRequest) {
@@ -31,7 +32,7 @@ fun main(args: Array<String>) {
         print("Enter DB to open (Absolute path): ")
 
         val name = Path(readln())
-        val pswd = System.console()?.readPassword()?.let { String(it) } ?: readln()
+        val pswd = String(System.console()?.readPassword()!!)
 
         GlobalData.pswd = pswd
 
