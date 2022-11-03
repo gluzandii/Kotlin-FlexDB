@@ -31,11 +31,11 @@ sealed class DbValue<T>(val value: T, val type: DbEnumTypes) {
         if (other !is DbValue<*>) {
             return false
         }
-        if (value != other.value) {
+        if (type != other.type) {
             return false
         }
 
-        return type == other.type
+        return value == other.value
     }
 }
 
