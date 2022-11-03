@@ -2,7 +2,7 @@ package org.solo.kotlin.flexdb.db.structure.primitive
 
 import org.solo.kotlin.flexdb.db.types.DbEnumTypes
 
-class Column(val name: String, val type: DbEnumTypes, val constraints: Set<DbConstraint>) {
+class Column(val name: String, val type: DbEnumTypes, private val constraints: Set<DbConstraint>) {
     override fun hashCode(): Int {
         return name.hashCode()
     }

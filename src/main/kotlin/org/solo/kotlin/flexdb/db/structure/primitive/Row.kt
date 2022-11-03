@@ -14,7 +14,7 @@ class Row(val id: Int, schema: Set<Column>) {
         content = RowMap(schema)
     }
 
-    fun schemaMatches(s: Set<Column>): Boolean {
+    private fun schemaMatches(s: Set<Column>): Boolean {
         return content.schema == s
     }
 
