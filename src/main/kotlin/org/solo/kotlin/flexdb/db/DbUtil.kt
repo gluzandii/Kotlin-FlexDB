@@ -4,6 +4,7 @@ import org.solo.kotlin.flexdb.Crypto
 import org.solo.kotlin.flexdb.GlobalData
 import org.solo.kotlin.flexdb.InvalidPasswordProvidedException
 import org.solo.kotlin.flexdb.internal.append
+import org.solo.kotlin.flexdb.json.JsonUtil
 import java.io.IOException
 import java.nio.file.Path
 import java.time.LocalDateTime
@@ -22,7 +23,7 @@ object DbUtil {
 
     @JvmStatic
     fun usersPath(root: Path): Path {
-        return root.append("users.json")
+        return root.append("users.bson")
     }
 
     @JvmStatic
@@ -110,7 +111,7 @@ object DbUtil {
 
         logs.append("log1.log").writeText("[${LocalDateTime.now()}] - DB: \"$name\" created.")
         pswd.writeText(hashed)
-        users.writeText("{\"root\":\"$hashed\"}")
+        users.writeBytes(JsonUtil.binaryJsonSerialize(mapOf(Pair("root", hashed))))
 
         return DB(
             path,
