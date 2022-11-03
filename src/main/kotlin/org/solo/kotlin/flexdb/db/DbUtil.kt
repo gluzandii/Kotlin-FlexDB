@@ -83,7 +83,7 @@ object DbUtil {
 
         return Crypto.passwordMatches(p, readAll)
     }
-    
+
     @JvmStatic
     @Throws(IOException::class)
     fun createDB(path: Path, p: String): DB? {
@@ -110,7 +110,7 @@ object DbUtil {
 
         logs.append("log1.log").writeText("[${LocalDateTime.now()}] - DB: \"$name\" created.")
         pswd.writeText(hashed)
-        users.writeBytes(Crypto.encrypt("{\"root\":\"$hashed\"}", p))
+        users.writeText("{\"root\":\"$hashed\"}")
 
         return DB(
             path,
