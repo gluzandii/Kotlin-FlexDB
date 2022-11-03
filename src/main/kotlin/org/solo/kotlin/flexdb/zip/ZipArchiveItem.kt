@@ -11,11 +11,8 @@ data class ZipArchiveItem(val content: ByteArray, val name: String) {
         if (!content.contentEquals(other.content)) {
             return false
         }
-        if (name != other.name) {
-            return false
-        }
 
-        return true
+        return name == other.name
     }
 
     override fun toString(): String {

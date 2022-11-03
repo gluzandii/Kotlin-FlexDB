@@ -46,11 +46,8 @@ class Row(val id: Int, schema: Set<Column>) {
         if (other !is Row) {
             return false
         }
-        if (id != other.id) {
-            return false
-        }
 
-        return true
+        return id == other.id
     }
 
     fun trueEquals(other: Row): Boolean {

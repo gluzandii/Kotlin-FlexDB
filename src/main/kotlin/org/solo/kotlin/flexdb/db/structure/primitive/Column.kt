@@ -14,11 +14,8 @@ class Column(val name: String, val type: DbEnumTypes, val constraints: Set<DbCon
         if (other !is Column) {
             return false
         }
-        if (name != other.name) {
-            return false
-        }
 
-        return true
+        return name == other.name
     }
 
     fun trueEquals(other: Column): Boolean {

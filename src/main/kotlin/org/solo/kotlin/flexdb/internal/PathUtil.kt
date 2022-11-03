@@ -4,6 +4,4 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 
 
-fun Path.append(other: String): Path = Path(this.toString(), other)
-
-fun Path.append(other: Path): Path = append(other.toString())
+fun Path.append(other: String, vararg paths: String): Path = Path(this.toString(), other, *paths)
