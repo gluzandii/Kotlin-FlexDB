@@ -1,7 +1,7 @@
 package org.solo.kotlin.flexdb.db
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.solo.kotlin.flexdb.internal.append
+import org.solo.kotlin.flexdb.json.JsonUtil
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 import java.nio.file.Path
 import kotlin.io.path.isRegularFile
@@ -34,10 +34,10 @@ class DB(val root: Path, val p: String) {
         }
 
         val content = users.readText()
-        val objectMapper = ObjectMapper()
+        val mapper = JsonUtil.binaryObjectMapper()
 
         try {
-            val mp = objectMapper.readValue(content, HashMap::class.java) as HashMap<String, Any>
+            val mp = mapper.readValue(content, HashMap::class.java) as HashMap<String, Any>
             return mp.containsKey(name)
         } catch (ex: Exception) {
             throw RuntimeException("Unable to parse json data in: $users")
