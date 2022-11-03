@@ -27,12 +27,16 @@ class DbRestController {
     }
 }
 
+inline fun readPassword(): String {
+    return String((System.console() ?: return readln()).readPassword()!!)
+}
+
 fun main(args: Array<String>) {
     try {
         print("Enter DB to open (Absolute path): ")
 
         val name = Path(readln())
-        val pswd = String(System.console()?.readPassword()!!)
+        val pswd = readPassword()
 
         GlobalData.pswd = pswd
 
@@ -46,7 +50,7 @@ fun main(args: Array<String>) {
         } else {
             print("Create db at: $name (y/N): ")
             val input = System.`in`.read().toChar()
-            
+
             if (input == 'Y' || input == 'y') {
                 DbUtil.createDB(name, "s")
             } else {
