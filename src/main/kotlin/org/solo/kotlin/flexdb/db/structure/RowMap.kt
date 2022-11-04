@@ -44,7 +44,7 @@ class RowMap(schema: Schema) {
         if (col.hasConstraint(DbConstraint.Immutable)) {
             throw InvalidColumnProvidedException("Cannot change value for an immutable column.")
         }
-        if (col.hasConstraint(DbConstraint.NotNull) && value == null) {
+        if ((col.hasConstraint(DbConstraint.NotNull) || col.hasConstraint(DbConstraint.Unique)) && value == null) {
             throw NullUsedInNonNullColumnException("The value provided is null, for a NonNull constraint column")
         }
 

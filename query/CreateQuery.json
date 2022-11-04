@@ -1,0 +1,26 @@
+{
+    "table": "users",
+    "task": {
+        "name": "create",
+        "payload": {
+            "name": {
+                "type": "String",
+                "constraints": [
+                    "NotNull"
+                ]
+            },
+            "email": {
+                "type": "String",
+                "constraints": [
+                    "Unique"
+                ]
+            },
+            "age": {
+                "type": "Number",
+                "constraints": [
+                    "NotNull"
+                ]
+            }
+        }
+    }
+}

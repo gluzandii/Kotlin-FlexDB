@@ -1,0 +1,16 @@
+{
+    "table": "users",
+    "task": {
+        "name": "select",
+        "payload": {
+            "columns": [
+                "*"
+            ],
+            "where": {
+                "field": "age",
+                "operation": ">",
+                "value": 18
+            }
+        }
+    }
+}

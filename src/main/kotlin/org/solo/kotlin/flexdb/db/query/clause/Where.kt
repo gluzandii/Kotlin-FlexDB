@@ -4,7 +4,6 @@ import org.solo.kotlin.flexdb.InvalidTypeException
 import org.solo.kotlin.flexdb.db.query.operators.RelationalOperators
 import org.solo.kotlin.flexdb.db.types.DbValue
 
-// CREATE OPERATORS
 data class Where(val one: DbValue<*>, val two: DbValue<*>, val op: RelationalOperators) {
     init {
         if (!one.typeEquals(two)) {

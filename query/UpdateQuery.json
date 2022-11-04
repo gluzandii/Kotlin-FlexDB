@@ -1,0 +1,12 @@
+{
+    "table": "users",
+    "task": {
+        "name": "update",
+        "payload": {
+            "id": 0,
+            "columns": {
+                "email": "nsushant2007@gmail.com"
+            }
+        }
+    }
+}
