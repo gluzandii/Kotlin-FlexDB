@@ -7,7 +7,7 @@ import org.solo.kotlin.flexdb.db.structure.primitive.Column
 import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbValue
 
-class RowMap(schema: Set<Column>) {
+class RowMap(schema: Schema) {
     private val hm = hashMapOf<Column, DbValue<*>?>()
 
     val schema: Set<Column>

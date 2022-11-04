@@ -4,15 +4,12 @@ import org.solo.kotlin.flexdb.InvalidColumnProvidedException
 import org.solo.kotlin.flexdb.MismatchedTypeException
 import org.solo.kotlin.flexdb.NullUsedInNonNullColumnException
 import org.solo.kotlin.flexdb.db.structure.RowMap
+import org.solo.kotlin.flexdb.db.structure.Schema
 import org.solo.kotlin.flexdb.db.types.DbValue
 
 
-class Row(val id: Int, schema: Set<Column>) {
-    private val content: RowMap
-
-    init {
-        content = RowMap(schema)
-    }
+class Row(val id: Int, val schema: Schema) {
+    private val content: RowMap = RowMap(schema)
 
     private fun schemaMatches(s: Set<Column>): Boolean {
         return content.schema == s
@@ -52,5 +49,9 @@ class Row(val id: Int, schema: Set<Column>) {
 
     fun trueEquals(other: Row): Boolean {
         return other.schemaMatches(content.schema) && equals(other)
+    }
+
+    fun schemaMatches(sc: Schema): Boolean {
+        return schema == sc
     }
 }
