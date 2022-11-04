@@ -2,41 +2,41 @@ package org.solo.kotlin.flexdb.db.query.operators
 
 import org.solo.kotlin.flexdb.db.types.DbValue
 
-interface RelationalOperators {
+interface RelationalOperator {
     fun isTrue(one: DbValue<*>, two: DbValue<*>): Boolean
 }
 
-class EqualsRelational : RelationalOperators {
+class EqualsRelational : RelationalOperator {
     override fun isTrue(one: DbValue<*>, two: DbValue<*>): Boolean {
         return one == two
     }
 }
 
-class NotEqualsRelational : RelationalOperators {
+class NotEqualsRelational : RelationalOperator {
     override fun isTrue(one: DbValue<*>, two: DbValue<*>): Boolean {
         return one != two
     }
 }
 
-class LessThanRelational : RelationalOperators {
+class LessThanRelational : RelationalOperator {
     override fun isTrue(one: DbValue<*>, two: DbValue<*>): Boolean {
         return one < two
     }
 }
 
-class LessThanEqualsRelational : RelationalOperators {
+class LessThanEqualsRelational : RelationalOperator {
     override fun isTrue(one: DbValue<*>, two: DbValue<*>): Boolean {
         return one <= two
     }
 }
 
-class GreaterThanRelational : RelationalOperators {
+class GreaterThanRelational : RelationalOperator {
     override fun isTrue(one: DbValue<*>, two: DbValue<*>): Boolean {
         return one > two
     }
 }
 
-class GreaterThanEqualsRelational : RelationalOperators {
+class GreaterThanEqualsRelational : RelationalOperator {
     override fun isTrue(one: DbValue<*>, two: DbValue<*>): Boolean {
         return one >= two
     }
