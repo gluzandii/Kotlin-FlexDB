@@ -8,7 +8,7 @@ import org.solo.kotlin.flexdb.db.structure.Schema
 import org.solo.kotlin.flexdb.db.types.DbValue
 
 
-class Row(val id: Int, val schema: Schema) {
+data class Row(val id: Int, val schema: Schema) {
     private val content: RowMap = RowMap(schema)
 
     private fun schemaMatches(s: Set<Column>): Boolean {
@@ -30,25 +30,6 @@ class Row(val id: Int, val schema: Schema) {
 
     operator fun get(colName: Column): DbValue<*>? {
         return content[colName]
-    }
-
-    override fun hashCode(): Int {
-        return id
-    }
-
-    override operator fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-        if (other !is Row) {
-            return false
-        }
-
-        return id == other.id
-    }
-
-    fun trueEquals(other: Row): Boolean {
-        return other.schemaMatches(content.schema) && equals(other)
     }
 
     fun schemaMatches(sc: Schema): Boolean {
