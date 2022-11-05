@@ -23,7 +23,7 @@ class DbRestController {
 
     @PostMapping("/")
     fun query(req: HttpServletRequest) {
-
+        val body = req.reader.readText()
     }
 }
 

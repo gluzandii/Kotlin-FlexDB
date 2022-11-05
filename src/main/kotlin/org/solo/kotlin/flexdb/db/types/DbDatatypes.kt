@@ -19,7 +19,9 @@ enum class DbEnumTypes {
         }
 }
 
-sealed class DbValue<T : Any>(val value: T, val type: DbEnumTypes) {
+// CREATE JSON SERIALIZATION AND DESERIALIZATION LOGIC
+
+sealed class DbValue<T>(val value: T, val type: DbEnumTypes) {
     inline fun typeEquals(db: DbValue<*>): Boolean {
         return db.type == type
     }
