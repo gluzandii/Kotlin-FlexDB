@@ -1,16 +1,13 @@
 {
     "table": "users",
-    "task": {
-        "name": "update",
-        "payload": {
-            "where": {
-                "field": "email",
-                "operation": "==",
-                "value": "sushant.nariangadu@gmail.com"
-            },
-            "columns": {
-                "email": "nsushant2007@gmail.com"
-            }
+    "payload": {
+        "where": {
+            "field": "email",
+            "operation": "==",
+            "value": "sushant.nariangadu@gmail.com"
+        },
+        "columns": {
+            "email": "nsushant2007@gmail.com"
         }
     }
 }

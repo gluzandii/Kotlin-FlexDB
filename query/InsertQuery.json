@@ -1,11 +1,8 @@
 {
     "table": "users",
-    "task": {
-        "name": "insert",
-        "payload": {
-            "name": "Sushant Nariangadu",
-            "email": "sushant.nariangadu@gmail.com",
-            "age": 15
-        }
+    "payload": {
+        "name": "Sushant Nariangadu",
+        "email": "sushant.nariangadu@gmail.com",
+        "age": 15
     }
 }
