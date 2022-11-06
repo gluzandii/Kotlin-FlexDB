@@ -1,8 +1,0 @@
-{
-    "table": "users",
-    "payload": {
-        "name": "Sushant Nariangadu",
-        "email": "sushant.nariangadu@gmail.com",
-        "age": 15
-    }
-}

@@ -1,9 +1,0 @@
-{
-    "table": "users",
-    "payload": {
-        "id": 0,
-        "columns": {
-            "email": "nsushant2007@gmail.com"
-        }
-    }
-}
