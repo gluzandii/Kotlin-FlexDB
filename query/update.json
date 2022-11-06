@@ -1,0 +1,10 @@
+{
+    "table": "users",
+    "action": "update",
+    "payload": {
+        "columns": {
+            "email": "sushant.nariangadu@gmail.com"
+        },
+        "condition": "${name} == 'Sushant Nariangadu'"
+    }
+}

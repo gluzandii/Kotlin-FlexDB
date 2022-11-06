@@ -1,0 +1,17 @@
+CREATE TABLE users {
+    name: String (NotNull),
+    email: Email (Unique),
+    age: Number (NotNull),
+};
+
+SELECT name, email IN users
+    WHERE name EQUALS "Sushant Nariangadu" AND email EQUALS "nsushant2007@gmail.com;
+
+UPDATE email("Sushant.nariangadu") IN users
+    WHERE name EQUALS "Sushant Nariangadu";
+
+DELETE IN users
+    WHERE name MATCHES "Sushant.*";
+
+RESET name, email IN users
+    WHERE name MATCHES "Sushant.*";
