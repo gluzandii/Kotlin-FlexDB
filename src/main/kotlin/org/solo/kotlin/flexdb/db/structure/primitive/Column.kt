@@ -19,7 +19,7 @@ class Column(val name: String, val type: DbEnumTypes, private val constraints: S
     }
 
     fun trueEquals(other: Column): Boolean {
-        return (other.type == type) && (other.constraints == constraints) && equals(other)
+        return (other.type == type) and (other.constraints == constraints) and equals(other)
     }
 
     fun hasConstraint(c: DbConstraint): Boolean {

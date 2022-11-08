@@ -44,11 +44,11 @@ class RowMap(schema: Schema) {
         if (col.hasConstraint(DbConstraint.Immutable)) {
             throw InvalidColumnProvidedException("Cannot change value for an immutable column.")
         }
-        if ((col.hasConstraint(DbConstraint.NotNull) || col.hasConstraint(DbConstraint.Unique)) && value == null) {
+        if ((col.hasConstraint(DbConstraint.NotNull) or col.hasConstraint(DbConstraint.Unique)) and (value == null)) {
             throw NullUsedInNonNullColumnException("The value provided is null, for a NonNull constraint column")
         }
 
-        if ((value != null) && (col.type != value.type)) {
+        if ((value != null) and (col.type != value!!.type)) {
             throw MismatchedTypeException("Cannot put value of type: ${value.type} in ${col.type}")
         }
         hm[col] = value

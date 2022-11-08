@@ -99,7 +99,7 @@ object DbUtil {
         val pswd = pswdPath(path)
         val hashed = Crypto.hashPassword(p)
 
-        if (path.isDirectory() && !dbExists(path)) {
+        if (path.isDirectory() and !dbExists(path)) {
             throw IllegalArgumentException("Invalid path: $path given, cannot create FlexDB here.")
         }
         if (path.isRegularFile()) {

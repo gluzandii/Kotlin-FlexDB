@@ -5,7 +5,7 @@ import org.solo.kotlin.flexdb.db.structure.primitive.Row
 import java.util.*
 
 class Table(val name: String, private val schema: Schema) {
-    private var rows = TreeMap<Int, Row>()
+    private var rows = hashMapOf<Int, Row>()
 
     /**
      * If the id does not exist, it is added.

@@ -51,7 +51,7 @@ fun main(args: Array<String>) {
             print("Create db at: $name (y/N): ")
             val input = System.`in`.read().toChar()
 
-            if (input == 'Y' || input == 'y') {
+            if ((input == 'Y') or (input == 'y')) {
                 DbUtil.createDB(name, "s")
             } else {
                 println("Exiting...")
