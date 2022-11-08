@@ -33,56 +33,64 @@ object DbUtil {
 
     @JvmStatic
     fun dbExists(name: Path): Boolean {
-        if (!name.isDirectory()) {
-            return false
-        }
+        try {
+            if (!name.isDirectory()) {
+                return false
+            }
 
-        val schema = schemafullPath(name)
-        val logs = logsPath(name)
-        val users = usersPath(name)
-        val pswd = pswdPath(name)
+            val schema = schemafullPath(name)
+            val logs = logsPath(name)
+            val users = usersPath(name)
+            val pswd = pswdPath(name)
 
-        if (!schema.isDirectory()) {
-            return false
-        }
-        if (!logs.isDirectory()) {
-            return false
-        }
-        if (!users.isRegularFile()) {
-            return false
-        }
+            if (!schema.isDirectory()) {
+                return false
+            }
+            if (!logs.isDirectory()) {
+                return false
+            }
+            if (!users.isRegularFile()) {
+                return false
+            }
 
-        return pswd.isRegularFile()
+            return pswd.isRegularFile()
+        } catch (ex: Exception) {
+            return false
+        }
     }
 
     @JvmStatic
     @Throws(InvalidPasswordProvidedException::class)
-    fun setGlobalDB(path: Path, p: String): DB {
+    fun setGlobalDB(path: Path): DB {
         if (!dbExists(path)) {
             error("The path: $path is not FlexDB")
         }
-        if (!canAccessDB(path, p)) {
-            throw InvalidPasswordProvidedException("The password: $p is invalid.")
+        if (!canAccessDB(path)) {
+            throw InvalidPasswordProvidedException("The password: ${GlobalData.pswd ?: "null"} is invalid.")
         }
 
         GlobalData.db = DB(
             root = path,
-            p = p
+            p = GlobalData.pswd!!
         )
         return GlobalData.db!!
     }
 
     @JvmStatic
-    @Throws(IOException::class)
-    fun canAccessDB(path: Path, p: String): Boolean {
-        if (!dbExists(path)) {
+    fun canAccessDB(path: Path): Boolean {
+        try {
+            if (!dbExists(path)) {
+                return false
+            }
+
+            val pswd = pswdPath(path)
+            val readAll = pswd.readText()
+
+            return Crypto.passwordMatches(GlobalData.pswd!!, readAll)
+        } catch (ex: Exception) {
             return false
         }
 
-        val pswd = pswdPath(path)
-        val readAll = pswd.readText()
-
-        return Crypto.passwordMatches(p, readAll)
     }
 
     @JvmStatic

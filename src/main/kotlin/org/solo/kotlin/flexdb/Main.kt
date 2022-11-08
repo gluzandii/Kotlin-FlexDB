@@ -41,7 +41,7 @@ fun main(args: Array<String>) {
         GlobalData.pswd = pswd
 
         if (DbUtil.dbExists(name)) {
-            DbUtil.setGlobalDB(name, "s")
+            DbUtil.setGlobalDB(name)
         } else if (name.exists()) {
             println("Something exists at the path: $name, please delete it.")
 
