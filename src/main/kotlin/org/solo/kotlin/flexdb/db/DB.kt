@@ -34,7 +34,7 @@ class DB(val root: Path, val p: String) {
         }
 
         val content = users.readText()
-        val mapper = JsonUtil.binaryObjectMapper()
+        val mapper = JsonUtil.newBinaryObjectMapper()
 
         try {
             val mp = mapper.readValue(content, HashMap::class.java) as HashMap<String, Any>

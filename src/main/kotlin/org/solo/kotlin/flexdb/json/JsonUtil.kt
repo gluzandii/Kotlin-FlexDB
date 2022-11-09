@@ -17,8 +17,13 @@ object JsonUtil {
     }
 
     @JvmStatic
-    inline fun binaryObjectMapper(): ObjectMapper {
+    inline fun newBinaryObjectMapper(): ObjectMapper {
         return ObjectMapper(bson)
+    }
+
+    @JvmStatic
+    inline fun newObjectMapper(): ObjectMapper {
+        return ObjectMapper()
     }
 
     @JvmStatic
@@ -26,7 +31,7 @@ object JsonUtil {
     fun <T, V> binaryJsonSerialize(map: Map<T, V>): ByteArray {
         val b = ByteArrayOutputStream()
 
-        val mp = binaryObjectMapper()
+        val mp = newBinaryObjectMapper()
         mp.writeValue(b, map)
 
         return b.toByteArray()
