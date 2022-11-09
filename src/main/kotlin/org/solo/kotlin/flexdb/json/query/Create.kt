@@ -16,8 +16,7 @@ data class JsonCreate(val table: String, val action: String, val payload: JsonCr
 class JsonCreateDeserializer : JsonDeserializer<JsonCreate>() {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): JsonCreate {
         val node = parser.codec.readTree<JsonNode>(parser)!!
-        val table = node["table"]!!.asText()!!
-        val action = node["action"]!!.asText()!!
+        val (table, action) = getTableAndAction(node)
         val p = node["payload"]!!
 
         val payload = JsonCreatePayload()
@@ -27,7 +26,7 @@ class JsonCreateDeserializer : JsonDeserializer<JsonCreate>() {
             val field = p[v]!!
             val type = field["type"]!!.asText()!!
             val cons = field["constraints"]!!.asIterable().map {
-                return@map it!!.asText()
+                return@map it!!.asText()!!
             }.toSet()
 
             payload[v] = JsonColumn(type, cons)
