@@ -1,4 +1,4 @@
-package org.solo.kotlin.flexdb.json.query
+package org.solo.kotlin.flexdb.json.query.classes
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
@@ -14,7 +14,7 @@ data class JsonReadPayload(val columns: Set<String>, val condition: String?)
 class JsonReadDeserializer : JsonDeserializer<JsonRead>() {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): JsonRead {
         val node = parser.codec.readTree<JsonNode>(parser)!!
-        val (table, action) = getTableAndAction(node)
+        val (table, action) = QueryUtil.getTableAndAction(node)
 
         val p = node["payload"]!!
         val cols = p["columns"]!!.asIterable().map {

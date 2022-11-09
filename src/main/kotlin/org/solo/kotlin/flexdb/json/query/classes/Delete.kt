@@ -1,4 +1,4 @@
-package org.solo.kotlin.flexdb.json.query
+package org.solo.kotlin.flexdb.json.query.classes
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
@@ -14,7 +14,7 @@ data class JsonDeletePayload(val condition: String)
 class JsonDeleteDeserializer : JsonDeserializer<JsonDelete>() {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): JsonDelete {
         val node = parser.codec.readTree<JsonNode>(parser)!!
-        val (table, action) = getTableAndAction(node)
+        val (table, action) = QueryUtil.getTableAndAction(node)
         val cond = node["payload"]!!["condition"]!!.asText()
 
         return JsonDelete(table, action, JsonDeletePayload(cond))

@@ -1,4 +1,4 @@
-package org.solo.kotlin.flexdb.json.query
+package org.solo.kotlin.flexdb.json.query.classes
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
@@ -16,7 +16,7 @@ data class JsonCreate(val table: String, val action: String, val payload: JsonCr
 class JsonCreateDeserializer : JsonDeserializer<JsonCreate>() {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): JsonCreate {
         val node = parser.codec.readTree<JsonNode>(parser)!!
-        val (table, action) = getTableAndAction(node)
+        val (table, action) = QueryUtil.getTableAndAction(node)
         val p = node["payload"]!!
 
         val payload = JsonCreatePayload()
