@@ -20,7 +20,6 @@ class TableMap(private val size: Int?) {
         return mp[key]
     }
 
-    @Throws(IndexOutOfBoundsException::class)
     operator fun set(key: String, value: Table) {
         if (!mp.containsKey(key)) {
             incrementCount()
@@ -29,6 +28,7 @@ class TableMap(private val size: Int?) {
         mp[key] = value
     }
 
+    @Throws(InvalidTableNameException::class)
     fun remove(key: String) {
         if (!mp.containsKey(key)) {
             throw InvalidTableNameException("The name: $key is not present in this TableMap")
@@ -42,7 +42,22 @@ class TableMap(private val size: Int?) {
         mp.clear()
     }
 
-    fun getAllOfThisTable(table: String): Set<Table> {
+    fun containsExact(table: String): Boolean {
+        return mp.containsKey(table)
+    }
+
+    fun contains(table: String): Boolean {
+        val regex = Regex("$table\\d+")
+        for (i in mp.keys) {
+            if (regex.matches(i)) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    fun getTable(table: String): Set<Table> {
         val regex = Regex("$table\\d+")
         val ll = TreeSet<Table>()
 
@@ -55,7 +70,6 @@ class TableMap(private val size: Int?) {
         return ll
     }
 
-    @Throws(IndexOutOfBoundsException::class)
     private inline fun boundCheck() {
         if (size == null) {
             return
@@ -71,7 +85,6 @@ class TableMap(private val size: Int?) {
         length = (length - 1).coerceAtLeast(0)
     }
 
-    @Throws(IndexOutOfBoundsException::class)
     private inline fun incrementCount() {
         boundCheck()
         length++
