@@ -4,7 +4,7 @@ import org.solo.kotlin.flexdb.MismatchedSchemaException
 import org.solo.kotlin.flexdb.db.structure.primitive.Row
 import java.util.*
 
-class Table(val name: String, private val schema: Schema) {
+class Table(private val name: String, private val schema: Schema) {
     private var rows = hashMapOf<Int, Row>()
 
     /**
@@ -45,9 +45,23 @@ class Table(val name: String, private val schema: Schema) {
     }
 
     @Throws(MismatchedSchemaException::class)
-    inline fun loadRows(vararg rs: Row) {
+    inline fun addRows(vararg rs: Row) {
         for (i in rs) {
             addRow(i)
         }
+    }
+
+    override fun hashCode(): Int {
+        return name.hashCode()
+    }
+
+    override operator fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other !is Table) {
+            return false
+        }
+        return other.name == name
     }
 }
