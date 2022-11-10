@@ -10,8 +10,6 @@ class InvalidColumnProvidedException(msg: String) : Exception(msg)
 
 class InvalidPasswordProvidedException(msg: String) : Exception(msg)
 
-class TableAlreadyExistsException(msg: String) : Exception(msg)
+class InvalidTableNameException(msg: String) : Exception(msg)
 
 class InvalidTypeException(msg: String) : Exception(msg)
-
-class ParseException(msg: String) : Exception(msg)
