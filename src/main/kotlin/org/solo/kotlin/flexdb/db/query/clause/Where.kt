@@ -11,7 +11,6 @@ data class Where(val one: DbValue<*>, val two: DbValue<*>, val op: RelationalOpe
         }
     }
 
-    @Suppress("unused")
     fun isTrue(): Boolean {
         return op.isTrue(one, two)
     }
