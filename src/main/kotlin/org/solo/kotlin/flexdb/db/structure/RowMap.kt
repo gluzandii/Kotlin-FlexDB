@@ -7,7 +7,7 @@ import org.solo.kotlin.flexdb.db.structure.primitive.Column
 import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbValue
 
-class RowMap(schema: Schema) {
+class RowMap(schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbValue<*>?>> {
     private val hm = hashMapOf<Column, DbValue<*>?>()
 
     val schema: Set<Column>
@@ -52,5 +52,9 @@ class RowMap(schema: Schema) {
             throw MismatchedTypeException("Cannot put value of type: ${value.type} in ${col.type}")
         }
         hm[col] = value
+    }
+
+    override fun iterator(): Iterator<MutableMap.MutableEntry<Column, DbValue<*>?>> {
+        return hm.iterator()
     }
 }

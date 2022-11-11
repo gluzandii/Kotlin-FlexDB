@@ -2,6 +2,7 @@ package org.solo.kotlin.flexdb.db.structure.primitive
 
 import org.solo.kotlin.flexdb.db.types.DbEnumTypes
 
+@Suppress("unused")
 class Column(val name: String, val type: DbEnumTypes, private val constraints: Set<DbConstraint>) {
     override fun hashCode(): Int {
         return name.hashCode()
@@ -24,5 +25,9 @@ class Column(val name: String, val type: DbEnumTypes, private val constraints: S
 
     fun hasConstraint(c: DbConstraint): Boolean {
         return constraints.contains(c)
+    }
+
+    fun constraints(): Iterator<DbConstraint> {
+        return constraints.iterator()
     }
 }

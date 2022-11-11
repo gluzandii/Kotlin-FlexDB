@@ -7,8 +7,8 @@ import org.solo.kotlin.flexdb.db.structure.RowMap
 import org.solo.kotlin.flexdb.db.structure.Schema
 import org.solo.kotlin.flexdb.db.types.DbValue
 
-
-data class Row(val id: Int, val schema: Schema) {
+@Suppress("unused")
+data class Row(val id: Int, val schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbValue<*>?>> {
     private val content: RowMap = RowMap(schema)
 
     private fun schemaMatches(s: Set<Column>): Boolean {
@@ -34,5 +34,9 @@ data class Row(val id: Int, val schema: Schema) {
 
     fun schemaMatches(sc: Schema): Boolean {
         return schema == sc
+    }
+
+    override fun iterator(): Iterator<MutableMap.MutableEntry<Column, DbValue<*>?>> {
+        return content.iterator()
     }
 }
