@@ -10,7 +10,7 @@ import org.solo.kotlin.flexdb.db.types.DbValue
 class RowMap(schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbValue<*>?>> {
     private val hm = hashMapOf<Column, DbValue<*>?>()
 
-    val schema: Set<Column>
+    val schema
         get() = hm.keys
 
     init {
@@ -56,5 +56,23 @@ class RowMap(schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbValue<
 
     override fun iterator(): Iterator<MutableMap.MutableEntry<Column, DbValue<*>?>> {
         return hm.iterator()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other !is RowMap) {
+            return false
+        }
+
+        if (schema != other.schema) {
+            return false
+        }
+        return hm == other.hm
+    }
+
+    override fun hashCode(): Int {
+        return 31 * hm.hashCode() + schema.hashCode()
     }
 }
