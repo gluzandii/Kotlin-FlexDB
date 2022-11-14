@@ -24,7 +24,7 @@ class DbRestController {
         return mapOf(Pair("status", "OK"))
     }
 
-    @PostMapping("/")
+    @PostMapping("/query")
     fun query(req: HttpServletRequest) {
         try {
             val body = req.reader.readText()
