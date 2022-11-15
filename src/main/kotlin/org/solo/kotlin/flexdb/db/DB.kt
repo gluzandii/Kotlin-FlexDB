@@ -11,6 +11,8 @@ import kotlin.io.path.readText
 class DB(val root: Path, val p: String) {
     var schema: Path
         private set
+    var index: Path
+        private set
     var logs: Path
         private set
     var users: Path
@@ -20,6 +22,7 @@ class DB(val root: Path, val p: String) {
 
     init {
         schema = DbUtil.schemafullPath(root)
+        index = DbUtil.indexFullPath(root)
         logs = DbUtil.logsPath(root)
         users = DbUtil.usersPath(root)
         pswd = DbUtil.pswdPath(root)

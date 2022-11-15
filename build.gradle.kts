@@ -17,6 +17,8 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework:spring-expression:5.3.23")
+    
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("de.undercouch:bson4jackson:2.13.1")
     implementation("com.google.code.gson:gson:2.10")
