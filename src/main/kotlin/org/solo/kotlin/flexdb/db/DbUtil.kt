@@ -17,11 +17,6 @@ object DbUtil {
     }
 
     @JvmStatic
-    fun indexFullPath(root: Path): Path {
-        return root.append("index")
-    }
-
-    @JvmStatic
     fun logsPath(root: Path): Path {
         return root.append("logs")
     }

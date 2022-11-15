@@ -11,7 +11,6 @@ import kotlin.io.path.readText
 @Suppress("unused")
 class DB(val root: Path, val p: String) {
     val schema: Path = DbUtil.schemafullPath(root)
-    val index: Path = DbUtil.indexFullPath(root)
     val logs: Path = DbUtil.logsPath(root)
     val users: Path = DbUtil.usersPath(root)
     val pswd: Path = DbUtil.pswdPath(root)
