@@ -1,7 +1,7 @@
 {
-    "table": "users",
-    "action": "delete",
-    "payload": {
-        "condition": "${name} =* 'Sushant.*'"
-    }
+  "table": "users",
+  "action": "delete",
+  "payload": {
+    "condition": "name MATCHES 'Sushant.*'"
+  }
 }
