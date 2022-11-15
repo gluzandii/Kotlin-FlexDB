@@ -25,7 +25,7 @@ class RowMap(val schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbVa
         return content.containsKey(col)
     }
 
-    fun cloneMap(): Map<Column, DbValue<*>?> {
+    fun map(): Map<Column, DbValue<*>?> {
         return content
     }
 

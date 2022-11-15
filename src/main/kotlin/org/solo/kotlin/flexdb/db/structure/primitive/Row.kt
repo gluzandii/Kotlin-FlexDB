@@ -18,6 +18,10 @@ class Row(val id: Int, val schema: Schema) : Iterable<MutableMap.MutableEntry<Co
         return content.containsColumn(c)
     }
 
+    fun map(): Map<Column, DbValue<*>?> {
+        return content.map()
+    }
+
     @Throws(
         NullUsedInNonNullColumnException::class,
         MismatchedTypeException::class,
