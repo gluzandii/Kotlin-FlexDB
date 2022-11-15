@@ -8,25 +8,13 @@ import kotlin.io.path.isRegularFile
 import kotlin.io.path.readText
 
 
+@Suppress("unused")
 class DB(val root: Path, val p: String) {
-    var schema: Path
-        private set
-    var index: Path
-        private set
-    var logs: Path
-        private set
-    var users: Path
-        private set
-    var pswd: Path
-        private set
-
-    init {
-        schema = DbUtil.schemafullPath(root)
-        index = DbUtil.indexFullPath(root)
-        logs = DbUtil.logsPath(root)
-        users = DbUtil.usersPath(root)
-        pswd = DbUtil.pswdPath(root)
-    }
+    val schema: Path = DbUtil.schemafullPath(root)
+    val index: Path = DbUtil.indexFullPath(root)
+    val logs: Path = DbUtil.logsPath(root)
+    val users: Path = DbUtil.usersPath(root)
+    val pswd: Path = DbUtil.pswdPath(root)
 
     private val hasher = Argon2PasswordEncoder()
 
@@ -40,7 +28,7 @@ class DB(val root: Path, val p: String) {
         val mapper = JsonUtil.newBinaryObjectMapper()
 
         try {
-            val mp = mapper.readValue(content, HashMap::class.java) as HashMap<String, Any>
+            val mp = mapper.readValue(content, HashMap::class.java)!!
             return mp.containsKey(name)
         } catch (ex: Exception) {
             throw RuntimeException("Unable to parse json data in: $users")
@@ -48,7 +36,7 @@ class DB(val root: Path, val p: String) {
     }
 
     private inline fun tableExists(name: String): Boolean {
-        return schema.append(name).isRegularFile()
+        return schema.append("${name}_0").isRegularFile()
     }
 
     fun tablePath(name: String): Path? {

@@ -2,9 +2,10 @@ package org.solo.kotlin.flexdb.db.structure
 
 import org.solo.kotlin.flexdb.MismatchedSchemaException
 import org.solo.kotlin.flexdb.db.structure.primitive.Row
+import java.util.concurrent.ConcurrentHashMap
 
 class Table(val name: String, private val schema: Schema) {
-    private val rows = hashMapOf<Int, Row>()
+    private val rows = ConcurrentHashMap<Int, Row>()
 
     fun contains(rowId: Int): Boolean {
         return rows.containsKey(rowId)

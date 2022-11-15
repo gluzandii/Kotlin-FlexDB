@@ -6,17 +6,16 @@ import org.solo.kotlin.flexdb.NullUsedInNonNullColumnException
 import org.solo.kotlin.flexdb.db.structure.primitive.Column
 import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbValue
+import java.util.concurrent.ConcurrentHashMap
 
-class RowMap(schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbValue<*>?>> {
-    private val hm = hashMapOf<Column, DbValue<*>?>()
+class RowMap(val schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbValue<*>?>> {
+    private val content = ConcurrentHashMap<Column, DbValue<*>?>()
 
-    val schema
-        get() = hm.keys
 
     init {
-        schema.forEach {
-            hm[it] = if (it.hasConstraint(DbConstraint.NotNull)) {
-                it.type.default
+        for (i in schema) {
+            content[i] = if (i.hasConstraint(DbConstraint.NotNull)) {
+                i.type.default
             } else {
                 null
             }
@@ -24,11 +23,11 @@ class RowMap(schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbValue<
     }
 
     fun containsColumn(col: Column): Boolean {
-        return hm.containsKey(col)
+        return content.containsKey(col)
     }
 
     operator fun get(col: Column): DbValue<*>? {
-        return hm[col]
+        return content[col]
     }
 
     @Throws(
@@ -37,7 +36,7 @@ class RowMap(schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbValue<
         InvalidColumnProvidedException::class
     )
     operator fun set(col: Column, value: DbValue<*>?) {
-        if (!hm.containsKey(col)) {
+        if (!content.containsKey(col)) {
             throw InvalidColumnProvidedException("This column is not part of the schema")
         }
 
@@ -51,11 +50,11 @@ class RowMap(schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbValue<
         if ((value != null) && (col.type != value.type)) {
             throw MismatchedTypeException("Cannot put value of type: ${value.type} in ${col.type}")
         }
-        hm[col] = value
+        content[col] = value
     }
 
     override fun iterator(): Iterator<MutableMap.MutableEntry<Column, DbValue<*>?>> {
-        return hm.iterator()
+        return content.iterator()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -69,10 +68,10 @@ class RowMap(schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbValue<
         if (schema != other.schema) {
             return false
         }
-        return hm == other.hm
+        return content == other.content
     }
 
     override fun hashCode(): Int {
-        return 31 * hm.hashCode() + schema.hashCode()
+        return 31 * content.hashCode() + schema.hashCode()
     }
 }

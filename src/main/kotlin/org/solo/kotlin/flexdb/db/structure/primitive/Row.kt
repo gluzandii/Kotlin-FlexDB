@@ -11,7 +11,7 @@ class Row(val schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbValue
     private val content: RowMap = RowMap(schema)
 
     private fun schemaMatches(s: Set<Column>): Boolean {
-        return content.schema == s
+        return content.schema.schemaSet == s
     }
 
     fun containsColumn(c: Column): Boolean {
