@@ -22,10 +22,6 @@ enum class DbEnumTypes {
 // CREATE JSON SERIALIZATION AND DESERIALIZATION LOGIC
 
 sealed class DbValue<T>(val value: T, val type: DbEnumTypes) {
-    inline fun typeEquals(db: DbValue<*>): Boolean {
-        return db.type == type
-    }
-
     override fun hashCode(): Int {
         var result = value.hashCode()
         result = 31 * result + type.hashCode()
@@ -39,7 +35,7 @@ sealed class DbValue<T>(val value: T, val type: DbEnumTypes) {
         if (other !is DbValue<*>) {
             return false
         }
-        if (typeEquals(other)) {
+        if (other.type != type) {
             return false
         }
 
@@ -51,7 +47,7 @@ sealed class DbValue<T>(val value: T, val type: DbEnumTypes) {
         if (this === v) {
             return 0
         }
-        if (typeEquals(v)) {
+        if (v.type != type) {
             throw InvalidTypeException("The DbValue provided has a type not equal to this.")
         }
 

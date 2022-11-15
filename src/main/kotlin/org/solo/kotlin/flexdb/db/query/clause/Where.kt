@@ -6,7 +6,7 @@ import org.solo.kotlin.flexdb.db.types.DbValue
 
 data class Where(val one: DbValue<*>, val two: DbValue<*>, val op: RelationalOperator) {
     init {
-        if (!one.typeEquals(two)) {
+        if (one.type != two.type) {
             throw InvalidTypeException("Db value one and two do not have matching types.")
         }
     }
