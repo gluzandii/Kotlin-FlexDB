@@ -1,5 +1,6 @@
 package org.solo.kotlin.flexdb.db.query
 
+import org.solo.kotlin.flexdb.InvalidQueryException
 import org.solo.kotlin.flexdb.db.engine.DbEngine
 import org.solo.kotlin.flexdb.db.structure.primitive.Row
 
@@ -9,6 +10,7 @@ data class Query(
     val where: String,
     val sortingType: SortingType
 ) {
+    @Throws(InvalidQueryException::class)
     fun doQuery(): List<Row> {
         return listOf()
     }

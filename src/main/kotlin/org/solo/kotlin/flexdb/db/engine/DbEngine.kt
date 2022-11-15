@@ -1,6 +1,8 @@
 package org.solo.kotlin.flexdb.db.engine
 
 import org.solo.kotlin.flexdb.db.DB
+import org.solo.kotlin.flexdb.db.query.Query
+import org.solo.kotlin.flexdb.db.query.SortingType
 import org.solo.kotlin.flexdb.db.structure.Table
 import java.io.IOException
 import java.util.*
@@ -10,7 +12,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 /**
  * A Thread-Safe abstract DbEngine.
  */
-abstract class DbEngine(protected val db: DB, private val limit: Int) {
+abstract class DbEngine protected constructor(protected val db: DB, private val limit: Int) {
     private val tables: MutableMap<String, Table> = ConcurrentHashMap<String, Table>()
 
     private val tableNames: MutableSet<String> = Collections.newSetFromMap(ConcurrentHashMap())
@@ -63,6 +65,10 @@ abstract class DbEngine(protected val db: DB, private val limit: Int) {
         }
 
         return tables[tableName]!!
+    }
+
+    inline fun query(table: String, where: String, sortingType: SortingType): Query {
+        return Query(table, this, where, sortingType)
     }
 
     private inline fun hasLimit(): Boolean {
