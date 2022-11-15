@@ -50,28 +50,14 @@ object ZipUtil {
     @JvmStatic
     @Throws(IOException::class)
     fun decompress(file: Path, password: String?): List<ZipArchiveItem> {
-        if (!file.exists()) {
-            throw FileNotFoundException("The file does not exist at the path: $file")
-        }
-        if (!file.isRegularFile()) {
-            throw FileNotFoundException("The path: $file does not point to a file.")
-        }
-
-        val f = file.toFile()
-        val zipFile = if (password == null) {
-            ZipFile(f)
-        } else {
-            ZipFile(f, password.toCharArray())
-        }
-
-        zipFile.use {
+        initZipFile(file, password).use {
             val list = arrayListOf<ZipArchiveItem>()
 
             for (i in it.fileHeaders) {
                 if (i.isDirectory) {
                     continue
                 }
-                zipFile.getInputStream(i).use { zipIn ->
+                it.getInputStream(i).use { zipIn ->
                     list.add(ZipArchiveItem(zipIn!!.readBytes(), i.fileName!!))
                 }
             }
@@ -83,6 +69,19 @@ object ZipUtil {
     @JvmStatic
     @Throws(IOException::class)
     fun decompressFile(file: Path, password: String?, fileName: String): ZipArchiveItem? {
+        initZipFile(file, password).use {
+            val header = it.getFileHeader(fileName)
+
+            if (header.isDirectory) {
+                return null
+            }
+            it.getInputStream(header).use { zipIn ->
+                return ZipArchiveItem(zipIn!!.readBytes(), header.fileName!!)
+            }
+        }
+    }
+
+    private fun initZipFile(file: Path, password: String?): ZipFile {
         if (!file.exists()) {
             throw FileNotFoundException("The file does not exist at the path: $file")
         }
@@ -91,21 +90,10 @@ object ZipUtil {
         }
 
         val f = file.toFile()
-        val zipFile = if (password == null) {
+        return if (password == null) {
             ZipFile(f)
         } else {
             ZipFile(f, password.toCharArray())
-        }
-
-        zipFile.use {
-            val header = zipFile.getFileHeader(fileName)
-
-            if (header.isDirectory) {
-                return null
-            }
-            zipFile.getInputStream(header).use { zipIn ->
-                return ZipArchiveItem(zipIn!!.readBytes(), header.fileName!!)
-            }
         }
     }
 }
