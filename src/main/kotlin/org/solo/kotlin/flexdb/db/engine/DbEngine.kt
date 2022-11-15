@@ -86,4 +86,23 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
 
         tableNames.remove(table)
     }
+
+    companion object {
+        @JvmStatic
+        fun tableName(table: String, index: Int): String {
+            var start = 0
+            var end = 200
+
+            while (true) {
+                val range = (start until end)
+
+                if (range.contains(index)) {
+                    return "${table}_${start}"
+                }
+
+                start = end
+                end += 200
+            }
+        }
+    }
 }

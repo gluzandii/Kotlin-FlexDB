@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap
 class RowMap(val schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbValue<*>?>> {
     private val content = ConcurrentHashMap<Column, DbValue<*>?>()
 
-
     init {
         for (i in schema) {
             content[i] = if (i.hasConstraint(DbConstraint.NotNull)) {
@@ -24,6 +23,10 @@ class RowMap(val schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbVa
 
     fun containsColumn(col: Column): Boolean {
         return content.containsKey(col)
+    }
+
+    fun cloneMap(): Map<Column, DbValue<*>?> {
+        return content
     }
 
     operator fun get(col: Column): DbValue<*>? {
