@@ -1,18 +1,16 @@
 {
-    "columns": [
-        {
-            "name": "name",
+    "columns": {
+        "name": {
             "type": "DbString",
             "constraints": [
                 "NotNull"
             ]
         },
-        {
-            "name": "email",
+        "email": {
             "type": "DbString",
             "constraints": [
                 "Unique"
             ]
         }
-    ]
+    }
 }
