@@ -16,7 +16,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser
 import org.springframework.expression.spel.support.StandardEvaluationContext
 import java.util.*
 
-data class Query(
+data class ReadOnlyQuery(
     val table: String,
     val engine: DbEngine,
     val where: String,
@@ -24,7 +24,7 @@ data class Query(
 ) {
     private val parser: ExpressionParser = SpelExpressionParser()
 
-    private inline fun mapContext(mp: Map<*, *>): EvaluationContext {
+    private fun mapContext(mp: Map<*, *>): EvaluationContext {
         val context = StandardEvaluationContext(mp)
         context.addPropertyAccessor(MapAccessor())
 

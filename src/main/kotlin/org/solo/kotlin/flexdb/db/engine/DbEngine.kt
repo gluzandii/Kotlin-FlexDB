@@ -1,7 +1,7 @@
 package org.solo.kotlin.flexdb.db.engine
 
 import org.solo.kotlin.flexdb.db.DB
-import org.solo.kotlin.flexdb.db.query.Query
+import org.solo.kotlin.flexdb.db.query.ReadOnlyQuery
 import org.solo.kotlin.flexdb.db.query.SortingType
 import org.solo.kotlin.flexdb.db.structure.Table
 import java.io.IOException
@@ -13,10 +13,22 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * A Thread-Safe abstract DbEngine.
  */
 abstract class DbEngine protected constructor(protected val db: DB, private val limit: Int) {
+    /**
+     * Stores each table.
+     *
+     * Not: 'TableName': Table. No
+     * 'TableName_{id range}': Table. Yes
+     */
     private val tables: MutableMap<String, Table> = ConcurrentHashMap<String, Table>()
 
+    /**
+     * Stores currently loaded tables.
+     */
     private val tableNames: MutableSet<String> = Collections.newSetFromMap(ConcurrentHashMap())
 
+    /**
+     * The queue of tables, to properly manage the table limit.
+     */
     private val tableQueue: Queue<String>
 
     init {
@@ -36,15 +48,16 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
 
         if (hasLimit()) {
             val name = tableQueue.poll()
+
+            // tableNames.remove(name)
+            // Do not call the above code, since it is called in the below function 'removeAll'
             removeAll(name ?: return)
         }
     }
 
     @Throws(IOException::class)
     fun getTables(tableName: String): Set<Table> {
-        if (!tableNames.contains(tableName)) {
-            loadTables(tableName)
-        }
+        loadTableIfNotLoaded(tableName)
 
         val regex = Regex("${tableName}_\\d+")
         val set = hashSetOf<Table>()
@@ -60,19 +73,22 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
 
     @Throws(IOException::class)
     fun getTable(tableName: String): Table {
-        if (!tableNames.contains(tableName)) {
-            loadTables(tableName)
-        }
-
+        loadTableIfNotLoaded(tableName)
         return tables[tableName]!!
     }
 
-    inline fun query(table: String, where: String, sortingType: SortingType): Query {
-        return Query(table, this, where, sortingType)
+    fun query(table: String, where: String, sortingType: SortingType): ReadOnlyQuery {
+        return ReadOnlyQuery(table, this, where, sortingType)
     }
 
-    private inline fun hasLimit(): Boolean {
+    protected fun hasLimit(): Boolean {
         return limit > 0
+    }
+
+    private fun loadTableIfNotLoaded(tableName: String) {
+        if (!tableNames.contains(tableName)) {
+            loadTables(tableName)
+        }
     }
 
     private fun removeAll(table: String) {
