@@ -17,12 +17,12 @@ object JsonUtil {
     }
 
     @JvmStatic
-    inline fun newBinaryObjectMapper(): ObjectMapper {
+    fun newBinaryObjectMapper(): ObjectMapper {
         return ObjectMapper(bson)
     }
 
     @JvmStatic
-    inline fun newObjectMapper(): ObjectMapper {
+    fun newObjectMapper(): ObjectMapper {
         return ObjectMapper()
     }
 

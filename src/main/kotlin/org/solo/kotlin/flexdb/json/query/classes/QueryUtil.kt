@@ -5,7 +5,7 @@ import org.solo.kotlin.flexdb.json.JsonUtil.newObjectMapper
 import org.solo.kotlin.flexdb.json.query.JsonQueryTypes
 
 object QueryUtil {
-    internal inline fun getTableAndAction(p: JsonNode): Pair<String, String> {
+    internal fun getTableAndAction(p: JsonNode): Pair<String, String> {
         val table = p["table"]!!.asText()
         val action = p["action"]!!.asText()
 

@@ -46,12 +46,8 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
     protected fun loadTables(tableName: String) {
         loadTables0(tableName)
 
-        if (hasLimit()) {
-            val name = tableQueue.poll()
-
-            // tableNames.remove(name)
-            // Do not call the above code, since it is called in the below function 'removeAll'
-            removeAll(name ?: return)
+        if (exceededLimit()) {
+            trimTable()
         }
     }
 
@@ -72,7 +68,7 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
     }
 
     @Throws(IOException::class)
-    fun getTable(tableName: String): Table {
+    operator fun get(tableName: String): Table {
         loadTableIfNotLoaded(tableName)
         return tables[tableName]!!
     }
@@ -81,8 +77,24 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
         return ReadOnlyQuery(table, this, where, sortingType)
     }
 
-    protected fun hasLimit(): Boolean {
+    private fun hasLimit(): Boolean {
         return limit > 0
+    }
+
+    private fun exceededLimit(): Boolean {
+        return hasLimit() && tableQueue.size > limit
+    }
+
+    private fun trimTable() {
+        while (!exceededLimit()) {
+            val name = tableQueue.poll()
+
+            // tableNames.remove(name)
+            // Do not call the above code, since it is called in the below function 'removeAll'
+
+            // Focus on making this method parallel this later
+            removeAll(name ?: return)
+        }
     }
 
     private fun loadTableIfNotLoaded(tableName: String) {

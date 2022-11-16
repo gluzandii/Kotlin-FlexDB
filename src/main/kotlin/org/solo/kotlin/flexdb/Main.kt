@@ -58,7 +58,7 @@ class DbRestController {
     }
 }
 
-inline fun readPassword(): String {
+fun readPassword(): String {
     return String((System.console() ?: return readln()).readPassword()!!)
 }
 

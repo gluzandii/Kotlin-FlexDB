@@ -34,7 +34,7 @@ class DB(val root: Path, val p: String) {
         }
     }
 
-    private inline fun tableExists(name: String): Boolean {
+    private fun tableExists(name: String): Boolean {
         return schema.append("${name}_0").isRegularFile()
     }
 
