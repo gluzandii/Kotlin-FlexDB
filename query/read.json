@@ -1,11 +1,11 @@
 {
-  "table": "users",
-  "action": "read",
-  "payload": {
-    "columns": [
-      "name",
-      "email"
-    ],
-    "condition": "name == 'Sushant Nariangadu' && email == 'nsushant2007@gmail.com'"
-  }
+    "table": "users",
+    "action": "read",
+    "payload": {
+        "columns": [
+            "name",
+            "email"
+        ],
+        "condition": "name == 'Sushant Nariangadu' && email == 'nsushant2007@gmail.com'"
+    }
 }

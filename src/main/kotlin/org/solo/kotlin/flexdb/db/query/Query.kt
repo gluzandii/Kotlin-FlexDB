@@ -4,6 +4,7 @@ import org.solo.kotlin.flexdb.InvalidQueryException
 import org.solo.kotlin.flexdb.db.engine.DbEngine
 import org.solo.kotlin.flexdb.db.query.children.SelectQuery
 import org.solo.kotlin.flexdb.db.structure.primitive.Row
+import org.solo.kotlin.flexdb.json.query.classes.JsonCreatePayload
 import org.springframework.expression.ExpressionParser
 import org.springframework.expression.spel.standard.SpelExpressionParser
 
@@ -11,6 +12,7 @@ abstract class Query(
     val table: String,
     val engine: DbEngine,
     val where: String?,
+    val columns: List<JsonCreatePayload>?,
     val sortingType: SortingType
 ) {
     protected val parser: ExpressionParser = SpelExpressionParser()

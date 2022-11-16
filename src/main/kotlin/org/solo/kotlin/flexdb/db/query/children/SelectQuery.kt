@@ -21,7 +21,7 @@ class SelectQuery(
     engine: DbEngine,
     where: String,
     sortingType: SortingType
-) : Query(table, engine, where, sortingType) {
+) : Query(table, engine, where, null, sortingType) {
     private fun mapContext(mp: Map<*, *>): EvaluationContext {
         val context = StandardEvaluationContext(mp)
         context.addPropertyAccessor(MapAccessor())
