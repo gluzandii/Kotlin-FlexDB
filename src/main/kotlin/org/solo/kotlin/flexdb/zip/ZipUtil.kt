@@ -9,6 +9,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.nio.file.Path
+import java.util.*
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
@@ -51,7 +52,7 @@ object ZipUtil {
     @Throws(IOException::class)
     fun decompress(file: Path, password: String?): List<ZipArchiveItem> {
         initZipFile(file, password).use {
-            val list = arrayListOf<ZipArchiveItem>()
+            val list = LinkedList<ZipArchiveItem>()
 
             for (i in it.fileHeaders) {
                 if (i.isDirectory) {

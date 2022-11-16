@@ -1,7 +1,11 @@
 package org.solo.kotlin.flexdb.db.query
 
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.solo.kotlin.flexdb.InvalidQueryException
 import org.solo.kotlin.flexdb.db.engine.DbEngine
 import org.solo.kotlin.flexdb.db.structure.primitive.Row
@@ -10,6 +14,7 @@ import org.springframework.expression.EvaluationContext
 import org.springframework.expression.ExpressionParser
 import org.springframework.expression.spel.standard.SpelExpressionParser
 import org.springframework.expression.spel.support.StandardEvaluationContext
+import java.util.*
 
 data class Query(
     val table: String,
@@ -29,29 +34,31 @@ data class Query(
     @Throws(InvalidQueryException::class)
     fun doQuery(): List<Row> {
         val expression = parser.parseExpression(where)
+
         val list = mutableListOf<Row>()
-        var exp: Exception? = null
+        val mutexList = Mutex()
 
         runBlocking {
-            for (i in engine.getTables(table)) {
-                launch {
+            val jobs = LinkedList<Job>()
+            for (table in engine.getTables(table)) {
+                jobs.add(launch {
                     try {
-                        for (j in i) {
-                            val result = expression.getValue(mapContext(j.map()), Boolean::class.java)
+                        for (row in table) {
+                            val result = expression.getValue(mapContext(row.map()), Boolean::class.java)
 
                             if (result == true) {
-                                synchronized(list) {
-                                    list.add(j)
-                                }
+                                mutexList.withLock { list.add(row) }
                             }
                         }
                     } catch (ex: Exception) {
-                        exp = InvalidQueryException(ex.message ?: "Unknown error")
+                        ex.printStackTrace()
                     }
-                }
+                })
             }
+
+            joinAll(*jobs.toTypedArray())
         }
 
-        throw (exp ?: return list)
+        return list
     }
 }
