@@ -71,7 +71,7 @@ object DbUtil {
 
         GlobalData.db = DB(
             root = path,
-            p = GlobalData.pswd!!
+            password = GlobalData.pswd!!
         )
         return GlobalData.db!!
     }

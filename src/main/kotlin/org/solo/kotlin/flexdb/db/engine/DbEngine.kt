@@ -52,6 +52,14 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
         }
     }
 
+    fun tableExists(tableName: String): Boolean {
+        return try {
+            return db.tableExists(tableName)
+        } catch (ex: Exception) {
+            false
+        }
+    }
+
     @Throws(IOException::class)
     fun getTables(tableName: String): Set<Table> {
         loadTableIfNotLoaded(tableName)
@@ -88,7 +96,7 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
         engine: DbEngine,
         where: String?,
         sortingType: SortingType
-    ): Query {
+    ): Query<*> {
         return Query.create(command, table, engine, where, sortingType)
     }
 

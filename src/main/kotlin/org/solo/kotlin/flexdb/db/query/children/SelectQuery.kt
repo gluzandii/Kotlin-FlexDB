@@ -14,6 +14,7 @@ import org.solo.kotlin.flexdb.db.structure.primitive.Row
 import org.springframework.context.expression.MapAccessor
 import org.springframework.expression.EvaluationContext
 import org.springframework.expression.spel.support.StandardEvaluationContext
+import java.io.IOException
 import java.util.*
 
 class SelectQuery(
@@ -21,7 +22,7 @@ class SelectQuery(
     engine: DbEngine,
     where: String,
     sortingType: SortingType
-) : Query(table, engine, where, null, sortingType) {
+) : Query<List<Row>>(table, engine, where, null, sortingType) {
     private fun mapContext(mp: Map<*, *>): EvaluationContext {
         val context = StandardEvaluationContext(mp)
         context.addPropertyAccessor(MapAccessor())
@@ -29,7 +30,7 @@ class SelectQuery(
         return context
     }
 
-    @Throws(InvalidQueryException::class)
+    @Throws(IOException::class, InvalidQueryException::class)
     override fun doQuery(): List<Row> {
         val expression = parser.parseExpression(where!!)
         val (linkedList, mutexList) = Pair(LinkedList<Row>(), Mutex())

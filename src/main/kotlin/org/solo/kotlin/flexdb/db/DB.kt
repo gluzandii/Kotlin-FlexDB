@@ -9,18 +9,18 @@ import kotlin.io.path.readText
 
 
 @Suppress("unused")
-class DB(val root: Path, val p: String) {
-    val schema: Path = DbUtil.schemafullPath(root)
-    val logs: Path = DbUtil.logsPath(root)
-    val users: Path = DbUtil.usersPath(root)
-    val pswd: Path = DbUtil.pswdPath(root)
+class DB(val root: Path, val password: String) {
+    private val schema: Path = DbUtil.schemafullPath(root)
+    private val logs: Path = DbUtil.logsPath(root)
+    private val users: Path = DbUtil.usersPath(root)
+    private val pswd: Path = DbUtil.pswdPath(root)
 
     private val hasher = Argon2PasswordEncoder()
 
     fun userExists(name: String): Boolean {
         val pswdHashed = pswd.readText()
-        if (!hasher.matches(p, pswdHashed)) {
-            throw IllegalArgumentException("Invalid password provided: $p")
+        if (!hasher.matches(password, pswdHashed)) {
+            throw IllegalArgumentException("Invalid password provided: $password")
         }
 
         val content = users.readText()
@@ -34,8 +34,8 @@ class DB(val root: Path, val p: String) {
         }
     }
 
-    private fun tableExists(name: String): Boolean {
-        return schema.append("${name}_0").isRegularFile()
+    fun tableExists(name: String): Boolean {
+        return schema.append(name).isRegularFile()
     }
 
     fun tablePath(name: String): Path? {

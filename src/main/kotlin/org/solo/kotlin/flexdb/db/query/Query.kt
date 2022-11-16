@@ -3,12 +3,12 @@ package org.solo.kotlin.flexdb.db.query
 import org.solo.kotlin.flexdb.InvalidQueryException
 import org.solo.kotlin.flexdb.db.engine.DbEngine
 import org.solo.kotlin.flexdb.db.query.children.SelectQuery
-import org.solo.kotlin.flexdb.db.structure.primitive.Row
 import org.solo.kotlin.flexdb.json.query.classes.JsonCreatePayload
 import org.springframework.expression.ExpressionParser
 import org.springframework.expression.spel.standard.SpelExpressionParser
+import java.io.IOException
 
-abstract class Query(
+abstract class Query<T>(
     val table: String,
     val engine: DbEngine,
     val where: String?,
@@ -17,8 +17,8 @@ abstract class Query(
 ) {
     protected val parser: ExpressionParser = SpelExpressionParser()
 
-    @Throws(InvalidQueryException::class)
-    abstract fun doQuery(): List<Row>
+    @Throws(IOException::class, InvalidQueryException::class)
+    abstract fun doQuery(): T
 
     companion object {
         @JvmStatic
@@ -29,7 +29,7 @@ abstract class Query(
             engine: DbEngine,
             where: String?,
             sortingType: SortingType
-        ): Query {
+        ): Query<*> {
             return when (command.lowercase()) {
                 "select" -> SelectQuery(table, engine, where ?: "true", sortingType)
                 else -> throw InvalidQueryException("Invalid command: $command")
