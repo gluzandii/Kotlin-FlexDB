@@ -1,8 +1,9 @@
 package org.solo.kotlin.flexdb.db.engine
 
 import org.solo.kotlin.flexdb.db.DB
-import org.solo.kotlin.flexdb.db.query.ReadOnlyQuery
+import org.solo.kotlin.flexdb.db.query.Query
 import org.solo.kotlin.flexdb.db.query.SortingType
+import org.solo.kotlin.flexdb.db.query.children.SelectQuery
 import org.solo.kotlin.flexdb.db.structure.Table
 import java.io.IOException
 import java.util.*
@@ -73,8 +74,22 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
         return tables[tableName]!!
     }
 
-    fun query(table: String, where: String, sortingType: SortingType): ReadOnlyQuery {
-        return ReadOnlyQuery(table, this, where, sortingType)
+    fun select(
+        table: String,
+        where: String,
+        sortingType: SortingType
+    ): SelectQuery {
+        return SelectQuery(table, this, where, sortingType)
+    }
+
+    fun query(
+        command: String,
+        table: String,
+        engine: DbEngine,
+        where: String?,
+        sortingType: SortingType
+    ): Query {
+        return Query.create(command, table, engine, where, sortingType)
     }
 
     private fun hasLimit(): Boolean {
