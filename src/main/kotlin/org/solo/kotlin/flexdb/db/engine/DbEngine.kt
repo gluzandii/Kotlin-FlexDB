@@ -6,6 +6,7 @@ import org.solo.kotlin.flexdb.db.query.SortingType
 import org.solo.kotlin.flexdb.db.query.children.SelectQuery
 import org.solo.kotlin.flexdb.db.structure.Table
 import java.io.IOException
+import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -58,6 +59,10 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
         } catch (ex: Exception) {
             false
         }
+    }
+
+    fun tablePath(tableName: String): Path? {
+        return db.tablePath(tableName)
     }
 
     @Throws(IOException::class)

@@ -12,7 +12,7 @@ abstract class Query<T>(
     val table: String,
     val engine: DbEngine,
     val where: String?,
-    val columns: List<JsonColumns>?,
+    val columns: JsonColumns?,
     val sortingType: SortingType
 ) {
     protected val parser: ExpressionParser = SpelExpressionParser()
