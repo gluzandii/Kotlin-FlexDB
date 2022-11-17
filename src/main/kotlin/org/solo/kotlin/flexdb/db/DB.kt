@@ -38,11 +38,7 @@ class DB(val root: Path, val password: String) {
         return schema.append(name).isRegularFile()
     }
 
-    fun tablePath(name: String): Path? {
-        return if (!tableExists(name)) {
-            return null
-        } else {
-            schema.append(name)
-        }
+    fun tablePath(name: String): Path {
+        return schema.append(name)
     }
 }

@@ -4,18 +4,30 @@ import org.solo.kotlin.flexdb.db.structure.Schema
 import org.solo.kotlin.flexdb.db.structure.primitive.Column
 import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbEnumTypes
+import java.util.*
 
 typealias JsonColumns = HashMap<String, JsonColumn>
+
+fun String.capitalise(): String {
+    return replaceFirstChar {
+        if (it.isLowerCase()) {
+            it.titlecase(Locale.getDefault())
+        } else {
+            lowercase().capitalise()
+        }
+    }
+}
 
 fun JsonColumns.toSchema(): Schema {
     val set = hashSetOf<Column>()
 
     for ((k, v) in this) {
-        val type = DbEnumTypes.valueOf(v.type)
+        val type =
+            DbEnumTypes.valueOf(v.type.capitalise())
         val consts = hashSetOf<DbConstraint>()
 
         for (i in v.constraints) {
-            consts.add(DbConstraint.valueOf(i))
+            consts.add(DbConstraint.valueOf(i.capitalise()))
         }
 
         set.add(Column(name = k, type, consts))

@@ -5,8 +5,6 @@ import org.solo.kotlin.flexdb.db.DB
 import org.solo.kotlin.flexdb.db.bson.DbColumn
 import org.solo.kotlin.flexdb.db.query.Query
 import org.solo.kotlin.flexdb.db.query.SortingType
-import org.solo.kotlin.flexdb.db.query.children.CreateQuery
-import org.solo.kotlin.flexdb.db.query.children.SelectQuery
 import org.solo.kotlin.flexdb.db.structure.Table
 import org.solo.kotlin.flexdb.internal.appendFile
 import org.solo.kotlin.flexdb.json.JsonUtil
@@ -80,6 +78,44 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
         return db.tablePath(table.name)
     }
 
+    private fun hasLimit(): Boolean {
+        return limit > 0
+    }
+
+    private fun exceededLimit(): Boolean {
+        return hasLimit() && tableQueue.size > limit
+    }
+
+    private fun trimTable() {
+        while (!exceededLimit()) {
+            val name = tableQueue.poll()
+
+            // tableNames.remove(name)
+            // Do not call the above code, since it is called in the below function 'removeAll'
+
+            // Focus on making this method parallel this later
+            removeAll(name ?: return)
+        }
+    }
+
+    private fun loadTableIfNotLoaded(tableName: String) {
+        if (!tableNames.contains(tableName)) {
+            loadTables(tableName)
+        }
+    }
+
+    private fun removeAll(table: String) {
+        val regex = Regex("${table}_\\d+")
+
+        for ((k, _) in tables) {
+            if (regex.matches(k)) {
+                tables.remove(k)
+            }
+        }
+
+        tableNames.remove(table)
+    }
+
     @Throws(IOException::class, InvalidQueryException::class)
     fun createTable(table: Table): Boolean {
         if (tableExists(table)) {
@@ -87,7 +123,7 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
         }
 
         val dbCol = DbColumn(table.schemaSet)
-        val path = tablePath(table) ?: return false
+        val path = tablePath(table) ?: throw InvalidQueryException("Table path is null")
         val bout = ByteArrayOutputStream()
 
         val mapper = JsonUtil.newBinaryObjectMapper()
@@ -127,68 +163,14 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
         return tables[tableName]!!
     }
 
-    fun select(
-        table: String,
-        where: String,
-        sortingType: SortingType
-    ): SelectQuery {
-        return SelectQuery(table, this, where, sortingType)
-    }
-
-    fun create(
-        table: String,
-        columns: JsonColumns,
-    ): CreateQuery {
-        return CreateQuery(table, this, columns)
-    }
-
-
     fun query(
         command: String,
         table: String,
-        engine: DbEngine,
         where: String?,
+        columns: JsonColumns?,
         sortingType: SortingType
     ): Query<*> {
-        return Query.create(command, table, engine, where, sortingType)
-    }
-
-    private fun hasLimit(): Boolean {
-        return limit > 0
-    }
-
-    private fun exceededLimit(): Boolean {
-        return hasLimit() && tableQueue.size > limit
-    }
-
-    private fun trimTable() {
-        while (!exceededLimit()) {
-            val name = tableQueue.poll()
-
-            // tableNames.remove(name)
-            // Do not call the above code, since it is called in the below function 'removeAll'
-
-            // Focus on making this method parallel this later
-            removeAll(name ?: return)
-        }
-    }
-
-    private fun loadTableIfNotLoaded(tableName: String) {
-        if (!tableNames.contains(tableName)) {
-            loadTables(tableName)
-        }
-    }
-
-    private fun removeAll(table: String) {
-        val regex = Regex("${table}_\\d+")
-
-        for ((k, _) in tables) {
-            if (regex.matches(k)) {
-                tables.remove(k)
-            }
-        }
-
-        tableNames.remove(table)
+        return Query.build(command, table, this, where, columns, sortingType)
     }
 
     companion object {

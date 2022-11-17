@@ -31,7 +31,7 @@ class SelectQuery(
     }
 
     @Throws(IOException::class, InvalidQueryException::class)
-    override fun doQuery(): List<Row> {
+    override fun execute(): List<Row> {
         val expression = parser.parseExpression(where!!)
         val (linkedList, mutexList) = Pair(LinkedList<Row>(), Mutex())
 
