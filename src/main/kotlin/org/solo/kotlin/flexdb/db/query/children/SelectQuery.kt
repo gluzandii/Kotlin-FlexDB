@@ -35,7 +35,7 @@ class SelectQuery(
 
         runBlocking {
             launch {
-                for (row in engine.getTable(table)) {
+                for (row in engine[table]) {
                     try {
                         val result = expression.getValue(mapContext(row.map()), Boolean::class.java)
 

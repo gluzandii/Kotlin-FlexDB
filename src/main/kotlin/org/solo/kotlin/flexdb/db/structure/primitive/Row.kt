@@ -10,10 +10,6 @@ import org.solo.kotlin.flexdb.db.types.DbValue
 class Row(val id: Int, val schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbValue<*>?>> {
     private val content: RowMap = RowMap(schema)
 
-    private fun schemaMatches(s: Set<Column>): Boolean {
-        return content.schema.schemaSet == s
-    }
-
     fun containsColumn(c: Column): Boolean {
         return content.containsColumn(c)
     }
@@ -34,11 +30,7 @@ class Row(val id: Int, val schema: Schema) : Iterable<MutableMap.MutableEntry<Co
     operator fun get(colName: Column): DbValue<*>? {
         return content[colName]
     }
-
-    fun schemaMatches(sc: Schema): Boolean {
-        return schema == sc
-    }
-
+    
     override fun iterator(): Iterator<MutableMap.MutableEntry<Column, DbValue<*>?>> {
         return content.iterator()
     }

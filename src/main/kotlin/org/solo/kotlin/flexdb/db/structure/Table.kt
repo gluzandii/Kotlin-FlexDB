@@ -2,12 +2,19 @@ package org.solo.kotlin.flexdb.db.structure
 
 import org.solo.kotlin.flexdb.MismatchedSchemaException
 import org.solo.kotlin.flexdb.db.structure.primitive.Row
+import org.solo.kotlin.flexdb.internal.schemaMatches
 import org.solo.kotlin.flexdb.json.query.classes.JsonColumn
 import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
 import java.util.*
 
-class Table(val name: String, private val schema: Schema) : Iterable<Row> {
+class Table(val name: String, val schema: Schema) : Iterable<Row> {
     private val rows = TreeSet<Row>()
+
+    init {
+        if (name.isEmpty() || name.isBlank()) {
+            throw IllegalArgumentException("Table name cannot be empty")
+        }
+    }
 
     val schemaSet: JsonColumns
         get() {
@@ -18,12 +25,6 @@ class Table(val name: String, private val schema: Schema) : Iterable<Row> {
 
             return j
         }
-
-    init {
-        if (name.isEmpty() || name.isBlank()) {
-            throw IllegalArgumentException("Table name cannot be empty")
-        }
-    }
 
     fun containsRow(row: Row): Boolean {
         return rows.contains(row)

@@ -8,6 +8,7 @@ import org.solo.kotlin.flexdb.db.query.Query
 import org.solo.kotlin.flexdb.db.query.SortingType
 import org.solo.kotlin.flexdb.db.structure.Table
 import org.solo.kotlin.flexdb.internal.appendFile
+import org.solo.kotlin.flexdb.internal.schemaMatches
 import org.solo.kotlin.flexdb.json.JsonUtil
 import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
 import org.solo.kotlin.flexdb.zip.ZipUtil
@@ -35,6 +36,11 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
     private val tables: MutableMap<String, Table> = ConcurrentHashMap<String, Table>()
 
     /**
+     * Stores all the tables present in this database.
+     */
+    private val allTables: MutableSet<String> = ConcurrentHashMap.newKeySet()
+
+    /**
      * The queue of tables, to properly manage the table limit.
      */
     private val tableQueue: Queue<String>
@@ -48,14 +54,14 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
      * managed by calling methods.
      */
     @Throws(IOException::class)
-    protected abstract fun loadTables0(tableName: String)
+    protected abstract fun loadTable0(tableName: String)
 
     @Throws(IOException::class)
     protected abstract fun serializeTable0(table: Table)
 
     @Throws(IOException::class)
-    protected fun loadTables(tableName: String) {
-        loadTables0(tableName)
+    protected fun loadTable(tableName: String) {
+        loadTable0(tableName)
 
         if (exceededLimit()) {
             trimTable()
@@ -72,7 +78,7 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
 
     private fun loadTableIfNotLoaded(tableName: String) {
         if (!tables.containsKey(tableName)) {
-            loadTables(tableName)
+            loadTable(tableName)
         }
     }
 
@@ -102,6 +108,10 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
 
     private fun exceededLimit(): Boolean {
         return hasLimit() && tableQueue.size > limit
+    }
+
+    private fun isTableLoaded(table: String): Boolean {
+        return tables.containsKey(table)
     }
 
     @Throws(IOException::class, InvalidQueryException::class)
@@ -140,9 +150,25 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
     }
 
     @Throws(IOException::class)
-    fun getTable(tableName: String): Table {
+    operator fun get(tableName: String): Table {
         loadTableIfNotLoaded(tableName)
         return tables[tableName]!!
+    }
+
+    @Throws(IOException::class)
+    operator fun set(tableName: String, table: Table) {
+        if (!allTables.contains(tableName)) {
+            throw IllegalArgumentException("The table: $tableName does not exist in this database.")
+        }
+        if (!isTableLoaded(tableName)) {
+            loadTable(tableName)
+        }
+        val t = tables[tableName]!!
+        if (!t.schemaMatches(table.schema)) {
+            throw IllegalArgumentException("The table: $tableName does not match the current schema.")
+        }
+
+        tables[tableName] = table
     }
 
     fun query(
