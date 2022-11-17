@@ -19,7 +19,6 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.io.path.createDirectories
 import kotlin.io.path.writeBytes
 
@@ -30,7 +29,6 @@ import kotlin.io.path.writeBytes
 @Suppress("unused")
 abstract class DbEngine protected constructor(
     protected val db: DB,
-    private val limit: Int,
     private val rowsPerFile: Short
 ) {
     /**
@@ -46,10 +44,6 @@ abstract class DbEngine protected constructor(
      */
     private val allTables: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
-    /**
-     * The queue of tables, to properly manage the table limit.
-     */
-    private val tableQueue: Queue<String> = ConcurrentLinkedQueue()
 
     /**
      * Note: This should not be thread safe, it will be
@@ -66,32 +60,14 @@ abstract class DbEngine protected constructor(
         if (!tables.containsKey(tableName)) {
             loadTable0(tableName)
         }
-        if (exceededLimit()) {
-            trimTable()
-        }
     }
 
-    private fun trimTable() = runBlocking {
-        while (!exceededLimit()) {
-            val name = tableQueue.poll()
-            launch(Dispatchers.IO) { removeAll(name) }
-        }
-    }
-
-    private fun removeAll(tableName: String) {
+    private fun remove(tableName: String) {
         if (!tables.containsKey(tableName)) {
             return
         }
         val t = tables.remove(tableName)!!
         serializeTable0(t)
-    }
-
-    private fun hasLimit(): Boolean {
-        return limit > 0
-    }
-
-    private fun exceededLimit(): Boolean {
-        return hasLimit() && tableQueue.size > limit
     }
 
     private fun isTableLoaded(tableName: String): Boolean {

@@ -35,6 +35,9 @@ class SelectQuery(
         val (linkedList, mutexList) = Pair(LinkedList<Row>(), Mutex())
 
         runBlocking {
+            // If enough tables are loaded in, this table will be unloaded
+            // Make sure that if a table is accesses, move it to the end of the queue
+            // Anywhere coroutines are used, try to make them suspending, to make the most out of the threads
             launch(Dispatchers.Default) {
                 for (row in engine[tableName]) {
                     try {
