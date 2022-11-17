@@ -10,7 +10,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser
 import java.io.IOException
 
 abstract class Query<T>(
-    val table: String,
+    val tableName: String,
     val engine: DbEngine,
     val where: String?,
     val columns: JsonColumns?,
@@ -26,16 +26,16 @@ abstract class Query<T>(
         @Throws(InvalidQueryException::class)
         fun build(
             command: String,
-            table: String,
+            tableName: String,
             engine: DbEngine,
             where: String?,
             columns: JsonColumns?,
             sortingType: SortingType
         ): Query<*> {
             return when (command.lowercase()) {
-                "select" -> SelectQuery(table, engine, where ?: "true", sortingType)
+                "select" -> SelectQuery(tableName, engine, where ?: "true", sortingType)
                 "create" -> CreateQuery(
-                    table,
+                    tableName,
                     engine,
                     columns ?: throw InvalidQueryException("Columns are required for create query")
                 )

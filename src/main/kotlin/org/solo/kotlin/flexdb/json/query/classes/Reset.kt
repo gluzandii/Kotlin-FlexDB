@@ -1,6 +1,7 @@
 package org.solo.kotlin.flexdb.json.query.classes
 
-data class JsonReset(var table: String, var action: String, var payload: JsonResetPayload) {
+@Suppress("unused")
+data class JsonReset(var tableName: String, var action: String, var payload: JsonResetPayload) {
     constructor() : this("", "", JsonResetPayload())
 }
 

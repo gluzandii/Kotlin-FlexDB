@@ -53,8 +53,9 @@ abstract class DbEngine protected constructor(
 
     @Throws(IOException::class)
     protected fun loadTable(tableName: String) {
-        loadTable0(tableName)
-
+        if (!tables.containsKey(tableName)) {
+            loadTable0(tableName)
+        }
         if (exceededLimit()) {
             trimTable()
         }
@@ -67,18 +68,11 @@ abstract class DbEngine protected constructor(
         }
     }
 
-
-    private fun loadTableIfNotLoaded(tableName: String) {
+    private fun removeAll(tableName: String) {
         if (!tables.containsKey(tableName)) {
-            loadTable(tableName)
-        }
-    }
-
-    private fun removeAll(table: String) {
-        if (!tables.containsKey(table)) {
             return
         }
-        val t = tables.remove(table)!!
+        val t = tables.remove(tableName)!!
         serializeTable0(t)
     }
 
@@ -90,8 +84,8 @@ abstract class DbEngine protected constructor(
         return hasLimit() && tableQueue.size > limit
     }
 
-    private fun isTableLoaded(table: String): Boolean {
-        return tables.containsKey(table)
+    private fun isTableLoaded(tableName: String): Boolean {
+        return tables.containsKey(tableName)
     }
 
 //    @Throws(IOException::class, InvalidQueryException::class)
@@ -124,7 +118,7 @@ abstract class DbEngine protected constructor(
 
     @Throws(IOException::class)
     operator fun get(tableName: String): Table {
-        loadTableIfNotLoaded(tableName)
+        loadTable(tableName)
         return tables[tableName]!!
     }
 
@@ -133,9 +127,8 @@ abstract class DbEngine protected constructor(
         if (!allTables.contains(tableName)) {
             throw IllegalArgumentException("The table: $tableName does not exist in this database.")
         }
-        if (!isTableLoaded(tableName)) {
-            loadTable(tableName)
-        }
+        loadTable(tableName)
+
         val t = tables[tableName]!!
         if (!t.schemaMatches(table.schema)) {
             throw IllegalArgumentException("The table: $tableName does not match the current schema.")
@@ -144,13 +137,23 @@ abstract class DbEngine protected constructor(
         tables[tableName] = table
     }
 
+    @Throws(IOException::class)
+    fun appendTable(tableName: String, toAppend: Table) {
+        if (!allTables.contains(tableName)) {
+            throw IllegalArgumentException("The table: $tableName does not exist in this database.")
+        }
+
+        val t = this[tableName]
+        this[tableName] = t + toAppend
+    }
+
     fun query(
         command: String,
-        table: String,
+        tableName: String,
         where: String?,
         columns: JsonColumns?,
         sortingType: SortingType
     ): Query<*> {
-        return Query.build(command, table, this, where, columns, sortingType)
+        return Query.build(command, tableName, this, where, columns, sortingType)
     }
 }

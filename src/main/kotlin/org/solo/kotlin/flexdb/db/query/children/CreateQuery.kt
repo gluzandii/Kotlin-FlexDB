@@ -8,10 +8,10 @@ import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
 import java.io.IOException
 
 class CreateQuery(
-    table: String,
+    tableName: String,
     engine: DbEngine,
     columns: JsonColumns,
-) : Query<Boolean>(table, engine, null, columns, SortingType.NONE) {
+) : Query<Boolean>(tableName, engine, null, columns, SortingType.NONE) {
 
     @Throws(IOException::class, InvalidQueryException::class)
     override fun execute(): Boolean {

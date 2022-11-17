@@ -17,11 +17,11 @@ import java.io.IOException
 import java.util.*
 
 class SelectQuery(
-    table: String,
+    tableName: String,
     engine: DbEngine,
     where: String,
     sortingType: SortingType
-) : Query<List<Row>>(table, engine, where, null, sortingType) {
+) : Query<List<Row>>(tableName, engine, where, null, sortingType) {
     private fun mapContext(mp: Map<*, *>): EvaluationContext {
         val context = StandardEvaluationContext(mp)
         context.addPropertyAccessor(MapAccessor())
@@ -36,7 +36,7 @@ class SelectQuery(
 
         runBlocking {
             launch(Dispatchers.Default) {
-                for (row in engine[table]) {
+                for (row in engine[tableName]) {
                     try {
                         val result = expression.getValue(mapContext(row.map()), Boolean::class.java)
 

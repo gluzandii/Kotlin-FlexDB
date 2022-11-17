@@ -7,6 +7,7 @@ import org.solo.kotlin.flexdb.json.query.classes.JsonColumn
 import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
 import java.util.*
 
+@Suppress("unused")
 class Table(val name: String, val schema: Schema) : Iterable<Row> {
     private val rows = TreeSet<Row>()
 
@@ -25,6 +26,12 @@ class Table(val name: String, val schema: Schema) : Iterable<Row> {
 
             return j
         }
+
+
+    operator fun plus(table: Table): Table {
+        println(table)
+        return this
+    }
 
     fun containsRow(row: Row): Boolean {
         return rows.contains(row)
