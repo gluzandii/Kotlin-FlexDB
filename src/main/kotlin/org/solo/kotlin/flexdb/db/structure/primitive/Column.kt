@@ -8,6 +8,16 @@ class Column(val name: String, val type: DbEnumTypes, private val constraints: S
         return name.hashCode()
     }
 
+    val stringConstraints: Set<String>
+        get() {
+            val ms = hashSetOf<String>()
+            for (i in constraints) {
+                ms.add(i.name)
+            }
+
+            return ms
+        }
+
     override operator fun equals(other: Any?): Boolean {
         if (this === other) {
             return true

@@ -1,15 +1,26 @@
 package org.solo.kotlin.flexdb.db.engine
 
+import org.solo.kotlin.flexdb.InvalidQueryException
 import org.solo.kotlin.flexdb.db.DB
+import org.solo.kotlin.flexdb.db.bson.DbColumn
 import org.solo.kotlin.flexdb.db.query.Query
 import org.solo.kotlin.flexdb.db.query.SortingType
+import org.solo.kotlin.flexdb.db.query.children.CreateQuery
 import org.solo.kotlin.flexdb.db.query.children.SelectQuery
 import org.solo.kotlin.flexdb.db.structure.Table
+import org.solo.kotlin.flexdb.internal.appendFile
+import org.solo.kotlin.flexdb.json.JsonUtil
+import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
+import org.solo.kotlin.flexdb.zip.ZipUtil
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.nio.file.Path
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.random.Random
 
 /**
  * A Thread-Safe abstract DbEngine.
@@ -33,16 +44,6 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
      */
     private val tableQueue: Queue<String>
 
-    /**
-     * Root of DB
-     */
-    val root = db.root
-
-    /**
-     * Password of DB
-     */
-    val password = db.password
-
     init {
         tableQueue = ConcurrentLinkedQueue()
     }
@@ -63,7 +64,7 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
         }
     }
 
-    fun tableExists(tableName: String): Boolean {
+    private fun tableExists(tableName: String): Boolean {
         return try {
             return db.tableExists(tableName)
         } catch (ex: Exception) {
@@ -71,8 +72,37 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
         }
     }
 
-    fun tablePath(tableName: String): Path? {
-        return db.tablePath(tableName)
+    private fun tableExists(table: Table): Boolean {
+        return tableExists(table.name)
+    }
+
+    private fun tablePath(table: Table): Path? {
+        return db.tablePath(table.name)
+    }
+
+    @Throws(IOException::class, InvalidQueryException::class)
+    fun createTable(table: Table): Boolean {
+        if (tableExists(table)) {
+            return false
+        }
+
+        val dbCol = DbColumn(table.schemaSet)
+        val path = tablePath(table) ?: return false
+        val bout = ByteArrayOutputStream()
+
+        val mapper = JsonUtil.newBinaryObjectMapper()
+        mapper.writeValue(bout, dbCol)
+
+        val file =
+            db.root.appendFile("temp_${Random(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)).nextInt()}")
+
+        try {
+            file.writeBytes(bout.toByteArray())
+            ZipUtil.compress(path, db.password, file)
+        } finally {
+            file.delete()
+        }
+        return true
     }
 
     @Throws(IOException::class)
@@ -104,6 +134,14 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
     ): SelectQuery {
         return SelectQuery(table, this, where, sortingType)
     }
+
+    fun create(
+        table: String,
+        columns: JsonColumns,
+    ): CreateQuery {
+        return CreateQuery(table, this, columns)
+    }
+
 
     fun query(
         command: String,
