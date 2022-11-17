@@ -37,12 +37,12 @@ class Table(val name: String, private val schema: Schema) : Iterable<Row> {
         rows.add(row)
     }
 
-    override fun hashCode(): Int {
-        return name.hashCode()
-    }
-
     override fun iterator(): Iterator<Row> {
         return rows.iterator()
+    }
+
+    override fun hashCode(): Int {
+        return name.hashCode()
     }
 
     override fun equals(other: Any?): Boolean {

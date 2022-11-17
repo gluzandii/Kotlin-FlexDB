@@ -1,7 +1,5 @@
 package org.solo.kotlin.flexdb.db.query.children
 
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -36,24 +34,19 @@ class SelectQuery(
         val (linkedList, mutexList) = Pair(LinkedList<Row>(), Mutex())
 
         runBlocking {
-            val jobs = LinkedList<Job>()
-            for (table in engine.getTables(table)) {
-                jobs.add(launch {
+            launch {
+                for (row in engine.getTable(table)) {
                     try {
-                        for (row in table) {
-                            val result = expression.getValue(mapContext(row.map()), Boolean::class.java)
+                        val result = expression.getValue(mapContext(row.map()), Boolean::class.java)
 
-                            if (result == true) {
-                                mutexList.withLock { linkedList.add(row) }
-                            }
+                        if (result == true) {
+                            mutexList.withLock { linkedList.add(row) }
                         }
                     } catch (ex: Exception) {
                         ex.printStackTrace()
                     }
-                })
+                }
             }
-
-            joinAll(*jobs.toTypedArray())
         }
 
         return linkedList

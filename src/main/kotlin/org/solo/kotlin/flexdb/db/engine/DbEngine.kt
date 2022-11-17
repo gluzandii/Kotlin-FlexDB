@@ -1,5 +1,6 @@
 package org.solo.kotlin.flexdb.db.engine
 
+import kotlinx.coroutines.*
 import org.solo.kotlin.flexdb.InvalidQueryException
 import org.solo.kotlin.flexdb.db.DB
 import org.solo.kotlin.flexdb.db.bson.DbColumn
@@ -18,6 +19,7 @@ import java.time.ZoneOffset
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.io.path.deleteIfExists
 import kotlin.random.Random
 
 /**
@@ -31,11 +33,6 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
      * 'TableName_{id range}': Table. Yes
      */
     private val tables: MutableMap<String, Table> = ConcurrentHashMap<String, Table>()
-
-    /**
-     * Stores currently loaded tables.
-     */
-    private val tableNames: MutableSet<String> = Collections.newSetFromMap(ConcurrentHashMap())
 
     /**
      * The queue of tables, to properly manage the table limit.
@@ -54,12 +51,37 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
     protected abstract fun loadTables0(tableName: String)
 
     @Throws(IOException::class)
+    protected abstract fun serializeTable0(table: Table)
+
+    @Throws(IOException::class)
     protected fun loadTables(tableName: String) {
         loadTables0(tableName)
 
         if (exceededLimit()) {
             trimTable()
         }
+    }
+
+    private fun trimTable() = runBlocking {
+        while (!exceededLimit()) {
+            val name = tableQueue.poll()
+            launch { removeAll(name) }
+        }
+    }
+
+
+    private fun loadTableIfNotLoaded(tableName: String) {
+        if (!tables.containsKey(tableName)) {
+            loadTables(tableName)
+        }
+    }
+
+    private fun removeAll(table: String) {
+        if (!tables.containsKey(table)) {
+            return
+        }
+        val t = tables.remove(table)!!
+        serializeTable0(t)
     }
 
     private fun tableExists(tableName: String): Boolean {
@@ -70,12 +92,8 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
         }
     }
 
-    private fun tableExists(table: Table): Boolean {
-        return tableExists(table.name)
-    }
-
-    private fun tablePath(table: Table): Path? {
-        return db.tablePath(table.name)
+    private fun tablePath(tableName: String): Path {
+        return db.tablePath(tableName)
     }
 
     private fun hasLimit(): Boolean {
@@ -86,44 +104,14 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
         return hasLimit() && tableQueue.size > limit
     }
 
-    private fun trimTable() {
-        while (!exceededLimit()) {
-            val name = tableQueue.poll()
-
-            // tableNames.remove(name)
-            // Do not call the above code, since it is called in the below function 'removeAll'
-
-            // Focus on making this method parallel this later
-            removeAll(name ?: return)
-        }
-    }
-
-    private fun loadTableIfNotLoaded(tableName: String) {
-        if (!tableNames.contains(tableName)) {
-            loadTables(tableName)
-        }
-    }
-
-    private fun removeAll(table: String) {
-        val regex = Regex("${table}_\\d+")
-
-        for ((k, _) in tables) {
-            if (regex.matches(k)) {
-                tables.remove(k)
-            }
-        }
-
-        tableNames.remove(table)
-    }
-
     @Throws(IOException::class, InvalidQueryException::class)
     fun createTable(table: Table): Boolean {
-        if (tableExists(table)) {
+        if (tableExists(table.name)) {
             return false
         }
 
         val dbCol = DbColumn(table.schemaSet)
-        val path = tablePath(table) ?: throw InvalidQueryException("Table path is null")
+        val path = tablePath(table.name)
         val bout = ByteArrayOutputStream()
 
         val mapper = JsonUtil.newBinaryObjectMapper()
@@ -142,23 +130,17 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
     }
 
     @Throws(IOException::class)
-    fun getTables(tableName: String): Set<Table> {
-        loadTableIfNotLoaded(tableName)
-
-        val regex = Regex("${tableName}_\\d+")
-        val set = hashSetOf<Table>()
-
-        for ((k, v) in tables) {
-            if (regex.matches(k)) {
-                set.add(v)
-            }
+    fun deleteTable(table: Table): Boolean {
+        if (!tableExists(table.name)) {
+            return false
         }
 
-        return set
+        val path = tablePath(table.name)
+        return path.deleteIfExists()
     }
 
     @Throws(IOException::class)
-    operator fun get(tableName: String): Table {
+    fun getTable(tableName: String): Table {
         loadTableIfNotLoaded(tableName)
         return tables[tableName]!!
     }
@@ -171,24 +153,5 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
         sortingType: SortingType
     ): Query<*> {
         return Query.build(command, table, this, where, columns, sortingType)
-    }
-
-    companion object {
-        @JvmStatic
-        fun tableName(table: String, index: Int): String {
-            var start = 0
-            var end = 200
-
-            while (true) {
-                val range = (start until end)
-
-                if (range.contains(index)) {
-                    return "${table}_${start}"
-                }
-
-                start = end
-                end += 200
-            }
-        }
     }
 }
