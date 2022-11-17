@@ -15,9 +15,7 @@ import org.solo.kotlin.flexdb.db.types.*
 @Suppress("unused")
 @JsonDeserialize(using = DbRowDeserializer::class)
 @JsonSerialize(using = DbRowSerializer::class)
-data class DbRow(var data: LinkedHashMap<String, HashMap<String, DbValue<*>?>>) {
-    constructor() : this(LinkedHashMap())
-}
+data class DbRow(var data: LinkedHashMap<String, HashMap<String, DbValue<*>?>>)
 
 class DbRowSerializer : JsonSerializer<DbRow>() {
     override fun serialize(row: DbRow, gen: JsonGenerator, serializers: SerializerProvider) {

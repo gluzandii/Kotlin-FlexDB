@@ -7,9 +7,10 @@ import org.solo.kotlin.flexdb.db.structure.RowMap
 import org.solo.kotlin.flexdb.db.structure.Schema
 import org.solo.kotlin.flexdb.db.types.DbValue
 
-class Row(val id: Int, val schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbValue<*>?>> {
+class Row(val id: Int, val schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbValue<*>?>>, Comparator<Row> {
     private val content: RowMap = RowMap(schema)
 
+    @Suppress("unused")
     fun containsColumn(c: Column): Boolean {
         return content.containsColumn(c)
     }
@@ -30,9 +31,19 @@ class Row(val id: Int, val schema: Schema) : Iterable<MutableMap.MutableEntry<Co
     operator fun get(colName: Column): DbValue<*>? {
         return content[colName]
     }
-    
+
     override fun iterator(): Iterator<MutableMap.MutableEntry<Column, DbValue<*>?>> {
         return content.iterator()
+    }
+
+    override fun compare(o1: Row, o2: Row): Int {
+        return if (o1.hashCode() == o2.hashCode()) {
+            0
+        } else if (o1.hashCode() > o2.hashCode()) {
+            1
+        } else {
+            -1
+        }
     }
 
     override fun hashCode(): Int {
