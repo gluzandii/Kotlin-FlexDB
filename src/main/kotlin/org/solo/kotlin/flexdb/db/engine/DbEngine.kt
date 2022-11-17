@@ -33,6 +33,16 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
      */
     private val tableQueue: Queue<String>
 
+    /**
+     * Root of DB
+     */
+    val root = db.root
+
+    /**
+     * Password of DB
+     */
+    val password = db.password
+
     init {
         tableQueue = ConcurrentLinkedQueue()
     }
