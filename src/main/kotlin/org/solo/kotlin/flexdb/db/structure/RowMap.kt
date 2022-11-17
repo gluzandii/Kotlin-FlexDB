@@ -43,9 +43,9 @@ class RowMap(val schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbVa
             throw InvalidColumnProvidedException("This column is not part of the schema")
         }
 
-        if (col.hasConstraint(DbConstraint.Immutable)) {
-            throw InvalidColumnProvidedException("Cannot change value for an immutable column.")
-        }
+//        if (col.hasConstraint(DbConstraint.Immutable)) {
+//            throw InvalidColumnProvidedException("Cannot change value for an immutable column.")
+//        }
         if ((col.hasConstraint(DbConstraint.NotNull) || col.hasConstraint(DbConstraint.Unique)) && (value == null)) {
             throw NullUsedInNonNullColumnException("The value provided is null, for a NonNull constraint column")
         }

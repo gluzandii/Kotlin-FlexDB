@@ -23,9 +23,7 @@ enum class DbEnumTypes {
 
 sealed class DbValue<T>(val value: T, val type: DbEnumTypes) {
     override fun hashCode(): Int {
-        var result = value.hashCode()
-        result = 31 * result + type.hashCode()
-        return result
+        return value.hashCode()
     }
 
     override operator fun equals(other: Any?): Boolean {

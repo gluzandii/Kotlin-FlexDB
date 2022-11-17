@@ -15,7 +15,7 @@ data class Schema(val schemaSet: MutableSet<Column>) : Iterable<Column> {
             Column(
                 "id",
                 DbEnumTypes.Number,
-                EnumSet.of(DbConstraint.Unique, DbConstraint.NotNull, DbConstraint.Immutable)!!
+                EnumSet.of(DbConstraint.Unique, DbConstraint.NotNull/*, DbConstraint.Immutable*/)!!
             )
         schemaSet.add(col)
     }

@@ -8,6 +8,8 @@ import org.solo.kotlin.flexdb.db.bson.DbRow
 import org.solo.kotlin.flexdb.db.query.Query
 import org.solo.kotlin.flexdb.db.query.SortingType
 import org.solo.kotlin.flexdb.db.structure.Table
+import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
+import org.solo.kotlin.flexdb.db.types.DbValue
 import org.solo.kotlin.flexdb.internal.append
 import org.solo.kotlin.flexdb.internal.deleteRecursively
 import org.solo.kotlin.flexdb.internal.schemaMatches
@@ -101,9 +103,40 @@ abstract class DbEngine protected constructor(
         if (db.tableExists(table.name)) {
             return false
         }
-
+        val rowLHM = linkedMapOf<String, HashMap<String, DbValue<*>?>>()
         val dbCol = DbColumn(table.schemaSet)
-        val row = DbRow()
+
+        for (i in table) {
+            val id = i.id.toString()
+
+            val contentMap = HashMap<String, DbValue<*>?>()
+            val dupli = HashMap<String, HashSet<DbValue<*>>>()
+
+            for ((k, v) in i) {
+                val n = k.name
+
+                if (v == null && k.hasConstraint(DbConstraint.NotNull)) {
+                    throw InvalidQueryException("Column '${k.name}' cannot be null.")
+                }
+                if (k.hasConstraint(DbConstraint.Unique) && v != null) {
+                    if (dupli.containsKey(n)) {
+                        if (dupli[n]!!.contains(v)) {
+                            throw InvalidQueryException("Column '${k.name}' must be unique.")
+                        }
+
+                        dupli[n]!!.add(v)
+                    } else {
+                        dupli[n] = hashSetOf(v)
+                    }
+                }
+
+                contentMap[n] = v
+            }
+
+            rowLHM[id] = contentMap
+        }
+
+        val row = DbRow(rowLHM)
 
         val path = db.tablePath(table.name)
 
