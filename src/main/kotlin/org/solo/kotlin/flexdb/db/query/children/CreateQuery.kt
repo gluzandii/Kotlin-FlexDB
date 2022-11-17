@@ -7,6 +7,7 @@ import org.solo.kotlin.flexdb.db.query.Query
 import org.solo.kotlin.flexdb.db.query.SortingType
 import org.solo.kotlin.flexdb.json.JsonUtil
 import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 
 class CreateQuery(
@@ -20,11 +21,12 @@ class CreateQuery(
         if (engine.tableExists(table)) {
             return false
         }
-        val dbCol = DbColumn(columns!!)
+        val dbCol = DbColumn(columns ?: return false)
         val path = engine.tablePath(table) ?: return false
+        val bout = ByteArrayOutputStream()
 
         val mapper = JsonUtil.newBinaryObjectMapper()
-        mapper.writeValue(path.toFile(), dbCol)
+        mapper.writeValue(bout, dbCol)
 
         return true
     }

@@ -1,9 +1,9 @@
 package org.solo.kotlin.flexdb.json.query.classes
 
-data class JsonReset(val table: String, val action: String, val payload: JsonResetPayload) {
+data class JsonReset(var table: String, var action: String, var payload: JsonResetPayload) {
     constructor() : this("", "", JsonResetPayload())
 }
 
-data class JsonResetPayload(val condition: String) {
+data class JsonResetPayload(var condition: String) {
     constructor() : this("")
 }
