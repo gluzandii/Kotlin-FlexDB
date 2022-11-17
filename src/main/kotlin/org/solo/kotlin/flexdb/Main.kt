@@ -85,7 +85,7 @@ fun main(args: Array<String>) {
             val input = System.`in`.read().toChar()
 
             if ((input == 'Y') || (input == 'y')) {
-                DbUtil.createDB(name, "s")
+                DbUtil.createDB(name)
             } else {
                 println("Exiting...")
                 exitProcess(1)

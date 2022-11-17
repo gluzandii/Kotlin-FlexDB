@@ -62,7 +62,7 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
     private fun trimTable() = runBlocking {
         while (!exceededLimit()) {
             val name = tableQueue.poll()
-            launch { removeAll(name) }
+            launch(Dispatchers.IO) { removeAll(name) }
         }
     }
 
