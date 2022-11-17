@@ -5,19 +5,24 @@ import org.solo.kotlin.flexdb.db.DB
 import org.solo.kotlin.flexdb.db.query.Query
 import org.solo.kotlin.flexdb.db.query.SortingType
 import org.solo.kotlin.flexdb.db.structure.Table
+import org.solo.kotlin.flexdb.internal.deleteRecursively
 import org.solo.kotlin.flexdb.internal.schemaMatches
 import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
 import java.io.IOException
-import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
-import kotlin.io.path.deleteIfExists
+
 
 /**
  * A Thread-Safe abstract DbEngine.
  */
-abstract class DbEngine protected constructor(protected val db: DB, private val limit: Int) {
+@Suppress("unused")
+abstract class DbEngine protected constructor(
+    protected val db: DB,
+    private val limit: Int,
+    private val rowsPerFile: Short
+) {
     /**
      * Stores each table.
      *
@@ -34,11 +39,7 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
     /**
      * The queue of tables, to properly manage the table limit.
      */
-    private val tableQueue: Queue<String>
-
-    init {
-        tableQueue = ConcurrentLinkedQueue()
-    }
+    private val tableQueue: Queue<String> = ConcurrentLinkedQueue()
 
     /**
      * Note: This should not be thread safe, it will be
@@ -81,18 +82,6 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
         serializeTable0(t)
     }
 
-    private fun tableExists(tableName: String): Boolean {
-        return try {
-            return db.tableExists(tableName)
-        } catch (ex: Exception) {
-            false
-        }
-    }
-
-    private fun tablePath(tableName: String): Path {
-        return db.tablePath(tableName)
-    }
-
     private fun hasLimit(): Boolean {
         return limit > 0
     }
@@ -125,12 +114,12 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
     @Suppress("unused")
     @Throws(IOException::class)
     fun deleteTable(table: Table): Boolean {
-        if (!tableExists(table.name)) {
+        if (!db.tableExists(table.name)) {
             return false
         }
 
-        val path = tablePath(table.name)
-        return path.deleteIfExists()
+        val path = db.tablePath(table.name)
+        return path.deleteRecursively()
     }
 
     @Throws(IOException::class)

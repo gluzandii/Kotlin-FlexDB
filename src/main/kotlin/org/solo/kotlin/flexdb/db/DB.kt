@@ -2,7 +2,7 @@ package org.solo.kotlin.flexdb.db
 
 import org.solo.kotlin.flexdb.internal.append
 import java.nio.file.Path
-import kotlin.io.path.isRegularFile
+import kotlin.io.path.isDirectory
 
 
 @Suppress("unused")
@@ -12,7 +12,7 @@ class DB(val root: Path) {
     private val index: Path = DbUtil.indexPath(root)
 
     fun tableExists(name: String): Boolean {
-        return schema.append(name).isRegularFile()
+        return tablePath(name).isDirectory()
     }
 
     fun tablePath(name: String): Path {
