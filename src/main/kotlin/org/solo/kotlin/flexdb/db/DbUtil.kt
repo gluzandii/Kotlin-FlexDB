@@ -1,10 +1,8 @@
 package org.solo.kotlin.flexdb.db
 
-import org.solo.kotlin.flexdb.Crypto
 import org.solo.kotlin.flexdb.GlobalData
 import org.solo.kotlin.flexdb.InvalidPasswordProvidedException
 import org.solo.kotlin.flexdb.internal.append
-import org.solo.kotlin.flexdb.json.JsonUtil
 import java.io.IOException
 import java.nio.file.Path
 import java.time.LocalDateTime
@@ -22,13 +20,8 @@ object DbUtil {
     }
 
     @JvmStatic
-    fun usersPath(root: Path): Path {
-        return root.append("users.bson")
-    }
-
-    @JvmStatic
-    fun pswdPath(root: Path): Path {
-        return root.append("pswd.txt")
+    fun indexPath(root: Path): Path {
+        return root.append("index")
     }
 
     @JvmStatic
@@ -40,20 +33,15 @@ object DbUtil {
 
             val schema = schemafullPath(name)
             val logs = logsPath(name)
-            val users = usersPath(name)
-            val pswd = pswdPath(name)
+            val index = indexPath(name)
 
             if (!schema.isDirectory()) {
                 return false
             }
-            if (!logs.isDirectory()) {
+            if (!index.isDirectory()) {
                 return false
             }
-            if (!users.isRegularFile()) {
-                return false
-            }
-
-            return pswd.isRegularFile()
+            return logs.isRegularFile()
         } catch (ex: Exception) {
             return false
         }
@@ -65,37 +53,16 @@ object DbUtil {
         if (!dbExists(path)) {
             error("The path: $path is not FlexDB")
         }
-        if (!canAccessDB(path)) {
-            throw InvalidPasswordProvidedException("The password: ${GlobalData.pswd ?: "null"} is invalid.")
-        }
 
         GlobalData.db = DB(
             root = path,
-            password = GlobalData.pswd!!
         )
         return GlobalData.db!!
     }
 
     @JvmStatic
-    fun canAccessDB(path: Path): Boolean {
-        try {
-            if (!dbExists(path)) {
-                return false
-            }
-
-            val pswd = pswdPath(path)
-            val readAll = pswd.readText()
-
-            return Crypto.passwordMatches(GlobalData.pswd!!, readAll)
-        } catch (ex: Exception) {
-            return false
-        }
-
-    }
-
-    @JvmStatic
     @Throws(IOException::class)
-    fun createDB(path: Path, p: String): DB? {
+    fun createDB(path: Path): DB? {
         if (dbExists(path)) {
             return null
         }
@@ -103,9 +70,7 @@ object DbUtil {
         val name = path.name
         val schema = schemafullPath(path)
         val logs = logsPath(path)
-        val users = usersPath(path)
-        val pswd = pswdPath(path)
-        val hashed = Crypto.hashPassword(p)
+        val index = indexPath(path)
 
         if (path.isDirectory() && !dbExists(path)) {
             throw IllegalArgumentException("Invalid path: $path given, cannot create FlexDB here.")
@@ -116,14 +81,11 @@ object DbUtil {
 
         schema.createDirectories()
         logs.createDirectories()
+        index.createDirectories()
 
         logs.append("log1.log").writeText("[${LocalDateTime.now()}] - DB: \"$name\" created.")
-        pswd.writeText(hashed)
-        users.writeBytes(JsonUtil.binaryJsonSerialize(mapOf(Pair("root", hashed))))
-
         return DB(
             path,
-            p
         )
     }
 }

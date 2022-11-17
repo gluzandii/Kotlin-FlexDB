@@ -1,27 +1,18 @@
 package org.solo.kotlin.flexdb.db.engine
 
 import kotlinx.coroutines.*
-import org.solo.kotlin.flexdb.InvalidQueryException
 import org.solo.kotlin.flexdb.db.DB
-import org.solo.kotlin.flexdb.db.bson.DbColumn
 import org.solo.kotlin.flexdb.db.query.Query
 import org.solo.kotlin.flexdb.db.query.SortingType
 import org.solo.kotlin.flexdb.db.structure.Table
-import org.solo.kotlin.flexdb.internal.appendFile
 import org.solo.kotlin.flexdb.internal.schemaMatches
-import org.solo.kotlin.flexdb.json.JsonUtil
 import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
-import org.solo.kotlin.flexdb.zip.ZipUtil
-import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.nio.file.Path
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.io.path.deleteIfExists
-import kotlin.random.Random
 
 /**
  * A Thread-Safe abstract DbEngine.
@@ -114,31 +105,24 @@ abstract class DbEngine protected constructor(protected val db: DB, private val 
         return tables.containsKey(table)
     }
 
-    @Throws(IOException::class, InvalidQueryException::class)
-    fun createTable(table: Table): Boolean {
-        if (tableExists(table.name)) {
-            return false
-        }
+//    @Throws(IOException::class, InvalidQueryException::class)
+//    fun createTable(table: Table): Boolean {
+//        if (tableExists(table.name)) {
+//            return false
+//        }
+//
+//        val dbCol = DbColumn(table.schemaSet)
+//        val path = tablePath(table.name)
+//        val bout = ByteArrayOutputStream()
+//
+//        val mapper = JsonUtil.newBinaryObjectMapper()
+//        mapper.writeValue(bout, dbCol)
+//
+///        return true
+//    }
 
-        val dbCol = DbColumn(table.schemaSet)
-        val path = tablePath(table.name)
-        val bout = ByteArrayOutputStream()
 
-        val mapper = JsonUtil.newBinaryObjectMapper()
-        mapper.writeValue(bout, dbCol)
-
-        val file =
-            db.root.appendFile("temp_${Random(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)).nextInt()}")
-
-        try {
-            file.writeBytes(bout.toByteArray())
-            ZipUtil.compress(path, db.password, file)
-        } finally {
-            file.delete()
-        }
-        return true
-    }
-
+    @Suppress("unused")
     @Throws(IOException::class)
     fun deleteTable(table: Table): Boolean {
         if (!tableExists(table.name)) {

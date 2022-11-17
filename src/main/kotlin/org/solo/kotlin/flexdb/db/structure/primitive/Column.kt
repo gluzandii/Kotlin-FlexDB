@@ -1,9 +1,10 @@
 package org.solo.kotlin.flexdb.db.structure.primitive
 
 import org.solo.kotlin.flexdb.db.types.DbEnumTypes
+import java.util.*
 
 @Suppress("unused")
-class Column(val name: String, val type: DbEnumTypes, private val constraints: Set<DbConstraint>) {
+class Column(val name: String, val type: DbEnumTypes, private val constraints: EnumSet<DbConstraint>) {
     override fun hashCode(): Int {
         return name.hashCode()
     }

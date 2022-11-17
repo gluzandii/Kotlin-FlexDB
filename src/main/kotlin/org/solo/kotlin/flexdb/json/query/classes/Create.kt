@@ -18,13 +18,14 @@ fun String.capitalise(): String {
     }
 }
 
+@Suppress("unused")
 fun JsonColumns.toSchema(): Schema {
     val set = hashSetOf<Column>()
 
     for ((k, v) in this) {
         val type =
             DbEnumTypes.valueOf(v.type.capitalise())
-        val consts = hashSetOf<DbConstraint>()
+        val consts = EnumSet.noneOf(DbConstraint::class.java)!!
 
         for (i in v.constraints) {
             consts.add(DbConstraint.valueOf(i.capitalise()))
