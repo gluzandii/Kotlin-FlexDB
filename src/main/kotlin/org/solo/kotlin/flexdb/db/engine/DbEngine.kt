@@ -1,17 +1,25 @@
 package org.solo.kotlin.flexdb.db.engine
 
 import kotlinx.coroutines.*
+import org.solo.kotlin.flexdb.InvalidQueryException
 import org.solo.kotlin.flexdb.db.DB
+import org.solo.kotlin.flexdb.db.bson.DbColumn
+import org.solo.kotlin.flexdb.db.bson.DbRow
 import org.solo.kotlin.flexdb.db.query.Query
 import org.solo.kotlin.flexdb.db.query.SortingType
 import org.solo.kotlin.flexdb.db.structure.Table
+import org.solo.kotlin.flexdb.internal.append
 import org.solo.kotlin.flexdb.internal.deleteRecursively
 import org.solo.kotlin.flexdb.internal.schemaMatches
+import org.solo.kotlin.flexdb.json.JsonUtil
 import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.io.path.createDirectories
+import kotlin.io.path.writeBytes
 
 
 /**
@@ -88,21 +96,35 @@ abstract class DbEngine protected constructor(
         return tables.containsKey(tableName)
     }
 
-//    @Throws(IOException::class, InvalidQueryException::class)
-//    fun createTable(table: Table): Boolean {
-//        if (tableExists(table.name)) {
-//            return false
-//        }
-//
-//        val dbCol = DbColumn(table.schemaSet)
-//        val path = tablePath(table.name)
-//        val bout = ByteArrayOutputStream()
-//
-//        val mapper = JsonUtil.newBinaryObjectMapper()
-//        mapper.writeValue(bout, dbCol)
-//
-///        return true
-//    }
+    @Throws(IOException::class, InvalidQueryException::class)
+    fun createTable(table: Table): Boolean {
+        if (db.tableExists(table.name)) {
+            return false
+        }
+
+        val dbCol = DbColumn(table.schemaSet)
+        val row = DbRow()
+
+        val path = db.tablePath(table.name)
+
+        val columnBout = ByteArrayOutputStream()
+        val rowBout = ByteArrayOutputStream()
+
+        val mapper = JsonUtil.newBinaryObjectMapper()
+
+        mapper.writeValue(columnBout, dbCol)
+        mapper.writeValue(rowBout, row)
+
+        path.createDirectories()
+
+        val row0 = path.append("row0")
+        val column = path.append("column.bson")
+
+        row0.writeBytes(rowBout.toByteArray())
+        column.writeBytes(columnBout.toByteArray())
+
+        return true
+    }
 
 
     @Suppress("unused")

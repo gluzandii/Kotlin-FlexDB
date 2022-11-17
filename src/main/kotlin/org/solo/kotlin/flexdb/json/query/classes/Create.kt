@@ -6,7 +6,7 @@ import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbEnumTypes
 import java.util.*
 
-typealias JsonColumns = HashMap<String, JsonColumn>
+typealias JsonColumns = LinkedHashMap<String, JsonColumn>
 
 fun String.capitalise(): String {
     return replaceFirstChar {
