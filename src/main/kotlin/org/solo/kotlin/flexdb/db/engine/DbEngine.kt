@@ -45,24 +45,32 @@ abstract class DbEngine protected constructor(
     private val allTables: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
 
+    @Throws(IOException::class)
+    protected abstract suspend fun loadTable0(tableName: String)
+
+    @Throws(IOException::class)
+    protected abstract suspend fun serializeTable0(table: Table)
+
     /**
-     * Note: This should not be thread safe, it will be
-     * managed by calling methods.
+     * The boolean value provided indicates if the table was loaded or not.
      */
-    @Throws(IOException::class)
-    protected abstract fun loadTable0(tableName: String)
+    protected open fun preGet(b: Boolean) {}
+
+    /**
+     * The boolean value provided indicates if the table was loaded or not.
+     */
+    protected open fun preSet(b: Boolean) {}
 
     @Throws(IOException::class)
-    protected abstract fun serializeTable0(table: Table)
-
-    @Throws(IOException::class)
-    protected fun loadTable(tableName: String) {
+    protected suspend fun loadTable(tableName: String): Boolean {
         if (!tables.containsKey(tableName)) {
             loadTable0(tableName)
+            return true
         }
+        return false
     }
 
-    private fun remove(tableName: String) {
+    private suspend fun remove(tableName: String) {
         if (!tables.containsKey(tableName)) {
             return
         }
@@ -148,17 +156,20 @@ abstract class DbEngine protected constructor(
     }
 
     @Throws(IOException::class)
-    operator fun get(tableName: String): Table {
-        loadTable(tableName)
+    suspend fun get(tableName: String): Table {
+        val b = loadTable(tableName)
+        preGet(b)
+
         return tables[tableName]!!
     }
 
     @Throws(IOException::class)
-    operator fun set(tableName: String, table: Table) {
+    suspend fun set(tableName: String, table: Table) {
         if (!allTables.contains(tableName)) {
             throw IllegalArgumentException("The table: $tableName does not exist in this database.")
         }
-        loadTable(tableName)
+        val b = loadTable(tableName)
+        preSet(b)
 
         val t = tables[tableName]!!
         if (!t.schemaMatches(table.schema)) {
@@ -169,13 +180,13 @@ abstract class DbEngine protected constructor(
     }
 
     @Throws(IOException::class)
-    fun appendTable(tableName: String, toAppend: Table) {
+    suspend fun appendTable(tableName: String, toAppend: Table) {
         if (!allTables.contains(tableName)) {
             throw IllegalArgumentException("The table: $tableName does not exist in this database.")
         }
 
-        val t = this[tableName]
-        this[tableName] = t + toAppend
+        val t = this.get(tableName)
+        this.set(tableName, t + toAppend)
     }
 
     fun query(
