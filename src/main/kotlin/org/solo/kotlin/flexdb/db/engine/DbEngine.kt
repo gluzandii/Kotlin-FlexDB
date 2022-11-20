@@ -1,20 +1,32 @@
 package org.solo.kotlin.flexdb.db.engine
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.solo.kotlin.flexdb.InvalidQueryException
 import org.solo.kotlin.flexdb.db.DB
+import org.solo.kotlin.flexdb.db.bson.DbColumnFile
+import org.solo.kotlin.flexdb.db.bson.DbRowFile
 import org.solo.kotlin.flexdb.db.query.Query
 import org.solo.kotlin.flexdb.db.query.SortingType
 import org.solo.kotlin.flexdb.db.structure.Table
+import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
+import org.solo.kotlin.flexdb.db.types.DbValue
+import org.solo.kotlin.flexdb.internal.append
 import org.solo.kotlin.flexdb.internal.deleteRecursively
 import org.solo.kotlin.flexdb.internal.doAsync
 import org.solo.kotlin.flexdb.internal.schemaMatches
+import org.solo.kotlin.flexdb.json.JsonUtil
 import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.io.path.createDirectories
+import kotlin.io.path.writeBytes
 
 
 /**
@@ -23,7 +35,7 @@ import kotlin.coroutines.suspendCoroutine
 @Suppress("unused")
 abstract class DbEngine protected constructor(
     protected val db: DB,
-    private val rowsPerFile: Short
+    private val rowsPerFile: Int = 1000
 ) {
     /**
      * Stores each table.
@@ -74,6 +86,85 @@ abstract class DbEngine protected constructor(
         return false
     }
 
+    @Throws(IOException::class)
+    protected fun createTableImpl(table: Table) {
+        // make sure not too many rows are in the table
+        val rows = ConcurrentLinkedQueue<TreeMap<Int, HashMap<String, DbValue<*>?>>>()
+        val dbCol = DbColumnFile(table.schemaSet)
+
+        runBlocking {
+            var rowLHM = TreeMap<Int, HashMap<String, DbValue<*>?>>()
+            val rowLHMutex = Mutex()
+
+            for (i in table) {
+                launch(Dispatchers.Default) {
+                    val id = i.id
+
+                    val contentMap = HashMap<String, DbValue<*>?>()
+                    val dupli = HashMap<String, HashSet<DbValue<*>>>()
+
+                    for ((k, v) in i) {
+                        val n = k.name
+
+                        if (v == null && k.hasConstraint(DbConstraint.NotNull)) {
+                            throw InvalidQueryException("Column '${k.name}' cannot be null.")
+                        }
+                        if (k.hasConstraint(DbConstraint.Unique) && v != null) {
+                            if (dupli.containsKey(n)) {
+                                if (dupli[n]!!.contains(v)) {
+                                    throw InvalidQueryException("Column '${k.name}' must be unique.")
+                                }
+
+                                dupli[n]!!.add(v)
+                            } else {
+                                dupli[n] = hashSetOf(v)
+                            }
+                        }
+
+                        contentMap[n] = v
+                    }
+
+                    rowLHMutex.withLock {
+                        rowLHM[id] = contentMap
+
+                        if (rowLHM.size == rowsPerFile) {
+                            rows.add(rowLHM)
+                            rowLHM = TreeMap<Int, HashMap<String, DbValue<*>?>>()
+                        }
+                    }
+                }
+            }
+            rows.add(rowLHM)
+        }
+
+        val rowsFile = LinkedList<DbRowFile>()
+        var start = 0
+        for (i in rows) {
+            rowsFile.add(DbRowFile(i))
+        }
+
+        val path = db.tablePath(table.name)
+        val columnBout = ByteArrayOutputStream()
+
+
+        val mapper = JsonUtil.newBinaryObjectMapper()
+
+        mapper.writeValue(columnBout, dbCol)
+        path.createDirectories()
+
+        val column = path.append("column.bson")
+        column.writeBytes(columnBout.toByteArray())
+
+        val rowBout = ByteArrayOutputStream()
+        for (row in rowsFile) {
+            rowBout.reset()
+            mapper.writeValue(rowBout, row)
+
+            path.append("row_${start}.bson").writeBytes(rowBout.toByteArray())
+            start += rowsPerFile
+        }
+    }
+
     private suspend fun remove(tableName: String) {
         if (!tables.containsKey(tableName)) {
             return
@@ -101,60 +192,6 @@ abstract class DbEngine protected constructor(
             }
         }
         return true
-//        val rowLHM = linkedMapOf<String, HashMap<String, DbValue<*>?>>()
-//        val dbCol = DbColumn(table.schemaSet)
-//
-//        for (i in table) {
-//            val id = i.id.toString()
-//
-//            val contentMap = HashMap<String, DbValue<*>?>()
-//            val dupli = HashMap<String, HashSet<DbValue<*>>>()
-//
-//            for ((k, v) in i) {
-//                val n = k.name
-//
-//                if (v == null && k.hasConstraint(DbConstraint.NotNull)) {
-//                    throw InvalidQueryException("Column '${k.name}' cannot be null.")
-//                }
-//                if (k.hasConstraint(DbConstraint.Unique) && v != null) {
-//                    if (dupli.containsKey(n)) {
-//                        if (dupli[n]!!.contains(v)) {
-//                            throw InvalidQueryException("Column '${k.name}' must be unique.")
-//                        }
-//
-//                        dupli[n]!!.add(v)
-//                    } else {
-//                        dupli[n] = hashSetOf(v)
-//                    }
-//                }
-//
-//                contentMap[n] = v
-//            }
-//
-//            rowLHM[id] = contentMap
-//        }
-//
-//        val row = DbRow(rowLHM)
-//
-//        val path = db.tablePath(table.name)
-//
-//        val columnBout = ByteArrayOutputStream()
-//        val rowBout = ByteArrayOutputStream()
-//
-//        val mapper = JsonUtil.newBinaryObjectMapper()
-//
-//        mapper.writeValue(columnBout, dbCol)
-//        mapper.writeValue(rowBout, row)
-//
-//        path.createDirectories()
-//
-//        val row0 = path.append("row0")
-//        val column = path.append("column.bson")
-//
-//        row0.writeBytes(rowBout.toByteArray())
-//        column.writeBytes(columnBout.toByteArray())
-//
-//        return true
     }
 
 
