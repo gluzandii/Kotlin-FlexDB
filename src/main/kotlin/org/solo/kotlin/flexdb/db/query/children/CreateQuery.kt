@@ -16,7 +16,7 @@ class CreateQuery(
 ) : Query<Boolean>(tableName, engine, null, columns, SortingType.NONE) {
 
     @Throws(IOException::class, InvalidQueryException::class)
-    override fun execute(): Boolean {
+    override suspend fun execute(): Boolean {
         return engine.createTable(Table(tableName, columns!!.toSchema()))
     }
 }

@@ -1,5 +1,10 @@
 package org.solo.kotlin.flexdb.db.query.children
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.solo.kotlin.flexdb.InvalidQueryException
 import org.solo.kotlin.flexdb.db.engine.DbEngine
 import org.solo.kotlin.flexdb.db.query.Query
@@ -11,8 +16,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext
 import java.io.IOException
 import java.util.*
 
-@Suppress("unused")
-class SelectQuery(
+class ParallelSelectQuery(
     tableName: String,
     engine: DbEngine,
     where: String,
@@ -28,19 +32,24 @@ class SelectQuery(
     @Throws(IOException::class, InvalidQueryException::class)
     override suspend fun execute(): List<Row> {
         val expression = parser.parseExpression(where!!)
-        val linkedList = LinkedList<Row>()
+        val (linkedList, mutexList) = Pair(LinkedList<Row>(), Mutex())
 
-        for (row in engine.get(tableName)) {
-            try {
-                val result = expression.getValue(mapContext(row.map()), Boolean::class.java)
+        coroutineScope {
+            for (row in engine.get(tableName)) {
+                launch(Dispatchers.Default) {
+                    try {
+                        val result = expression.getValue(mapContext(row.map()), Boolean::class.java)
 
-                if (result == true) {
-                    linkedList.add(row)
+                        if (result == true) {
+                            mutexList.withLock { linkedList.add(row) }
+                        }
+                    } catch (ex: Exception) {
+                        ex.printStackTrace()
+                    }
                 }
-            } catch (ex: Exception) {
-                ex.printStackTrace()
             }
         }
+
 
         return linkedList
     }
