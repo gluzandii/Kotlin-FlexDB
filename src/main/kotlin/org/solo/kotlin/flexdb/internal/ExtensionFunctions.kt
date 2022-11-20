@@ -12,8 +12,8 @@ import kotlin.io.path.Path
 
 
 inline fun <T, V> T.doAsync(cont: Continuation<V>, value: V, crossinline callback: T.() -> Unit) {
-    DbFuture.doRunAsync { callback() }
-        .thenAccept { cont.resume(value) }
+    DbFuture.performAsync { callback() }
+        .thenAccept { cont.resume(value) }!!
         .handle { _, e -> e?.printStackTrace() }
 }
 

@@ -4,6 +4,7 @@ import org.solo.kotlin.flexdb.InvalidQueryException
 import org.solo.kotlin.flexdb.db.engine.DbEngine
 import org.solo.kotlin.flexdb.db.query.children.CreateQuery
 import org.solo.kotlin.flexdb.db.query.children.ParallelSelectQuery
+import org.solo.kotlin.flexdb.db.query.children.SelectQuery
 import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
 import org.springframework.expression.ExpressionParser
 import org.springframework.expression.spel.standard.SpelExpressionParser
@@ -34,6 +35,14 @@ abstract class Query<T>(
         ): Query<*> {
             return when (command.lowercase()) {
                 "select" -> ParallelSelectQuery(tableName, engine, where ?: "true", sortingType)
+                
+                "normal select", "normal-select", "normalselect" -> SelectQuery(
+                    tableName,
+                    engine,
+                    where ?: "true",
+                    sortingType
+                )
+
                 "create" -> CreateQuery(
                     tableName,
                     engine,

@@ -28,9 +28,21 @@ class Table(val name: String, val schema: Schema) : Iterable<Row> {
         }
 
 
+    @Throws(MismatchedSchemaException::class)
     operator fun plus(table: Table): Table {
-        println(table)
-        return this
+        if (!table.schemaMatches(schema)) {
+            throw MismatchedSchemaException("Cannot add table with schema ${table.schema} to table with schema $schema")
+        }
+        val t = Table(name, schema)
+
+        for (i in table) {
+            t.rows.add(i)
+        }
+        for (i in this) {
+            t.rows.add(i)
+        }
+        
+        return t
     }
 
     fun containsRow(row: Row): Boolean {

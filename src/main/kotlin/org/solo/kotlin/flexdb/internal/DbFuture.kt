@@ -11,7 +11,7 @@ class DbFuture<T> : CompletableFuture<T>() {
 
     companion object {
         @JvmStatic
-        fun doRunAsync(runnable: Runnable): CompletableFuture<Void> {
+        fun performAsync(runnable: Runnable): CompletableFuture<Void> {
             return runAsync(runnable, GlobalData.cachedExecutor)
         }
     }

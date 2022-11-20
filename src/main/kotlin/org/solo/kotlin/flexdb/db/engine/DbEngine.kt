@@ -199,15 +199,15 @@ abstract class DbEngine protected constructor(
         tables[tableName] = table
     }
 
-    @Throws(IOException::class)
-    suspend fun appendTable(tableName: String, toAppend: Table) {
-        if (!allTables.contains(tableName)) {
-            throw IllegalArgumentException("The table: $tableName does not exist in this database.")
-        }
-
-        val t = this.get(tableName)
-        this.set(tableName, t + toAppend)
-    }
+//    @Throws(IOException::class)
+//    suspend fun appendTable(tableName: String, toAppend: Table) {
+//        if (!allTables.contains(tableName)) {
+//            throw IllegalArgumentException("The table: $tableName does not exist in this database.")
+//        }
+//
+//        val t = this.get(tableName)
+//        this.set(tableName, t + toAppend)
+//    }
 
     fun query(
         command: String,
