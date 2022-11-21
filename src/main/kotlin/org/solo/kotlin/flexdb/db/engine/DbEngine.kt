@@ -3,6 +3,7 @@ package org.solo.kotlin.flexdb.db.engine
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.apache.commons.io.FileUtils
 import org.solo.kotlin.flexdb.InvalidQueryException
 import org.solo.kotlin.flexdb.db.DB
 import org.solo.kotlin.flexdb.db.bson.DbColumnFile
@@ -12,10 +13,7 @@ import org.solo.kotlin.flexdb.db.query.SortingType
 import org.solo.kotlin.flexdb.db.structure.Table
 import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbValue
-import org.solo.kotlin.flexdb.internal.append
-import org.solo.kotlin.flexdb.internal.deleteRecursively
-import org.solo.kotlin.flexdb.internal.doAsync
-import org.solo.kotlin.flexdb.internal.schemaMatches
+import org.solo.kotlin.flexdb.internal.*
 import org.solo.kotlin.flexdb.json.JsonUtil
 import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
 import java.io.ByteArrayOutputStream
@@ -43,12 +41,14 @@ abstract class DbEngine protected constructor(
      * Not: 'TableName': Table. No
      * 'TableName_{id range}': Table. Yes
      */
-    private val tables: MutableMap<String, Table> = ConcurrentHashMap<String, Table>()
+    private val tablesMap: MutableMap<String, Table> = ConcurrentHashMap<String, Table>()
 
     /**
      * Stores all the tables present in this database.
      */
-    private val allTables: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    private val allTablesSet: MutableSet<String> = ConcurrentHashMap.newKeySet()
+
+    private val timerMap: MutableMap<String, Timer> = ConcurrentHashMap<String, Timer>()
 
 
     /**
@@ -63,38 +63,62 @@ abstract class DbEngine protected constructor(
     @Throws(IOException::class)
     protected abstract fun serializeTable0(table: Table, callback: () -> Unit)
 
-    /**
-     * The boolean value provided indicates if the table was loaded or not.
-     */
-    protected open fun preGet(b: Boolean) {}
-
-    /**
-     * The boolean value provided indicates if the table was loaded or not.
-     */
-    protected open fun preSet(b: Boolean) {}
-
     @Throws(IOException::class)
     protected suspend fun loadTable(tableName: String): Boolean {
-        if (!tables.containsKey(tableName)) {
+        var toReturn = false
+        if (!tablesMap.containsKey(tableName)) {
             suspendCoroutine<Unit> {
                 loadTable0(tableName) {
                     it.resume(Unit)
                 }
             }
-            return true
+
+            checkAndAddTimer(tableName)
+            toReturn = true
         }
-        return false
+
+        return toReturn
     }
 
     @Throws(IOException::class)
-    protected fun createTableImpl(table: Table) {
-        // make sure not too many rows are in the table
+    protected suspend fun serializeTable(table: Table) {
+        if (!db.tableExists(table.name)) {
+            createTable(table)
+            return
+        }
+
+        suspendCoroutine<Unit> {
+            serializeTable0(table) {
+                it.resume(Unit)
+            }
+        }
+    }
+
+    protected suspend fun remove(tableName: String) {
+        if (!tablesMap.containsKey(tableName)) {
+            return
+        }
+        checkAndRemoveTimer(tableName)
+
+        val t = tablesMap.remove(tableName)!!
+        serializeTable(t)
+    }
+
+    @Throws(IOException::class)
+    suspend fun createTable(table: Table) {
+        if (allTablesSet.contains(table.name)) {
+            throw IOException("Table already exists.")
+        }
+        tablesMap[table.name] = table
+        allTablesSet.add(table.name)
+
+        checkAndAddTimer(table.name)
+
         val rows = ConcurrentLinkedQueue<TreeMap<Int, HashMap<String, DbValue<*>?>>>()
         val dbCol = DbColumnFile(table.schemaSet)
 
-        runBlocking {
-            var rowLHM = TreeMap<Int, HashMap<String, DbValue<*>?>>()
-            val rowLHMutex = Mutex()
+        coroutineScope {
+            var (rowLHM, rowLHMutex) = Pair(TreeMap<Int, HashMap<String, DbValue<*>?>>(), Mutex())
 
             for (i in table) {
                 launch(Dispatchers.Default) {
@@ -134,7 +158,9 @@ abstract class DbEngine protected constructor(
                     }
                 }
             }
-            rows.add(rowLHM)
+            if (rows.peek() != rowLHM) {
+                rows.add(rowLHM)
+            }
         }
 
         val rowsFile = LinkedList<DbRowFile>()
@@ -145,7 +171,6 @@ abstract class DbEngine protected constructor(
 
         val path = db.tablePath(table.name)
         val columnBout = ByteArrayOutputStream()
-
 
         val mapper = JsonUtil.newBinaryObjectMapper()
 
@@ -165,35 +190,6 @@ abstract class DbEngine protected constructor(
         }
     }
 
-    private suspend fun remove(tableName: String) {
-        if (!tables.containsKey(tableName)) {
-            return
-        }
-        val t = tables.remove(tableName)!!
-        suspendCoroutine<Unit> {
-            serializeTable0(t) {
-                it.resume(Unit)
-            }
-        }
-    }
-
-    private fun isTableLoaded(tableName: String): Boolean {
-        return tables.containsKey(tableName)
-    }
-
-    @Throws(IOException::class, InvalidQueryException::class)
-    suspend fun createTable(table: Table): Boolean {
-        if (db.tableExists(table.name)) {
-            return false
-        }
-        suspendCoroutine<Unit> {
-            serializeTable0(table) {
-                it.resume(Unit)
-            }
-        }
-        return true
-    }
-
 
     @Suppress("unused")
     @Throws(IOException::class)
@@ -202,38 +198,55 @@ abstract class DbEngine protected constructor(
             return false
         }
 
+        var exp: IOException? = null
         val path = db.tablePath(table.name)
+
         suspendCoroutine<Unit> {
-            path.doAsync(it, Unit) { deleteRecursively() }
+            DbFuture.performAsync {
+                try {
+                    FileUtils.deleteDirectory(path.toFile())
+                } catch (e: IOException) {
+                    exp = e
+                }
+            }.thenAccept { _ -> it.resume(Unit) }
         }
+        if (exp != null) {
+            throw (exp as IOException)
+        }
+
+        checkAndRemoveTimer(table.name)
         return true
     }
 
     @Throws(IOException::class)
     suspend fun get(tableName: String): Table {
-        if (!allTables.contains(tableName)) {
+        if (!allTablesSet.contains(tableName)) {
             throw IllegalArgumentException("The table: $tableName does not exist in this database.")
         }
         val b = loadTable(tableName)
-        preGet(b)
+        if (!b) {
+            checkAndResetTimer(tableName)
+        }
 
-        return tables[tableName]!!
+        return tablesMap[tableName]!!
     }
 
     @Throws(IOException::class)
     suspend fun set(tableName: String, table: Table) {
-        if (!allTables.contains(tableName)) {
+        if (!allTablesSet.contains(tableName)) {
             throw IllegalArgumentException("The table: $tableName does not exist in this database.")
         }
         val b = loadTable(tableName)
-        preSet(b)
+        if (!b) {
+            checkAndResetTimer(tableName)
+        }
 
-        val t = tables[tableName]!!
+        val t = tablesMap[tableName]!!
         if (!t.schemaMatches(table.schema)) {
             throw IllegalArgumentException("The table: $tableName does not match the current schema.")
         }
 
-        tables[tableName] = table
+        tablesMap[tableName] = table
     }
 
 //    @Throws(IOException::class)
@@ -254,5 +267,38 @@ abstract class DbEngine protected constructor(
         sortingType: SortingType
     ): Query<*> {
         return Query.build(command, tableName, this, where, columns, sortingType)
+    }
+
+    private fun checkAndRemoveTimer(tableName: String) {
+        if (timerMap.containsKey(tableName)) {
+            timerMap[tableName]!!.cancel()
+            timerMap.remove(tableName)
+        }
+    }
+
+    private fun checkAndAddTimer(tableName: String) {
+        if (!timerMap.containsKey(tableName)) {
+            val timer = Timer("${tableName}_timer", true)
+            timer.schedule(TableTimerTask(this, tableName), 1000 * 60)
+
+            timerMap[tableName] = timer
+        }
+    }
+
+    private fun checkAndResetTimer(tableName: String) {
+        if (timerMap.containsKey(tableName)) {
+            timerMap[tableName]!!.cancel()
+
+            val t = Timer("${tableName}_timer", true)
+            t.schedule(TableTimerTask(this, tableName), 1000 * 60)
+
+            timerMap[tableName] = t
+        }
+    }
+
+    class TableTimerTask(private val engine: DbEngine, private val name: String) : TimerTask() {
+        override fun run() = runBlocking {
+            engine.remove(name)
+        }
     }
 }

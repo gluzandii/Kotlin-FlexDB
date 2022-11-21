@@ -13,10 +13,10 @@ class CreateQuery(
     tableName: String,
     engine: DbEngine,
     columns: JsonColumns,
-) : Query<Boolean>(tableName, engine, null, columns, SortingType.NONE) {
+) : Query<Unit>(tableName, engine, null, columns, SortingType.NONE) {
 
     @Throws(IOException::class, InvalidQueryException::class)
-    override suspend fun execute(): Boolean {
-        return engine.createTable(Table(tableName, columns!!.toSchema()))
+    override suspend fun execute() {
+        engine.createTable(Table(tableName, columns!!.toSchema()))
     }
 }

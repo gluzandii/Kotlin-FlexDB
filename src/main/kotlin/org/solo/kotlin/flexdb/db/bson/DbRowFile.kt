@@ -20,7 +20,7 @@ data class DbRowFile(var data: TreeMap<Int, HashMap<String, DbValue<*>?>>)
 
 class DbRowSerializer : JsonSerializer<DbRowFile>() {
     override fun serialize(row: DbRowFile, gen: JsonGenerator, serializers: SerializerProvider) {
-        val d = TreeMap<Int, HashMap<String, Any?>>()
+        val d = TreeMap<String, HashMap<String, Any?>>()
 
         for ((key, value) in row.data) {
             val hm = hashMapOf<String, Any?>()
@@ -29,7 +29,7 @@ class DbRowSerializer : JsonSerializer<DbRowFile>() {
             }
 
 
-            d[key] = hm
+            d[key.toString()] = hm
         }
 
         gen.writeStartObject()
