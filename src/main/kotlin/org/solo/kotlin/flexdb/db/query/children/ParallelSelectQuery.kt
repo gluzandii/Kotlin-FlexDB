@@ -12,6 +12,7 @@ import org.solo.kotlin.flexdb.db.query.SortingType
 import org.solo.kotlin.flexdb.db.structure.primitive.Row
 import org.springframework.context.expression.MapAccessor
 import org.springframework.expression.EvaluationContext
+import org.springframework.expression.Expression
 import org.springframework.expression.spel.support.StandardEvaluationContext
 import java.io.IOException
 import java.util.*
@@ -22,6 +23,12 @@ class ParallelSelectQuery(
     where: String,
     sortingType: SortingType
 ) : Query<List<Row>>(tableName, engine, where, null, sortingType) {
+    private val expression: Expression
+
+    init {
+        expression = parser.parseExpression(where)
+    }
+
     private fun mapContext(mp: Map<*, *>): EvaluationContext {
         val context = StandardEvaluationContext(mp)
         context.addPropertyAccessor(MapAccessor())
@@ -31,7 +38,6 @@ class ParallelSelectQuery(
 
     @Throws(IOException::class, InvalidQueryException::class)
     override suspend fun execute(): List<Row> {
-        val expression = parser.parseExpression(where!!)
         val (linkedList, mutexList) = Pair(LinkedList<Row>(), Mutex())
 
         coroutineScope {

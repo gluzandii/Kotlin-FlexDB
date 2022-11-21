@@ -11,15 +11,16 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.fasterxml.jackson.databind.node.ObjectNode
 import org.solo.kotlin.flexdb.db.types.*
+import java.util.*
 
 @Suppress("unused")
 @JsonDeserialize(using = DbRowDeserializer::class)
 @JsonSerialize(using = DbRowSerializer::class)
-data class DbRow(var data: LinkedHashMap<String, HashMap<String, DbValue<*>?>>)
+data class DbRowFile(var data: TreeMap<Int, HashMap<String, DbValue<*>?>>)
 
-class DbRowSerializer : JsonSerializer<DbRow>() {
-    override fun serialize(row: DbRow, gen: JsonGenerator, serializers: SerializerProvider) {
-        val d = linkedMapOf<String, HashMap<String, Any?>>()
+class DbRowSerializer : JsonSerializer<DbRowFile>() {
+    override fun serialize(row: DbRowFile, gen: JsonGenerator, serializers: SerializerProvider) {
+        val d = TreeMap<String, HashMap<String, Any?>>()
 
         for ((key, value) in row.data) {
             val hm = hashMapOf<String, Any?>()
@@ -27,7 +28,8 @@ class DbRowSerializer : JsonSerializer<DbRow>() {
                 hm[k] = v!!.value
             }
 
-            d[key] = hm
+
+            d[key.toString()] = hm
         }
 
         gen.writeStartObject()
@@ -36,9 +38,9 @@ class DbRowSerializer : JsonSerializer<DbRow>() {
     }
 }
 
-class DbRowDeserializer : JsonDeserializer<DbRow>() {
-    override fun deserialize(p: JsonParser, ctxt: DeserializationContext): DbRow {
-        val data = LinkedHashMap<String, HashMap<String, DbValue<*>?>>()
+class DbRowDeserializer : JsonDeserializer<DbRowFile>() {
+    override fun deserialize(p: JsonParser, ctxt: DeserializationContext): DbRowFile {
+        val data = TreeMap<Int, HashMap<String, DbValue<*>?>>()
         val node = p.codec.readTree<ObjectNode>(p)!!
 
         for ((key, value) in node["data"]!!.fields()!!) {
@@ -70,8 +72,8 @@ class DbRowDeserializer : JsonDeserializer<DbRow>() {
                 }
             }
 
-            data[key] = columnData
+            data[key.toInt()] = columnData
         }
-        return DbRow(data)
+        return DbRowFile(data)
     }
 }
