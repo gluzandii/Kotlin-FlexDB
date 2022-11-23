@@ -14,7 +14,6 @@ import org.solo.kotlin.flexdb.db.structure.Table
 import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbValue
 import org.solo.kotlin.flexdb.internal.*
-import org.solo.kotlin.flexdb.json.JsonUtil
 import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -24,6 +23,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.io.path.createDirectories
+import kotlin.io.path.readBytes
 import kotlin.io.path.writeBytes
 
 
@@ -50,75 +50,83 @@ abstract class DbEngine protected constructor(
 
     protected val timerMap: MutableMap<String, Timer> = ConcurrentHashMap<String, Timer>()
 
-
-    /**
-     * @param callback A callback that is called when the table is loaded.
-     */
     @Throws(IOException::class)
-    protected abstract fun loadTable0(tableName: String, callback: () -> Unit)
-
-    /**
-     * @param callback A callback that is called when the table is saved.
-     */
-    @Throws(IOException::class)
-    protected abstract fun serializeTable0(table: Table, callback: () -> Unit)
+    protected abstract suspend fun loadTable0(tableName: String)
 
     @Throws(IOException::class)
-    protected suspend fun loadTable(tableName: String): Boolean {
-        var toReturn = false
-        if (!tablesMap.containsKey(tableName)) {
-            suspendCoroutine<Unit> {
-                loadTable0(tableName) {
-                    it.resume(Unit)
+    protected suspend fun loadRowInTableFolder(tableName: String, rowId: Int): DbRowFile {
+        val table = db.schema.resolve(tableName).resolve("row_$rowId")
+        var exp: IOException? = null
+        var dbRowFile: DbRowFile? = null
+
+        suspendCoroutine<Unit> { cont ->
+            DbFuture.performAsync {
+                try {
+                    val bytes = table.readBytes()
+                    dbRowFile = DbRowFile.deserialize(bytes)
+                } catch (e: IOException) {
+                    exp = e
                 }
-            }
-
-            checkAndAddTimer(tableName)
-            toReturn = true
+            }.thenAccept { cont.resume(Unit) }
+        }
+        if (exp != null) {
+            throw exp!!
         }
 
-        return toReturn
+        return dbRowFile ?: throw IOException("Could not load row: $table")
     }
 
     @Throws(IOException::class)
-    protected suspend fun serializeTable(table: Table) {
+    protected suspend fun loadColumnInTableFolder(tableName: String): DbColumnFile {
+        val table = db.schema.resolve(tableName).resolve("column")
+        var exp: IOException? = null
+        var dbColumnFile: DbColumnFile? = null
+
+        suspendCoroutine<Unit> { cont ->
+            DbFuture.performAsync {
+                try {
+                    val bytes = table.readBytes()
+                    dbColumnFile = DbColumnFile.deserialize(bytes)
+                } catch (e: IOException) {
+                    exp = e
+                }
+            }.thenAccept { cont.resume(Unit) }
+        }
+        if (exp != null) {
+            throw exp!!
+        }
+
+        return dbColumnFile ?: throw IOException("Could not load column in: $tableName")
+    }
+
+    @Throws(IOException::class)
+    private suspend fun loadEntireTable(tableName: String) {
+        if (!tablesMap.containsKey(tableName)) {
+            loadTable0(tableName)
+            checkAndAddTimer(tableName)
+        } else {
+            checkAndResetTimer(tableName)
+        }
+    }
+
+    @Throws(IOException::class)
+    protected abstract suspend fun serializeTable0(table: Table)
+
+    @Throws(IOException::class)
+    private suspend fun serializeEntireTable(table: Table) {
         if (!db.tableExists(table.name)) {
             createTable(table)
             return
         }
 
-        suspendCoroutine<Unit> {
-            serializeTable0(table) {
-                it.resume(Unit)
-            }
-        }
+        serializeTable0(table)
     }
 
-    protected suspend fun remove(tableName: String) {
-        if (!tablesMap.containsKey(tableName)) {
-            return
-        }
-        checkAndRemoveTimer(tableName)
-
-        val t = tablesMap.remove(tableName)!!
-        serializeTable(t)
-    }
-
-    @Throws(IOException::class)
-    suspend fun createTable(table: Table) {
-        if (allTablesSet.contains(table.name)) {
-            throw IOException("Table already exists.")
-        }
-        tablesMap[table.name] = table
-        allTablesSet.add(table.name)
-
-        checkAndAddTimer(table.name)
-
-        val rows = ConcurrentLinkedQueue<TreeMap<Int, HashMap<String, DbValue<*>?>>>()
-        val dbCol = DbColumnFile(table.schemaSet)
-
+    @Throws(InvalidQueryException::class)
+    protected suspend fun splitTableIntoRows(table: Table): Queue<DbRowFile> {
+        val q = ConcurrentLinkedQueue<DbRowFile>()
         coroutineScope {
-            var (rowLHM, rowLHMutex) = Pair(TreeMap<Int, HashMap<String, DbValue<*>?>>(), Mutex())
+            var (rowLHM, rowLHMutex) = Pair(DbRowFile(), Mutex())
 
             for (i in table) {
                 launch(Dispatchers.Default) {
@@ -152,41 +160,99 @@ abstract class DbEngine protected constructor(
                         rowLHM[id] = contentMap
 
                         if (rowLHM.size == rowsPerFile) {
-                            rows.add(rowLHM)
-                            rowLHM = TreeMap<Int, HashMap<String, DbValue<*>?>>()
+                            q.add(rowLHM)
+                            rowLHM = DbRowFile()
                         }
                     }
                 }
             }
-            if (rows.peek() != rowLHM) {
-                rows.add(rowLHM)
+            if (q.peek() != rowLHM) {
+                q.add(rowLHM)
             }
         }
 
-        val rowsFile = LinkedList<DbRowFile>()
-        var start = 0
-        for (i in rows) {
-            rowsFile.add(DbRowFile(i))
+        return q
+    }
+
+    @Throws(IOException::class)
+    protected suspend fun writeRowFileInTable(tableName: String, id: Int, row: DbRowFile) {
+        var exp: IOException? = null
+        suspendCoroutine<Unit> { cont ->
+            DbFuture.performAsync {
+                try {
+                    val rowBout = ByteArrayOutputStream()
+                    val p = db.schema.resolve(tableName).resolve("row_${id}")
+                    row.writeBinary(rowBout)
+
+                    p.writeBytes(rowBout.toByteArray())
+                } catch (io: IOException) {
+                    exp = io
+                }
+            }.thenAccept { cont.resume(Unit) }
         }
 
+        if (exp != null) {
+            throw exp!!
+        }
+    }
+
+    @Throws(IOException::class)
+    protected suspend fun writeColumnInTable(tableName: String, row: DbColumnFile) {
+        var exp: IOException? = null
+        suspendCoroutine<Unit> { cont ->
+            DbFuture.performAsync {
+                try {
+                    val rowBout = ByteArrayOutputStream()
+                    val p = db.schema.resolve(tableName).resolve("column")
+                    row.writeBinary(rowBout)
+
+                    p.writeBytes(rowBout.toByteArray())
+                } catch (io: IOException) {
+                    exp = io
+                }
+            }.thenAccept { cont.resume(Unit) }
+        }
+
+        if (exp != null) {
+            throw exp!!
+        }
+    }
+
+    private suspend fun remove(tableName: String) {
+        if (!tablesMap.containsKey(tableName)) {
+            return
+        }
+        checkAndRemoveTimer(tableName)
+
+        val t = tablesMap.remove(tableName)!!
+        serializeEntireTable(t)
+    }
+
+    @Throws(IOException::class)
+    suspend fun createTable(table: Table) {
+        if (allTablesSet.contains(table.name)) {
+            throw IOException("Table already exists.")
+        }
+        tablesMap[table.name] = table
+        allTablesSet.add(table.name)
+
+        checkAndAddTimer(table.name)
+        val rows = splitTableIntoRows(table)
+
         val path = db.tablePath(table.name)
-        val columnBout = ByteArrayOutputStream()
-
-        val mapper = JsonUtil.newBinaryObjectMapper()
-
-        mapper.writeValue(columnBout, dbCol)
         path.createDirectories()
 
-        val column = path.append("column.bson")
-        column.writeBytes(columnBout.toByteArray())
+        writeColumnInTable(table.name, DbColumnFile(table.schemaSet))
 
-        val rowBout = ByteArrayOutputStream()
-        for (row in rowsFile) {
-            rowBout.reset()
-            mapper.writeValue(rowBout, row)
-
-            path.append("row_${start}.bson").writeBytes(rowBout.toByteArray())
+        var start = 0
+        fun incrementAndGive(): Int {
+            val c = start
             start += rowsPerFile
+            return c
+        }
+
+        for (row in rows) {
+            writeRowFileInTable(table.name, incrementAndGive(), row!!)
         }
     }
 
@@ -211,7 +277,7 @@ abstract class DbEngine protected constructor(
             }.thenAccept { _ -> it.resume(Unit) }
         }
         if (exp != null) {
-            throw (exp as IOException)
+            throw exp!!
         }
 
         checkAndRemoveTimer(table.name)
@@ -223,10 +289,7 @@ abstract class DbEngine protected constructor(
         if (!allTablesSet.contains(tableName)) {
             throw IllegalArgumentException("The table: $tableName does not exist in this database.")
         }
-        val b = loadTable(tableName)
-        if (!b) {
-            checkAndResetTimer(tableName)
-        }
+        loadEntireTable(tableName)
 
         return tablesMap[tableName]!!
     }
@@ -236,10 +299,7 @@ abstract class DbEngine protected constructor(
         if (!allTablesSet.contains(tableName)) {
             throw IllegalArgumentException("The table: $tableName does not exist in this database.")
         }
-        val b = loadTable(tableName)
-        if (!b) {
-            checkAndResetTimer(tableName)
-        }
+        loadEntireTable(tableName)
 
         val t = tablesMap[tableName]!!
         if (!t.schemaMatches(table.schema)) {
@@ -248,16 +308,6 @@ abstract class DbEngine protected constructor(
 
         tablesMap[tableName] = table
     }
-
-//    @Throws(IOException::class)
-//    suspend fun appendTable(tableName: String, toAppend: Table) {
-//        if (!allTables.contains(tableName)) {
-//            throw IllegalArgumentException("The table: $tableName does not exist in this database.")
-//        }
-//
-//        val t = this.get(tableName)
-//        this.set(tableName, t + toAppend)
-//    }
 
     fun query(
         command: String,

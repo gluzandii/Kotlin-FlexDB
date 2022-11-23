@@ -18,6 +18,10 @@ class Row(
         return content.containsColumn(c)
     }
 
+    fun schemaMatches(schema: Schema): Boolean {
+        return this.schema == schema
+    }
+
     fun map(): Map<Column, DbValue<*>?> {
         return content.map()
     }

@@ -2,7 +2,6 @@ package org.solo.kotlin.flexdb.db.structure
 
 import org.solo.kotlin.flexdb.MismatchedSchemaException
 import org.solo.kotlin.flexdb.db.structure.primitive.Row
-import org.solo.kotlin.flexdb.internal.schemaMatches
 import org.solo.kotlin.flexdb.json.query.classes.JsonColumn
 import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
 import java.util.*
@@ -27,6 +26,9 @@ class Table(val name: String, val schema: Schema) : Iterable<Row> {
             return j
         }
 
+    fun schemaMatches(schema: Schema): Boolean {
+        return this.schema == schema
+    }
 
     @Throws(MismatchedSchemaException::class)
     operator fun plus(table: Table): Table {
@@ -41,7 +43,7 @@ class Table(val name: String, val schema: Schema) : Iterable<Row> {
         for (i in this) {
             t.rows.add(i)
         }
-        
+
         return t
     }
 

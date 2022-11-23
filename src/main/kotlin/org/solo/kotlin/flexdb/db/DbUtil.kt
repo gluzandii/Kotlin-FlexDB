@@ -2,7 +2,6 @@ package org.solo.kotlin.flexdb.db
 
 import org.solo.kotlin.flexdb.GlobalData
 import org.solo.kotlin.flexdb.InvalidPasswordProvidedException
-import org.solo.kotlin.flexdb.internal.append
 import java.io.IOException
 import java.nio.file.Path
 import java.time.LocalDateTime
@@ -11,17 +10,17 @@ import kotlin.io.path.*
 object DbUtil {
     @JvmStatic
     fun schemafullPath(root: Path): Path {
-        return root.append("schemafull")
+        return root.resolve("schemafull")
     }
 
     @JvmStatic
     fun logsPath(root: Path): Path {
-        return root.append("logs")
+        return root.resolve("logs")
     }
 
     @JvmStatic
     fun indexPath(root: Path): Path {
-        return root.append("index")
+        return root.resolve("index")
     }
 
     @JvmStatic
@@ -83,7 +82,7 @@ object DbUtil {
         logs.createDirectories()
         index.createDirectories()
 
-        logs.append("log1.log").writeText("[${LocalDateTime.now()}] - DB: \"$name\" created.")
+        logs.resolve("log1.log").writeText("[${LocalDateTime.now()}] - DB: \"$name\" created.")
         return DB(
             path,
         )
