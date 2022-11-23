@@ -33,7 +33,7 @@ import kotlin.io.path.writeBytes
 @Suppress("unused")
 abstract class DbEngine protected constructor(
     protected val db: DB,
-    private val rowsPerFile: Int = 1000
+    protected val rowsPerFile: Int = 1000
 ) {
     /**
      * Stores each table.
@@ -41,14 +41,14 @@ abstract class DbEngine protected constructor(
      * Not: 'TableName': Table. No
      * 'TableName_{id range}': Table. Yes
      */
-    private val tablesMap: MutableMap<String, Table> = ConcurrentHashMap<String, Table>()
+    protected val tablesMap: MutableMap<String, Table> = ConcurrentHashMap<String, Table>()
 
     /**
      * Stores all the tables present in this database.
      */
-    private val allTablesSet: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    protected val allTablesSet: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
-    private val timerMap: MutableMap<String, Timer> = ConcurrentHashMap<String, Timer>()
+    protected val timerMap: MutableMap<String, Timer> = ConcurrentHashMap<String, Timer>()
 
 
     /**
@@ -279,7 +279,7 @@ abstract class DbEngine protected constructor(
     private fun checkAndAddTimer(tableName: String) {
         if (!timerMap.containsKey(tableName)) {
             val timer = Timer("${tableName}_timer", true)
-            timer.schedule(TableTimerTask(this, tableName), 1000 * 60)
+            timer.schedule(TableTimerTask(this, tableName), Time.minutesToMillis(1))
 
             timerMap[tableName] = timer
         }
@@ -290,7 +290,7 @@ abstract class DbEngine protected constructor(
             timerMap[tableName]!!.cancel()
 
             val t = Timer("${tableName}_timer", true)
-            t.schedule(TableTimerTask(this, tableName), 1000 * 60)
+            t.schedule(TableTimerTask(this, tableName), Time.minutesToMillis(1))
 
             timerMap[tableName] = t
         }
