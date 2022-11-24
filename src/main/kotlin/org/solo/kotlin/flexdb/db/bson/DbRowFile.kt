@@ -23,17 +23,17 @@ import java.util.*
 @Suppress("unused")
 @JsonDeserialize(using = DbRowDeserializer::class)
 @JsonSerialize(using = DbRowSerializer::class)
-data class DbRowFile(var data: TreeMap<Int, HashMap<String, DbValue<*>?>>) {
+data class DbRowFile(var data: TreeMap<Int, Map<String, DbValue<*>?>>) {
     val size: Int
         get() = data.size
 
     constructor() : this(TreeMap())
 
-    operator fun get(id: Int): HashMap<String, DbValue<*>?>? {
+    operator fun get(id: Int): Map<String, DbValue<*>?>? {
         return data[id]
     }
 
-    operator fun set(id: Int, mp: HashMap<String, DbValue<*>?>) {
+    operator fun set(id: Int, mp: Map<String, DbValue<*>?>) {
         data[id] = mp
     }
 
@@ -89,7 +89,7 @@ class DbRowSerializer : JsonSerializer<DbRowFile>() {
 
 class DbRowDeserializer : JsonDeserializer<DbRowFile>() {
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): DbRowFile {
-        val data = TreeMap<Int, HashMap<String, DbValue<*>?>>()
+        val data = TreeMap<Int, Map<String, DbValue<*>?>>()
         val node = p.codec.readTree<ObjectNode>(p)!!
 
         for ((key, value) in node["data"]!!.fields()!!) {

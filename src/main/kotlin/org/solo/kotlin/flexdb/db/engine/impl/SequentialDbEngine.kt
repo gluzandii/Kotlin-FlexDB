@@ -17,11 +17,11 @@ class SequentialDbEngine(db: DB) : DbEngine(db) {
         if (!db.tableExists(tableName)) {
             throw IOException("Table $tableName does not exist")
         }
-        val p = db.schema.resolve(tableName)
+        val p = super.db.schema.resolve(tableName)
         val rgx = Regex("row_\\d+")
 
         val sch = DbColumnFile.deserialize(AsyncIOUtil.readBytes(p.resolve("column"))).toSchema()
-        val dir = AsyncIOUtil.walk(p) { it.isRegularFile() && rgx.matches(it.name) }
+        val dir = AsyncIOUtil.walk(p) { it.isRegularFile() && rgx matches it.name }
 
         val table = Table(tableName, sch)
         for (i in dir) {
@@ -34,6 +34,17 @@ class SequentialDbEngine(db: DB) : DbEngine(db) {
     }
 
     override suspend fun serializeTable0(table: Table) {
-        TODO("Not yet implemented")
+        val rows = super.splitTableIntoRows(table)
+
+        var start = 0
+        fun incrementAndGive(): Int {
+            val c = start
+            start += super.rowsPerFile
+            return c
+        }
+
+        for (i in rows) {
+            super.writeRowFileInTable(table.name, incrementAndGive(), i!!)
+        }
     }
 }
