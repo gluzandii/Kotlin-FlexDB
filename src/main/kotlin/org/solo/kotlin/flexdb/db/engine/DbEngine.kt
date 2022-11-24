@@ -15,13 +15,10 @@ import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbValue
 import org.solo.kotlin.flexdb.internal.*
 import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
-import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlin.io.path.createDirectories
 import kotlin.io.path.readBytes
 import kotlin.io.path.writeBytes
@@ -59,15 +56,12 @@ abstract class DbEngine protected constructor(
         var exp: IOException? = null
         var dbRowFile: DbRowFile? = null
 
-        suspendCoroutine<Unit> { cont ->
-            DbFuture.performAsync {
-                try {
-                    val bytes = table.readBytes()
-                    dbRowFile = DbRowFile.deserialize(bytes)
-                } catch (e: IOException) {
-                    exp = e
-                }
-            }.thenAccept { cont.resume(Unit) }
+        withContext(Dispatchers.IO) {
+            try {
+                dbRowFile = DbRowFile.deserialize(table.readBytes())
+            } catch (e: IOException) {
+                exp = e
+            }
         }
         if (exp != null) {
             throw exp!!
@@ -82,15 +76,12 @@ abstract class DbEngine protected constructor(
         var exp: IOException? = null
         var dbColumnFile: DbColumnFile? = null
 
-        suspendCoroutine<Unit> { cont ->
-            DbFuture.performAsync {
-                try {
-                    val bytes = table.readBytes()
-                    dbColumnFile = DbColumnFile.deserialize(bytes)
-                } catch (e: IOException) {
-                    exp = e
-                }
-            }.thenAccept { cont.resume(Unit) }
+        withContext(Dispatchers.IO) {
+            try {
+                dbColumnFile = DbColumnFile.deserialize(table.readBytes())
+            } catch (e: IOException) {
+                exp = e
+            }
         }
         if (exp != null) {
             throw exp!!
@@ -177,18 +168,12 @@ abstract class DbEngine protected constructor(
     @Throws(IOException::class)
     protected suspend fun writeRowFileInTable(tableName: String, id: Int, row: DbRowFile) {
         var exp: IOException? = null
-        suspendCoroutine<Unit> { cont ->
-            DbFuture.performAsync {
-                try {
-                    val rowBout = ByteArrayOutputStream()
-                    val p = db.schema.resolve(tableName).resolve("row_${id}")
-                    row.writeBinary(rowBout)
-
-                    p.writeBytes(rowBout.toByteArray())
-                } catch (io: IOException) {
-                    exp = io
-                }
-            }.thenAccept { cont.resume(Unit) }
+        withContext(Dispatchers.IO) {
+            try {
+                db.schema.resolve(tableName).resolve("row_$id").writeBytes(row.serialize())
+            } catch (e: IOException) {
+                exp = e
+            }
         }
 
         if (exp != null) {
@@ -199,18 +184,12 @@ abstract class DbEngine protected constructor(
     @Throws(IOException::class)
     protected suspend fun writeColumnInTable(tableName: String, row: DbColumnFile) {
         var exp: IOException? = null
-        suspendCoroutine<Unit> { cont ->
-            DbFuture.performAsync {
-                try {
-                    val rowBout = ByteArrayOutputStream()
-                    val p = db.schema.resolve(tableName).resolve("column")
-                    row.writeBinary(rowBout)
-
-                    p.writeBytes(rowBout.toByteArray())
-                } catch (io: IOException) {
-                    exp = io
-                }
-            }.thenAccept { cont.resume(Unit) }
+        withContext(Dispatchers.IO) {
+            try {
+                db.schema.resolve(tableName).resolve("column").writeBytes(row.serialize())
+            } catch (e: IOException) {
+                exp = e
+            }
         }
 
         if (exp != null) {
@@ -267,14 +246,12 @@ abstract class DbEngine protected constructor(
         var exp: IOException? = null
         val path = db.tablePath(table.name)
 
-        suspendCoroutine<Unit> {
-            DbFuture.performAsync {
-                try {
-                    FileUtils.deleteDirectory(path.toFile())
-                } catch (e: IOException) {
-                    exp = e
-                }
-            }.thenAccept { _ -> it.resume(Unit) }
+        withContext(Dispatchers.IO) {
+            try {
+                FileUtils.deleteDirectory(path.toFile())
+            } catch (e: IOException) {
+                exp = e
+            }
         }
         if (exp != null) {
             throw exp!!

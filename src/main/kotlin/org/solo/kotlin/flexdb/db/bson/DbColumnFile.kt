@@ -3,15 +3,20 @@ package org.solo.kotlin.flexdb.db.bson
 import org.solo.kotlin.flexdb.internal.Binary
 import org.solo.kotlin.flexdb.json.JsonUtil
 import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
-import java.io.OutputStream
+import java.io.ByteArrayOutputStream
+import java.io.IOException
 
 @Suppress("unused")
 data class DbColumnFile(var columns: JsonColumns) : Binary {
     constructor() : this(JsonColumns())
 
-    override fun writeBinary(out: OutputStream) {
+    @Throws(IOException::class)
+    override fun serialize(): ByteArray {
         val mapper = JsonUtil.newBinaryObjectMapper()
-        mapper.writeValue(out, this)
+        val bytes = ByteArrayOutputStream()
+        mapper.writeValue(bytes, this)
+
+        return bytes.toByteArray()
     }
 
     companion object {

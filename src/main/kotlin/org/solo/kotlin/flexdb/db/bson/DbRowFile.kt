@@ -13,8 +13,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import org.solo.kotlin.flexdb.db.types.*
 import org.solo.kotlin.flexdb.internal.Binary
 import org.solo.kotlin.flexdb.json.JsonUtil
+import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.io.OutputStream
 import java.util.*
 
 @Suppress("unused")
@@ -35,9 +35,12 @@ data class DbRowFile(var data: TreeMap<Int, HashMap<String, DbValue<*>?>>) : Bin
     }
 
     @Throws(IOException::class)
-    override fun writeBinary(out: OutputStream) {
+    override fun serialize(): ByteArray {
         val mapper = JsonUtil.newBinaryObjectMapper()
-        mapper.writeValue(out, this)
+        val bytes = ByteArrayOutputStream()
+        mapper.writeValue(bytes, this)
+
+        return bytes.toByteArray()
     }
 
     companion object {
