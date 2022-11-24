@@ -27,7 +27,7 @@ import kotlin.io.path.createDirectories
 @Suppress("unused")
 abstract class DbEngine protected constructor(
     protected val db: DB,
-    private val rowsPerFile: Int = 1000
+    protected val rowsPerFile: Int = 1000
 ) {
     /**
      * Stores each table.
@@ -173,23 +173,12 @@ abstract class DbEngine protected constructor(
         allTablesSet.add(table.name)
 
         checkAndAddTimer(table.name)
-        val rows = splitTableIntoRows(table)
 
         val path = db.tablePath(table.name)
         path.createDirectories()
 
         writeColumnInTable(table.name, DbColumnFile(table.schemaSet))
-
-        var start = 0
-        fun incrementAndGive(): Int {
-            val c = start
-            start += rowsPerFile
-            return c
-        }
-
-        for (row in rows) {
-            writeRowFileInTable(table.name, incrementAndGive(), row!!)
-        }
+        serializeTable0(table)
     }
 
 
