@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentHashMap
 class RowMap(val schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbValue<*>?>> {
     private val content = ConcurrentHashMap<Column, DbValue<*>?>()
 
+    private val cols = ConcurrentHashMap<String, Column>()
+
     init {
         for (i in schema) {
             content[i] = if (i.hasConstraint(DbConstraint.NotNull)) {
@@ -18,19 +20,21 @@ class RowMap(val schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbVa
             } else {
                 null
             }
+
+            cols[i.name] = i
         }
     }
 
-    fun containsColumn(col: Column): Boolean {
-        return content.containsKey(col)
+    fun containsColumn(col: String): Boolean {
+        return cols.containsKey(col)
     }
 
     fun map(): Map<Column, DbValue<*>?> {
         return content
     }
 
-    operator fun get(col: Column): DbValue<*>? {
-        return content[col]
+    operator fun get(col: String): DbValue<*>? {
+        return content[cols[col]]
     }
 
     @Throws(
@@ -38,22 +42,20 @@ class RowMap(val schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbVa
         MismatchedTypeException::class,
         InvalidColumnProvidedException::class
     )
-    operator fun set(col: Column, value: DbValue<*>?) {
-        if (!content.containsKey(col)) {
+    operator fun set(col: String, value: DbValue<*>?) {
+        if (!cols.containsKey(col)) {
             throw InvalidColumnProvidedException("This column is not part of the schema")
         }
+        val c = cols[col]!!
 
-//        if (col.hasConstraint(DbConstraint.Immutable)) {
-//            throw InvalidColumnProvidedException("Cannot change value for an immutable column.")
-//        }
-        if ((col.hasConstraint(DbConstraint.NotNull) || col.hasConstraint(DbConstraint.Unique)) && (value == null)) {
+        if ((c.hasConstraint(DbConstraint.NotNull) || c.hasConstraint(DbConstraint.Unique)) && (value == null)) {
             throw NullUsedInNonNullColumnException("The value provided is null, for a NonNull constraint column")
         }
 
-        if ((value != null) && (col.type != value.type)) {
-            throw MismatchedTypeException("Cannot put value of type: ${value.type} in ${col.type}")
+        if ((value != null) && (c.type != value.type)) {
+            throw MismatchedTypeException("Cannot put value of type: ${value.type} in ${c.type}")
         }
-        content[col] = value
+        content[c] = value
     }
 
     override fun iterator(): Iterator<MutableMap.MutableEntry<Column, DbValue<*>?>> {
@@ -71,10 +73,13 @@ class RowMap(val schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbVa
         if (schema != other.schema) {
             return false
         }
+        if (cols != other.cols) {
+            return false
+        }
         return content == other.content
     }
 
     override fun hashCode(): Int {
-        return 31 * content.hashCode() + schema.hashCode()
+        return 31 * content.hashCode() + schema.hashCode() + cols.hashCode()
     }
 }

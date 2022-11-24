@@ -2,10 +2,11 @@ package org.solo.kotlin.flexdb.db.structure
 
 import org.solo.kotlin.flexdb.db.structure.primitive.Column
 import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
-import org.solo.kotlin.flexdb.db.types.DbEnumTypes
+import org.solo.kotlin.flexdb.db.types.DbEnumType
 import java.util.*
 
 data class Schema(val schemaSet: MutableSet<Column>) : Iterable<Column> {
+
     init {
         if (schemaSet.isEmpty()) {
             throw IllegalArgumentException("Schema cannot be empty")
@@ -14,7 +15,7 @@ data class Schema(val schemaSet: MutableSet<Column>) : Iterable<Column> {
         val col =
             Column(
                 "id",
-                DbEnumTypes.Number,
+                DbEnumType.Number,
                 EnumSet.of(DbConstraint.Unique, DbConstraint.NotNull/*, DbConstraint.Immutable*/)!!
             )
         schemaSet.add(col)

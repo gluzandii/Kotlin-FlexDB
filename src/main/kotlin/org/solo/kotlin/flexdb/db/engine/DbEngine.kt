@@ -27,7 +27,7 @@ import kotlin.io.path.createDirectories
 @Suppress("unused")
 abstract class DbEngine protected constructor(
     protected val db: DB,
-    protected val rowsPerFile: Int = 1000
+    private val rowsPerFile: Int = 1000
 ) {
     /**
      * Stores each table.
@@ -42,7 +42,7 @@ abstract class DbEngine protected constructor(
      */
     protected val allTablesSet: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
-    protected val timerMap: MutableMap<String, Timer> = ConcurrentHashMap<String, Timer>()
+    private val timerMap: MutableMap<String, Timer> = ConcurrentHashMap<String, Timer>()
 
     @Throws(IOException::class)
     protected abstract suspend fun loadTable0(tableName: String)

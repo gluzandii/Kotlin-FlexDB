@@ -36,7 +36,7 @@ class Table(val name: String, val schema: Schema) : Iterable<Row> {
             throw MismatchedSchemaException("Cannot add table with schema ${table.schema} to table with schema $schema")
         }
         val t = Table(name, schema)
-        
+
         t.addAll(table.rows)
         t.addAll(this.rows)
 
@@ -51,6 +51,9 @@ class Table(val name: String, val schema: Schema) : Iterable<Row> {
     fun add(row: Row) {
         if (!row.schemaMatches(schema)) {
             throw MismatchedSchemaException("Schema of row does not match schema of table")
+        }
+        if (rows.contains(row)) {
+            throw IllegalArgumentException("Row already exists in table")
         }
         rows.add(row)
     }

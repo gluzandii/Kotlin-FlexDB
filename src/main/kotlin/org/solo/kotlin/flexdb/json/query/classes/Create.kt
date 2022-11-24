@@ -3,7 +3,7 @@ package org.solo.kotlin.flexdb.json.query.classes
 import org.solo.kotlin.flexdb.db.structure.Schema
 import org.solo.kotlin.flexdb.db.structure.primitive.Column
 import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
-import org.solo.kotlin.flexdb.db.types.DbEnumTypes
+import org.solo.kotlin.flexdb.db.types.DbEnumType
 import java.util.*
 
 typealias JsonColumns = LinkedHashMap<String, JsonColumn>
@@ -24,7 +24,7 @@ fun JsonColumns.toSchema(): Schema {
 
     for ((k, v) in this) {
         val type =
-            DbEnumTypes.valueOf(v.type.capitalise())
+            DbEnumType.valueOf(v.type.capitalise())
         val consts = EnumSet.noneOf(DbConstraint::class.java)!!
 
         for (i in v.constraints) {

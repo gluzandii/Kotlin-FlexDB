@@ -10,17 +10,20 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.fasterxml.jackson.databind.node.ObjectNode
+import org.solo.kotlin.flexdb.InvalidColumnProvidedException
+import org.solo.kotlin.flexdb.MismatchedTypeException
+import org.solo.kotlin.flexdb.NullUsedInNonNullColumnException
+import org.solo.kotlin.flexdb.db.structure.Schema
+import org.solo.kotlin.flexdb.db.structure.primitive.Row
 import org.solo.kotlin.flexdb.db.types.*
-import org.solo.kotlin.flexdb.internal.Binary
 import org.solo.kotlin.flexdb.json.JsonUtil
-import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.*
 
 @Suppress("unused")
 @JsonDeserialize(using = DbRowDeserializer::class)
 @JsonSerialize(using = DbRowSerializer::class)
-data class DbRowFile(var data: TreeMap<Int, HashMap<String, DbValue<*>?>>) : Binary {
+data class DbRowFile(var data: TreeMap<Int, HashMap<String, DbValue<*>?>>) {
     val size: Int
         get() = data.size
 
@@ -34,13 +37,25 @@ data class DbRowFile(var data: TreeMap<Int, HashMap<String, DbValue<*>?>>) : Bin
         data[id] = mp
     }
 
-    @Throws(IOException::class)
-    override fun serialize(): ByteArray {
-        val mapper = JsonUtil.newBinaryObjectMapper()
-        val bytes = ByteArrayOutputStream()
-        mapper.writeValue(bytes, this)
+    @Throws(
+        NullUsedInNonNullColumnException::class,
+        MismatchedTypeException::class,
+        InvalidColumnProvidedException::class
+    )
+    fun toRows(schema: Schema): List<Row> {
+        val l = LinkedList<Row>()
+        for ((k, v) in data) {
+            val r = Row(k, schema)
+            for ((k1, v1) in v) {
+                r[k1] = v1
+            }
+        }
+        return l
+    }
 
-        return bytes.toByteArray()
+    @Throws(IOException::class)
+    suspend fun serialize(): ByteArray {
+        return JsonUtil.binaryJsonSerialize(this)
     }
 
     companion object {
