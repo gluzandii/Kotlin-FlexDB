@@ -36,13 +36,9 @@ class Table(val name: String, val schema: Schema) : Iterable<Row> {
             throw MismatchedSchemaException("Cannot add table with schema ${table.schema} to table with schema $schema")
         }
         val t = Table(name, schema)
-
-        for (i in table) {
-            t.rows.add(i)
-        }
-        for (i in this) {
-            t.rows.add(i)
-        }
+        
+        t.addAll(table.rows)
+        t.addAll(this.rows)
 
         return t
     }
@@ -57,6 +53,13 @@ class Table(val name: String, val schema: Schema) : Iterable<Row> {
             throw MismatchedSchemaException("Schema of row does not match schema of table")
         }
         rows.add(row)
+    }
+
+    @Throws(MismatchedSchemaException::class)
+    fun addAll(row: Collection<Row>) {
+        for (i in row) {
+            add(i)
+        }
     }
 
     override fun iterator(): Iterator<Row> {
