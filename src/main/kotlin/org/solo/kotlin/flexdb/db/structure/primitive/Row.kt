@@ -7,14 +7,14 @@ import org.solo.kotlin.flexdb.db.structure.RowMap
 import org.solo.kotlin.flexdb.db.structure.Schema
 import org.solo.kotlin.flexdb.db.types.DbValue
 
-class Row(
+data class Row(
     val id: Int,
     val schema: Schema
 ) : Iterable<MutableMap.MutableEntry<Column, DbValue<*>?>>, Comparator<Row> {
     private val content: RowMap = RowMap(schema)
 
     @Suppress("unused")
-    fun containsColumn(c: Column): Boolean {
+    fun containsColumn(c: String): Boolean {
         return content.containsColumn(c)
     }
 
@@ -31,11 +31,11 @@ class Row(
         MismatchedTypeException::class,
         InvalidColumnProvidedException::class
     )
-    operator fun set(colName: Column, value: DbValue<*>?) {
+    operator fun set(colName: String, value: DbValue<*>?) {
         content[colName] = value
     }
 
-    operator fun get(colName: Column): DbValue<*>? {
+    operator fun get(colName: String): DbValue<*>? {
         return content[colName]
     }
 

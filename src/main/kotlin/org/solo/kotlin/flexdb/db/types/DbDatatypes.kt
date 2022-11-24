@@ -2,7 +2,7 @@ package org.solo.kotlin.flexdb.db.types
 
 import org.solo.kotlin.flexdb.InvalidTypeException
 
-enum class DbEnumTypes {
+enum class DbEnumType {
     String,
     Number,
     Decimal,
@@ -21,7 +21,7 @@ enum class DbEnumTypes {
 
 // CREATE JSON SERIALIZATION AND DESERIALIZATION LOGIC
 
-sealed class DbValue<T>(val value: T, val type: DbEnumTypes) {
+sealed class DbValue<T>(val value: T, val type: DbEnumType) {
     override fun hashCode(): Int {
         return value.hashCode()
     }
@@ -50,15 +50,15 @@ sealed class DbValue<T>(val value: T, val type: DbEnumTypes) {
         }
 
         return when (type) {
-            DbEnumTypes.String -> v.value.toString().compareTo(value.toString())
-            DbEnumTypes.Decimal -> (v.value as Double).compareTo(value as Double)
-            DbEnumTypes.Number -> (v.value as Long).compareTo(value as Long)
-            DbEnumTypes.Boolean -> (v.value as Boolean).compareTo(value as Boolean)
+            DbEnumType.String -> v.value.toString().compareTo(value.toString())
+            DbEnumType.Decimal -> (v.value as Double).compareTo(value as Double)
+            DbEnumType.Number -> (v.value as Long).compareTo(value as Long)
+            DbEnumType.Boolean -> (v.value as Boolean).compareTo(value as Boolean)
         }
     }
 }
 
-class DbString(value: String) : DbValue<String>(value, DbEnumTypes.String)
-class DbNumber(value: Long) : DbValue<Long>(value, DbEnumTypes.Number)
-class DbDecimal(value: Double) : DbValue<Double>(value, DbEnumTypes.Decimal)
-class DbBoolean(value: Boolean) : DbValue<Boolean>(value, DbEnumTypes.Boolean)
+class DbString(value: String) : DbValue<String>(value, DbEnumType.String)
+class DbNumber(value: Long) : DbValue<Long>(value, DbEnumType.Number)
+class DbDecimal(value: Double) : DbValue<Double>(value, DbEnumType.Decimal)
+class DbBoolean(value: Boolean) : DbValue<Boolean>(value, DbEnumType.Boolean)

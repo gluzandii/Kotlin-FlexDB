@@ -1,13 +1,13 @@
 {
     "columns": {
         "name": {
-            "type": "DbString",
+            "type": "String",
             "constraints": [
                 "NotNull"
             ]
         },
         "email": {
-            "type": "DbString",
+            "type": "String",
             "constraints": [
                 "Unique"
             ]

@@ -3,7 +3,6 @@ package org.solo.kotlin.flexdb.db.engine
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.apache.commons.io.FileUtils
 import org.solo.kotlin.flexdb.InvalidQueryException
 import org.solo.kotlin.flexdb.db.DB
 import org.solo.kotlin.flexdb.db.bson.DbColumnFile
@@ -15,16 +14,11 @@ import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbValue
 import org.solo.kotlin.flexdb.internal.*
 import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
-import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlin.io.path.createDirectories
-import kotlin.io.path.readBytes
-import kotlin.io.path.writeBytes
 
 
 /**
@@ -33,7 +27,7 @@ import kotlin.io.path.writeBytes
 @Suppress("unused")
 abstract class DbEngine protected constructor(
     protected val db: DB,
-    protected val rowsPerFile: Int = 1000
+    private val rowsPerFile: Int = 1000
 ) {
     /**
      * Stores each table.
@@ -48,55 +42,25 @@ abstract class DbEngine protected constructor(
      */
     protected val allTablesSet: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
-    protected val timerMap: MutableMap<String, Timer> = ConcurrentHashMap<String, Timer>()
+    private val timerMap: MutableMap<String, Timer> = ConcurrentHashMap<String, Timer>()
 
     @Throws(IOException::class)
     protected abstract suspend fun loadTable0(tableName: String)
 
     @Throws(IOException::class)
     protected suspend fun loadRowInTableFolder(tableName: String, rowId: Int): DbRowFile {
-        val table = db.schema.resolve(tableName).resolve("row_$rowId")
-        var exp: IOException? = null
-        var dbRowFile: DbRowFile? = null
+        val table = db.schema.resolve(tableName)
+        val r = table.resolve("row_$rowId")
 
-        suspendCoroutine<Unit> { cont ->
-            DbFuture.performAsync {
-                try {
-                    val bytes = table.readBytes()
-                    dbRowFile = DbRowFile.deserialize(bytes)
-                } catch (e: IOException) {
-                    exp = e
-                }
-            }.thenAccept { cont.resume(Unit) }
-        }
-        if (exp != null) {
-            throw exp!!
-        }
-
-        return dbRowFile ?: throw IOException("Could not load row: $table")
+        return DbRowFile.deserialize(AsyncIOUtil.readBytes(r))
     }
 
     @Throws(IOException::class)
     protected suspend fun loadColumnInTableFolder(tableName: String): DbColumnFile {
-        val table = db.schema.resolve(tableName).resolve("column")
-        var exp: IOException? = null
-        var dbColumnFile: DbColumnFile? = null
+        val table = db.schema.resolve(tableName)
+        val c = table.resolve("column")
 
-        suspendCoroutine<Unit> { cont ->
-            DbFuture.performAsync {
-                try {
-                    val bytes = table.readBytes()
-                    dbColumnFile = DbColumnFile.deserialize(bytes)
-                } catch (e: IOException) {
-                    exp = e
-                }
-            }.thenAccept { cont.resume(Unit) }
-        }
-        if (exp != null) {
-            throw exp!!
-        }
-
-        return dbColumnFile ?: throw IOException("Could not load column in: $tableName")
+        return DbColumnFile.deserialize(AsyncIOUtil.readBytes(c))
     }
 
     @Throws(IOException::class)
@@ -176,46 +140,18 @@ abstract class DbEngine protected constructor(
 
     @Throws(IOException::class)
     protected suspend fun writeRowFileInTable(tableName: String, id: Int, row: DbRowFile) {
-        var exp: IOException? = null
-        suspendCoroutine<Unit> { cont ->
-            DbFuture.performAsync {
-                try {
-                    val rowBout = ByteArrayOutputStream()
-                    val p = db.schema.resolve(tableName).resolve("row_${id}")
-                    row.writeBinary(rowBout)
+        val table = db.schema.resolve(tableName)
+        val r = table.resolve("row_$id")
 
-                    p.writeBytes(rowBout.toByteArray())
-                } catch (io: IOException) {
-                    exp = io
-                }
-            }.thenAccept { cont.resume(Unit) }
-        }
-
-        if (exp != null) {
-            throw exp!!
-        }
+        AsyncIOUtil.writeBytes(r, row.serialize())
     }
 
     @Throws(IOException::class)
     protected suspend fun writeColumnInTable(tableName: String, row: DbColumnFile) {
-        var exp: IOException? = null
-        suspendCoroutine<Unit> { cont ->
-            DbFuture.performAsync {
-                try {
-                    val rowBout = ByteArrayOutputStream()
-                    val p = db.schema.resolve(tableName).resolve("column")
-                    row.writeBinary(rowBout)
+        val table = db.schema.resolve(tableName)
+        val r = table.resolve("column")
 
-                    p.writeBytes(rowBout.toByteArray())
-                } catch (io: IOException) {
-                    exp = io
-                }
-            }.thenAccept { cont.resume(Unit) }
-        }
-
-        if (exp != null) {
-            throw exp!!
-        }
+        AsyncIOUtil.writeBytes(r, row.serialize())
     }
 
     private suspend fun remove(tableName: String) {
@@ -263,22 +199,8 @@ abstract class DbEngine protected constructor(
         if (!db.tableExists(table.name)) {
             return false
         }
-
-        var exp: IOException? = null
         val path = db.tablePath(table.name)
-
-        suspendCoroutine<Unit> {
-            DbFuture.performAsync {
-                try {
-                    FileUtils.deleteDirectory(path.toFile())
-                } catch (e: IOException) {
-                    exp = e
-                }
-            }.thenAccept { _ -> it.resume(Unit) }
-        }
-        if (exp != null) {
-            throw exp!!
-        }
+        AsyncIOUtil.deleteDirectory(path)
 
         checkAndRemoveTimer(table.name)
         return true
