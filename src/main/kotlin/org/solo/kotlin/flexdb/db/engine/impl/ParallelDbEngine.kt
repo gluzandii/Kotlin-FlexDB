@@ -11,7 +11,7 @@ import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
 
 @Suppress("unused")
-class SequentialDbEngine(db: DB) : DbEngine(db) {
+class ParallelDbEngine(db: DB) : DbEngine(db) {
     @Throws(IOException::class)
     override suspend fun loadTable0(tableName: String) {
         if (!db.tableExists(tableName)) {
@@ -37,18 +37,6 @@ class SequentialDbEngine(db: DB) : DbEngine(db) {
     override suspend fun serializeTable0(table: Table) {
         if (!db.tableExists(table.name)) {
             throw IOException("Table ${table.name} does not exist")
-        }
-        val rows = super.splitTableIntoRows(table)
-
-        var start = 0
-        fun incrementAndGive(): Int {
-            val c = start
-            start += super.rowsPerFile
-            return c
-        }
-
-        for (i in rows) {
-            super.writeRowFileInTable(table.name, incrementAndGive(), i!!)
         }
     }
 }
