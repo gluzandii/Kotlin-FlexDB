@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.fasterxml.jackson.databind.node.ObjectNode
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.solo.kotlin.flexdb.InvalidColumnProvidedException
 import org.solo.kotlin.flexdb.MismatchedTypeException
 import org.solo.kotlin.flexdb.NullUsedInNonNullColumnException
@@ -63,24 +61,9 @@ data class DbRowFile(var data: TreeMap<Int, Map<String, DbValue<*>?>>) {
     companion object {
         @JvmStatic
         @Throws(IOException::class)
-        suspend fun deserialize(byte: ByteArray): DbRowFile {
-            var exp: IOException? = null
-            val b = withContext(Dispatchers.Default) {
-                return@withContext try {
-                    val mapper = JsonUtil.newBinaryObjectMapper()
-                    val b = mapper.readValue(byte, DbRowFile::class.java)
-
-                    b
-                } catch (io: IOException) {
-                    exp = io
-                    null
-                }
-            }
-            if (exp != null) {
-                throw exp!!
-            }
-
-            return b ?: throw IOException("Could not serialize this rowc")
+        fun deserialize(byte: ByteArray): DbRowFile {
+            return JsonUtil.newBinaryObjectMapper().readValue(byte, DbRowFile::class.java)
+                ?: throw IOException("Could not parse row file.")
         }
     }
 }

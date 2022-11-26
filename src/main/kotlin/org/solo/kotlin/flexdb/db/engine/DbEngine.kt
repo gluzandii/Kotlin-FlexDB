@@ -48,14 +48,6 @@ abstract class DbEngine protected constructor(
     protected abstract suspend fun loadTable0(tableName: String)
 
     @Throws(IOException::class)
-    protected suspend fun loadRowInTableFolder(tableName: String, rowId: Int): DbRowFile {
-        val table = db.schema.resolve(tableName)
-        val r = table.resolve("row_$rowId")
-
-        return DbRowFile.deserialize(AsyncIOUtil.readBytes(r))
-    }
-
-    @Throws(IOException::class)
     protected suspend fun loadColumnInTableFolder(tableName: String): DbColumnFile {
         val table = db.schema.resolve(tableName)
         val c = table.resolve("column")
