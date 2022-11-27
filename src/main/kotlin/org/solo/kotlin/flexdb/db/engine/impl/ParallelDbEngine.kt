@@ -16,7 +16,7 @@ import java.util.stream.Stream
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
 
-@Suppress("unused")
+
 class ParallelDbEngine(db: DB) : DbEngine(db) {
     @Throws(IOException::class)
     override suspend fun loadTable0(tableName: String) {
@@ -58,7 +58,7 @@ class ParallelDbEngine(db: DB) : DbEngine(db) {
     @Throws(IOException::class)
     override suspend fun serializeTable0(table: Table) {
         var (rows, start) = super.initSerializeTableCall(table)
-        
+
         coroutineScope {
             val list = LinkedList<Job>()
             for (i in rows) {

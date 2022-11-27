@@ -15,12 +15,7 @@ data class Row(
     val schema: Schema
 ) : Iterable<Map.Entry<Column, DbValue<*>?>>, Comparator<Row>, Comparable<Row> {
     private val content: RowMap = RowMap(schema)
-
-    @Suppress("unused")
-    fun containsColumn(c: String): Boolean {
-        return content.containsColumn(c)
-    }
-
+    
     fun schemaMatches(schema: Schema): Boolean {
         return this.schema == schema
     }

@@ -44,7 +44,7 @@ typealias JsonCreatePayload = HashMap<String, JsonQueryColumn>
  * Converts the current JsonCreate payload, into normal [Column].
  * The [Column] is converted to a [java.util.HashSet] which is converted to a [Schema].
  */
-@Suppress("unused")
+
 fun JsonCreatePayload.toSchema(): Schema {
     val set = hashSetOf<Column>()
 

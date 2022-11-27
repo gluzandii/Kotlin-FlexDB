@@ -16,7 +16,7 @@ package org.solo.kotlin.flexdb.json.query.classes
  * }
  * ```
  */
-@Suppress("unused")
+
 data class JsonRead(var tableName: String, var action: String, var payload: JsonReadPayload) {
     constructor() : this("", "", JsonReadPayload())
 }

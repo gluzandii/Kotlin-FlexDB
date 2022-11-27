@@ -20,7 +20,7 @@ import org.solo.kotlin.flexdb.json.JsonUtil
 import java.io.IOException
 import java.util.*
 
-@Suppress("unused")
+
 @JsonDeserialize(using = DbRowDeserializer::class)
 @JsonSerialize(using = DbRowSerializer::class)
 data class DbRowFile(var data: TreeMap<Int, Map<String, DbValue<*>?>>) {

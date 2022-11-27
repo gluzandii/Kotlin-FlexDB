@@ -1,7 +1,6 @@
 package org.solo.kotlin.flexdb.json.query.classes
 
 import org.solo.kotlin.flexdb.internal.JsonCreatePayload
-import java.util.*
 
 /**
  * Class representation of:
@@ -64,7 +63,7 @@ data class JsonQueryColumn(var type: String, var constraints: Set<String>) {
  *
  * along with table and action.
  */
-@Suppress("unused")
+
 data class JsonCreateQuery(var table: String, var action: String, var payload: JsonCreatePayload) {
     constructor() : this("", "", JsonCreatePayload())
 }

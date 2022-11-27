@@ -23,7 +23,7 @@ import kotlin.io.path.createDirectories
 /**
  * A Thread-Safe abstract DbEngine.
  */
-@Suppress("unused")
+
 abstract class DbEngine protected constructor(
     protected val db: DB,
     protected val rowsPerFile: Int = 1000
@@ -198,7 +198,6 @@ abstract class DbEngine protected constructor(
     }
 
 
-    @Suppress("unused")
     @Throws(IOException::class)
     suspend fun deleteTable(table: Table): Boolean {
         if (!db.tableExists(table.name)) {

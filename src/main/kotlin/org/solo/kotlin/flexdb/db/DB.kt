@@ -8,7 +8,7 @@ import kotlin.io.path.isRegularFile
 /**
  * Data class that stores the database configuration, and paths in the database.
  */
-@Suppress("unused")
+
 data class DB(val root: Path) {
     val schema: Path = DbUtil.schemafullPath(root)
     val logs: Path = DbUtil.logsPath(root)

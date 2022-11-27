@@ -68,7 +68,7 @@ class DbRestController {
  *
  * @return password read from stdin or [java.io.Console] stdin
  */
-@Suppress("unused")
+
 fun readPassword(): String {
     return String((System.console() ?: return readln()).readPassword()!!)
 }

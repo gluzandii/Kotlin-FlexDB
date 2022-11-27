@@ -9,7 +9,7 @@ import org.solo.kotlin.flexdb.json.JsonUtil
 import java.io.IOException
 import java.util.*
 
-@Suppress("unused")
+
 data class DbColumnFile(var columns: JsonCreatePayload) {
     constructor() : this(JsonCreatePayload())
 

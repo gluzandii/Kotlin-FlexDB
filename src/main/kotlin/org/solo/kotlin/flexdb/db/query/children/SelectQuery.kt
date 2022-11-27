@@ -11,7 +11,7 @@ import java.util.*
 /**
  * A query that is used to select rows from a table in the current [org.solo.kotlin.flexdb.db.DB]
  */
-@Suppress("unused")
+
 class SelectQuery(
     tableName: String,
     engine: DbEngine,
