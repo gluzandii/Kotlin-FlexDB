@@ -20,11 +20,7 @@ import kotlin.io.path.name
 class ParallelDbEngine(db: DB) : DbEngine(db) {
     @Throws(IOException::class)
     override suspend fun loadTable0(tableName: String) {
-        if (!db.tableExists(tableName)) {
-            throw IOException("Table $tableName does not exist")
-        }
-        val rgx = Regex("row_\\d+")
-
+        val rgx = super.initLoadTableCall(tableName)
         coroutineScope {
             val al = awaitAll(
                 async {
@@ -45,7 +41,9 @@ class ParallelDbEngine(db: DB) : DbEngine(db) {
             for (i in dir) {
                 list.addLast(
                     launch(Dispatchers.Default) {
-                        val r = DbRowFile.deserialize(AsyncIOUtil.readBytes(i))
+                        val r = DbRowFile.deserialize(
+                            AsyncIOUtil.readBytes(i)
+                        )
                         tableMutex.withLock { table.addAll(r.toRows(sch)) }
                     }
                 )
@@ -59,8 +57,22 @@ class ParallelDbEngine(db: DB) : DbEngine(db) {
 
     @Throws(IOException::class)
     override suspend fun serializeTable0(table: Table) {
-        if (!db.tableExists(table.name)) {
-            throw IOException("Table ${table.name} does not exist")
+        var (rows, start) = super.initSerializeTableCall(table)
+        
+        coroutineScope {
+            val list = LinkedList<Job>()
+            for (i in rows) {
+                val now = start
+                start += super.rowsPerFile
+
+                list.addLast(
+                    launch(Dispatchers.Default) {
+                        super.writeRowFileInTable(table.name, now, i!!)
+                    }
+                )
+            }
+
+            list.joinAll()
         }
     }
 }

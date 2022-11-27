@@ -79,7 +79,7 @@ abstract class DbEngine protected constructor(
     }
 
     @Throws(InvalidQueryException::class)
-    protected suspend fun splitTableIntoRows(table: Table): Queue<DbRowFile> {
+    protected suspend fun splitTableIntoDbRowFiles(table: Table): Queue<DbRowFile> {
         val q = ConcurrentLinkedQueue<DbRowFile>()
         coroutineScope {
             var (rowLHM, rowLHMutex) = Pair(DbRowFile(), Mutex())
@@ -144,6 +144,25 @@ abstract class DbEngine protected constructor(
         val r = table.resolve("column")
 
         AsyncIOUtil.writeBytes(r, row.serialize())
+    }
+
+    @Throws(IOException::class)
+    protected suspend inline fun initSerializeTableCall(table: Table): Pair<Queue<DbRowFile>, Int> {
+        if (!db.tableExists(table.name)) {
+            throw IOException("Table ${table.name} does not exist")
+        }
+        return Pair(
+            splitTableIntoDbRowFiles(table),
+            0
+        )
+    }
+
+    @Throws(IOException::class)
+    protected inline fun initLoadTableCall(tableName: String): Regex {
+        if (!db.tableExists(tableName)) {
+            throw IOException("Table $tableName does not exist")
+        }
+        return Regex("row_\\d+")
     }
 
     private suspend fun remove(tableName: String) {

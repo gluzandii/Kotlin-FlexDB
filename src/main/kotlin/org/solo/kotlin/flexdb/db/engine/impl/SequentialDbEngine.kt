@@ -19,10 +19,7 @@ import kotlin.io.path.name
 class SequentialDbEngine(db: DB) : DbEngine(db) {
     @Throws(IOException::class)
     override suspend fun loadTable0(tableName: String) {
-        if (!db.tableExists(tableName)) {
-            throw IOException("Table $tableName does not exist")
-        }
-        val rgx = Regex("row_\\d+")
+        val rgx = super.initLoadTableCall(tableName)
 
         val sch: Schema
         val dir: Stream<Path>
@@ -43,7 +40,9 @@ class SequentialDbEngine(db: DB) : DbEngine(db) {
 
         val table = Table(tableName, sch)
         for (i in dir) {
-            val r = DbRowFile.deserialize(AsyncIOUtil.readBytes(i))
+            val r = DbRowFile.deserialize(
+                AsyncIOUtil.readBytes(i)
+            )
             table.addAll(r.toRows(sch))
         }
 
@@ -53,20 +52,12 @@ class SequentialDbEngine(db: DB) : DbEngine(db) {
 
     @Throws(IOException::class)
     override suspend fun serializeTable0(table: Table) {
-        if (!db.tableExists(table.name)) {
-            throw IOException("Table ${table.name} does not exist")
-        }
-        val rows = super.splitTableIntoRows(table)
-
-        var start = 0
-        fun incrementAndGive(): Int {
-            val c = start
-            start += super.rowsPerFile
-            return c
-        }
+        var (rows, start) = super.initSerializeTableCall(table)
 
         for (i in rows) {
-            super.writeRowFileInTable(table.name, incrementAndGive(), i!!)
+            val now = start
+            start += super.rowsPerFile
+            super.writeRowFileInTable(table.name, now, i!!)
         }
     }
 }
