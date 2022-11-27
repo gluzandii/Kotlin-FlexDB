@@ -3,7 +3,7 @@ package org.solo.kotlin.flexdb.db.engine
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.solo.kotlin.flexdb.InvalidQueryException
+import org.solo.kotlin.flexdb.InvalidValueProvidedInColumnException
 import org.solo.kotlin.flexdb.db.DB
 import org.solo.kotlin.flexdb.db.bson.DbColumnFile
 import org.solo.kotlin.flexdb.db.bson.DbRowFile
@@ -77,7 +77,7 @@ abstract class DbEngine protected constructor(
         serializeTable0(table)
     }
 
-    @Throws(InvalidQueryException::class)
+    @Throws(InvalidValueProvidedInColumnException::class)
     protected suspend fun splitTableIntoDbRowFiles(table: Table): Queue<DbRowFile> {
         val q = ConcurrentLinkedQueue<DbRowFile>()
         coroutineScope {
@@ -94,12 +94,12 @@ abstract class DbEngine protected constructor(
                         val n = k.name
 
                         if (v == null && k.hasConstraint(DbConstraint.NOTNULL)) {
-                            throw InvalidQueryException("Column '${k.name}' cannot be null.")
+                            throw InvalidValueProvidedInColumnException("Column '${k.name}' cannot be null.")
                         }
                         if (k.hasConstraint(DbConstraint.UNIQUE) && v != null) {
                             if (dupli.containsKey(n)) {
                                 if (dupli[n]!!.contains(v)) {
-                                    throw InvalidQueryException("Column '${k.name}' must be unique.")
+                                    throw InvalidValueProvidedInColumnException("Column '${k.name}' must be unique.")
                                 }
 
                                 dupli[n]!!.add(v)

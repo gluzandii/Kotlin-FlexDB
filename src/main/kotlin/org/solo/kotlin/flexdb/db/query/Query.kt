@@ -6,10 +6,23 @@ import org.solo.kotlin.flexdb.db.query.children.CreateQuery
 import org.solo.kotlin.flexdb.db.query.children.ParallelSelectQuery
 import org.solo.kotlin.flexdb.db.query.children.SelectQuery
 import org.solo.kotlin.flexdb.internal.JsonCreatePayload
+import org.springframework.context.expression.MapAccessor
+import org.springframework.expression.EvaluationContext
 import org.springframework.expression.ExpressionParser
 import org.springframework.expression.spel.standard.SpelExpressionParser
+import org.springframework.expression.spel.support.StandardEvaluationContext
 import java.io.IOException
 
+/**
+ * An abstract class that stores the query and executes it with the given engine.
+ *
+ * It has to implemented for each type of query.
+ *
+ * The implementations are:
+ * + [SelectQuery]
+ * + [CreateQuery]
+ * + [ParallelSelectQuery]
+ */
 abstract class Query<T>(
     val tableName: String,
     val engine: DbEngine,
@@ -19,7 +32,22 @@ abstract class Query<T>(
 ) {
     protected val parser: ExpressionParser = SpelExpressionParser()
 
-    @Throws(IOException::class, InvalidQueryException::class)
+    /**
+     * Returns an [EvaluationContext] for [ExpressionParser]
+     */
+    protected fun mapContext(mp: Map<*, *>): EvaluationContext {
+        val context = StandardEvaluationContext(mp)
+        context.addPropertyAccessor(MapAccessor())
+
+        return context
+    }
+
+    /**
+     * Executes the query in a non-blocking way, by suspending the function in the current call context.
+     *
+     * @throws InvalidQueryException if the query is invalid
+     */
+    @Throws(IOException::class)
     abstract suspend fun execute(): T
 
     companion object {

@@ -13,3 +13,5 @@ class InvalidPasswordProvidedException(msg: String) : Exception(msg)
 class InvalidQueryException(msg: String) : Exception(msg)
 
 class InvalidTypeException(msg: String) : Exception(msg)
+
+class InvalidValueProvidedInColumnException(msg: String) : Exception(msg)

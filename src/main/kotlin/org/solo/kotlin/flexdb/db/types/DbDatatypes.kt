@@ -30,12 +30,15 @@ enum class DbEnumType {
 /**
  * The base class for any database value in FlexDB
  */
-sealed class DbValue<T>(val value: T, val type: DbEnumType) {
+sealed class DbValue<T>(
+    val value: T,
+    val type: DbEnumType
+) : Comparable<DbValue<*>>, Comparator<DbValue<*>> {
     override fun hashCode(): Int {
         return value.hashCode()
     }
 
-    override operator fun equals(other: Any?): Boolean {
+    override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
         }
@@ -55,7 +58,7 @@ sealed class DbValue<T>(val value: T, val type: DbEnumType) {
      * @param other the other value to compare to
      */
     @Throws(InvalidTypeException::class)
-    operator fun compareTo(other: DbValue<*>): Int {
+    override operator fun compareTo(other: DbValue<*>): Int {
         if (this === other) {
             return 0
         }
@@ -69,6 +72,16 @@ sealed class DbValue<T>(val value: T, val type: DbEnumType) {
             DbEnumType.NUMBER -> (other.value as Long).compareTo(value as Long)
             DbEnumType.BOOLEAN -> (other.value as Boolean).compareTo(value as Boolean)
         }
+    }
+
+    /**
+     * Compares 2 values of [DbValue]
+     *
+     * @param o1 the first value to compare
+     * @param o2 the second value to compare
+     */
+    override fun compare(o1: DbValue<*>, o2: DbValue<*>): Int {
+        return o1.compareTo(o2)
     }
 }
 
