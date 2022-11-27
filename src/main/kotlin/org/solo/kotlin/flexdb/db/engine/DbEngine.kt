@@ -135,7 +135,10 @@ abstract class DbEngine protected constructor(
         val table = db.schema.resolve(tableName)
         val r = table.resolve("row_$id")
 
-        AsyncIOUtil.writeBytes(r, row.serialize())
+        AsyncIOUtil.writeBytes(
+            r,
+            row.serialize()
+        )
     }
 
     @Throws(IOException::class)
@@ -143,7 +146,10 @@ abstract class DbEngine protected constructor(
         val table = db.schema.resolve(tableName)
         val r = table.resolve("column")
 
-        AsyncIOUtil.writeBytes(r, row.serialize())
+        AsyncIOUtil.writeBytes(
+            r,
+            row.serialize()
+        )
     }
 
     @Throws(IOException::class)

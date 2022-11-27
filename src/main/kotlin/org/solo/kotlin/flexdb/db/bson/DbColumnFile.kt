@@ -14,7 +14,7 @@ data class DbColumnFile(var columns: JsonColumns) {
     constructor() : this(JsonColumns())
 
     @Throws(IOException::class)
-    suspend fun serialize(): ByteArray {
+    fun serialize(): ByteArray {
         return JsonUtil.binaryJsonSerialize(this)
     }
 

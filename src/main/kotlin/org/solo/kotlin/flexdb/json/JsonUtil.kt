@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.DatabindException
 import com.fasterxml.jackson.databind.ObjectMapper
 import de.undercouch.bson4jackson.BsonFactory
 import de.undercouch.bson4jackson.BsonGenerator
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
@@ -30,24 +28,11 @@ object JsonUtil {
 
     @JvmStatic
     @Throws(IOException::class, StreamWriteException::class, DatabindException::class)
-    suspend fun binaryJsonSerialize(obj: Any): ByteArray {
-        var exp: IOException? = null
-        val b = withContext(Dispatchers.Default) {
-            return@withContext try {
-                val mapper = newBinaryObjectMapper()
-                val bytes = ByteArrayOutputStream()
-                mapper.writeValue(bytes, obj)
+    fun binaryJsonSerialize(obj: Any): ByteArray {
+        val mapper = newBinaryObjectMapper()
+        val bytes = ByteArrayOutputStream()
+        mapper.writeValue(bytes, obj)
 
-                bytes.toByteArray()
-            } catch (io: IOException) {
-                exp = io
-                null
-            }
-        }
-        if (exp != null) {
-            throw exp!!
-        }
-
-        return b ?: throw IOException("Could not serialize this rowc")
+        return bytes.toByteArray() ?: throw IOException("Could not serialize this row")
     }
 }

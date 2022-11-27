@@ -54,7 +54,7 @@ data class DbRowFile(var data: TreeMap<Int, Map<String, DbValue<*>?>>) {
     }
 
     @Throws(IOException::class)
-    suspend fun serialize(): ByteArray {
+    fun serialize(): ByteArray {
         return JsonUtil.binaryJsonSerialize(this)
     }
 
