@@ -3,6 +3,7 @@ package org.solo.kotlin.flexdb
 import org.solo.kotlin.flexdb.db.DbUtil
 import org.solo.kotlin.flexdb.json.JsonUtil.newObjectMapper
 import org.solo.kotlin.flexdb.json.query.JsonQueryTypes
+import org.solo.kotlin.flexdb.json.query.JsonQueryUtil
 import org.solo.kotlin.flexdb.json.query.classes.*
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -26,13 +27,16 @@ class DbRestController {
 
     @PostMapping("/query")
     fun query(req: HttpServletRequest) {
+        // Structure of queries has been put in the "when" statement
+        // It will be implemented at the end.
+
         try {
             val body = req.reader.readText()
             val mapper = newObjectMapper()
 
-            when (QueryUtil.getAction(body)) {
+            when (JsonQueryUtil.getQueryType(body)) {
                 JsonQueryTypes.CREATE -> {
-                    val query = mapper.readValue(body, JsonCreate::class.java)!!
+                    val query = mapper.readValue(body, JsonCreateQuery::class.java)!!
                 }
 
                 JsonQueryTypes.READ -> {
@@ -58,6 +62,13 @@ class DbRestController {
     }
 }
 
+/**
+ * Reads password from stdin using [java.io.Console].
+ * If [java.io.Console] from [System] is null, it will read from [System. in]
+ *
+ * @return password read from stdin or [java.io.Console] stdin
+ */
+@Suppress("unused")
 fun readPassword(): String {
     return String((System.console() ?: return readln()).readPassword()!!)
 }
@@ -67,11 +78,6 @@ fun main(args: Array<String>) {
         print("Enter DB to open (Absolute path): ")
 
         val name = Path(readln())
-
-        print("Enter password: ")
-        val pswd = readPassword()
-
-        GlobalData.pswd = pswd
 
         if (DbUtil.dbExists(name)) {
             DbUtil.setGlobalDB(name)

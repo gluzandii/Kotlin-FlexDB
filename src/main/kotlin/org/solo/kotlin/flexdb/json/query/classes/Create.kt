@@ -1,46 +1,70 @@
 package org.solo.kotlin.flexdb.json.query.classes
 
-import org.solo.kotlin.flexdb.db.structure.Schema
-import org.solo.kotlin.flexdb.db.structure.primitive.Column
-import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
-import org.solo.kotlin.flexdb.db.types.DbEnumType
+import org.solo.kotlin.flexdb.internal.JsonCreatePayload
 import java.util.*
 
-typealias JsonColumns = LinkedHashMap<String, JsonColumn>
+/**
+ * Class representation of:
+ * ```
+ * "payload": {
+ *      "name": {
+ *          "type": "String",
+ *          "constraints": [
+ *              "NotNull",
+ *              "Immutable"
+ *          ]
+ *      },
+ *      "email": {
+ *          "type": "Email",
+ *          "constraints": [
+ *              "Unique"
+ *          ]
+ *      },
+ *      "age": {
+ *          "type": "Number",
+ *          "constraints": [
+ *              "NotNull"
+ *          ]
+ *      }
+ * }
+ * ```
+ */
 
-fun String.capitalise(): String {
-    return replaceFirstChar {
-        if (it.isLowerCase()) {
-            it.titlecase(Locale.getDefault())
-        } else {
-            lowercase().capitalise()
-        }
-    }
-}
-
-@Suppress("unused")
-fun JsonColumns.toSchema(): Schema {
-    val set = hashSetOf<Column>()
-
-    for ((k, v) in this) {
-        val type =
-            DbEnumType.valueOf(v.type.capitalise())
-        val consts = EnumSet.noneOf(DbConstraint::class.java)!!
-
-        for (i in v.constraints) {
-            consts.add(DbConstraint.valueOf(i.capitalise()))
-        }
-
-        set.add(Column(name = k, type, consts))
-    }
-    return Schema(set)
-}
-
-data class JsonColumn(var type: String, var constraints: Set<String>) {
+data class JsonQueryColumn(var type: String, var constraints: Set<String>) {
     constructor() : this("", setOf())
 }
 
+/**
+ * The query that is sent to the server for creating a table.
+ *
+ * It contains a payload like:
+ * ```
+ * "payload": {
+ *      "name": {
+ *          "type": "String",
+ *          "constraints": [
+ *              "NotNull",
+ *              "Immutable"
+ *          ]
+ *      },
+ *      "email": {
+ *          "type": "Email",
+ *          "constraints": [
+ *              "Unique"
+ *          ]
+ *      },
+ *      "age": {
+ *          "type": "Number",
+ *          "constraints": [
+ *              "NotNull"
+ *          ]
+ *      }
+ * }
+ * ```
+ *
+ * along with table and action.
+ */
 @Suppress("unused")
-data class JsonCreate(var tableName: String, var action: String, var payload: JsonColumns) {
-    constructor() : this("", "", JsonColumns())
+data class JsonCreateQuery(var table: String, var action: String, var payload: JsonCreatePayload) {
+    constructor() : this("", "", JsonCreatePayload())
 }

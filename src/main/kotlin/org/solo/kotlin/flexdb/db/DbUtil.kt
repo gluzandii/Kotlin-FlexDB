@@ -1,7 +1,7 @@
 package org.solo.kotlin.flexdb.db
 
-import org.solo.kotlin.flexdb.GlobalData
 import org.solo.kotlin.flexdb.InvalidPasswordProvidedException
+import org.solo.kotlin.flexdb.ThisFlexDBInstance
 import java.io.IOException
 import java.nio.file.Path
 import java.time.LocalDateTime
@@ -53,10 +53,10 @@ object DbUtil {
             error("The path: $path is not FlexDB")
         }
 
-        GlobalData.db = DB(
+        ThisFlexDBInstance.thisDbInstance = DB(
             root = path,
         )
-        return GlobalData.db!!
+        return ThisFlexDBInstance.thisDbInstance!!
     }
 
     @JvmStatic

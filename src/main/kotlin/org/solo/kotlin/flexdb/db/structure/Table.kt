@@ -2,8 +2,8 @@ package org.solo.kotlin.flexdb.db.structure
 
 import org.solo.kotlin.flexdb.MismatchedSchemaException
 import org.solo.kotlin.flexdb.db.structure.primitive.Row
-import org.solo.kotlin.flexdb.json.query.classes.JsonColumn
-import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
+import org.solo.kotlin.flexdb.internal.JsonCreatePayload
+import org.solo.kotlin.flexdb.json.query.classes.JsonQueryColumn
 import java.util.*
 
 @Suppress("unused")
@@ -16,11 +16,11 @@ class Table(val name: String, val schema: Schema) : Iterable<Row> {
         }
     }
 
-    val schemaSet: JsonColumns
+    val schemaSet: JsonCreatePayload
         get() {
-            val j = JsonColumns()
+            val j = JsonCreatePayload()
             for (i in schema) {
-                j[i.name] = JsonColumn(i.type.name, i.stringConstraints)
+                j[i.name] = JsonQueryColumn(i.type.name, i.stringConstraints)
             }
 
             return j

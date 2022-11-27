@@ -13,7 +13,6 @@ import org.solo.kotlin.flexdb.db.structure.Table
 import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbValue
 import org.solo.kotlin.flexdb.internal.*
-import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -94,10 +93,10 @@ abstract class DbEngine protected constructor(
                     for ((k, v) in i) {
                         val n = k.name
 
-                        if (v == null && k.hasConstraint(DbConstraint.NotNull)) {
+                        if (v == null && k.hasConstraint(DbConstraint.NOTNULL)) {
                             throw InvalidQueryException("Column '${k.name}' cannot be null.")
                         }
-                        if (k.hasConstraint(DbConstraint.Unique) && v != null) {
+                        if (k.hasConstraint(DbConstraint.UNIQUE) && v != null) {
                             if (dupli.containsKey(n)) {
                                 if (dupli[n]!!.contains(v)) {
                                     throw InvalidQueryException("Column '${k.name}' must be unique.")
@@ -164,7 +163,7 @@ abstract class DbEngine protected constructor(
     }
 
     @Throws(IOException::class)
-    protected inline fun initLoadTableCall(tableName: String): Regex {
+    protected fun initLoadTableCall(tableName: String): Regex {
         if (!db.tableExists(tableName)) {
             throw IOException("Table $tableName does not exist")
         }
@@ -241,7 +240,7 @@ abstract class DbEngine protected constructor(
         command: String,
         tableName: String,
         where: String?,
-        columns: JsonColumns?,
+        columns: JsonCreatePayload?,
         sortingType: SortingType
     ): Query<*> {
         return Query.build(command, tableName, this, where, columns, sortingType)

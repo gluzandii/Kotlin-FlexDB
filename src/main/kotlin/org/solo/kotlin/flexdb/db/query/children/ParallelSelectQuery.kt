@@ -10,6 +10,7 @@ import org.solo.kotlin.flexdb.db.engine.DbEngine
 import org.solo.kotlin.flexdb.db.query.Query
 import org.solo.kotlin.flexdb.db.query.SortingType
 import org.solo.kotlin.flexdb.db.structure.primitive.Row
+import org.solo.kotlin.flexdb.internal.JsonCreatePayload
 import org.springframework.context.expression.MapAccessor
 import org.springframework.expression.EvaluationContext
 import org.springframework.expression.Expression
@@ -21,8 +22,9 @@ class ParallelSelectQuery(
     tableName: String,
     engine: DbEngine,
     where: String,
+    columns: JsonCreatePayload?,
     sortingType: SortingType
-) : Query<List<Row>>(tableName, engine, where, null, sortingType) {
+) : Query<List<Row>>(tableName, engine, where, columns, sortingType) {
     private val expression: Expression
 
     init {

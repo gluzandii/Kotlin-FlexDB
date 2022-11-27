@@ -3,18 +3,18 @@ package org.solo.kotlin.flexdb.db.types
 import org.solo.kotlin.flexdb.InvalidTypeException
 
 enum class DbEnumType {
-    String,
-    Number,
-    Decimal,
-    Boolean;
+    STRING,
+    NUMBER,
+    DECIMAL,
+    BOOLEAN;
 
     val default: DbValue<*>
         get() {
             return when (this) {
-                String -> DbString("")
-                Number -> DbNumber(0)
-                Decimal -> DbDecimal(0.0)
-                Boolean -> DbBoolean(false)
+                STRING -> DbString("")
+                NUMBER -> DbNumber(0)
+                DECIMAL -> DbDecimal(0.0)
+                BOOLEAN -> DbBoolean(false)
             }
         }
 }
@@ -50,15 +50,15 @@ sealed class DbValue<T>(val value: T, val type: DbEnumType) {
         }
 
         return when (type) {
-            DbEnumType.String -> v.value.toString().compareTo(value.toString())
-            DbEnumType.Decimal -> (v.value as Double).compareTo(value as Double)
-            DbEnumType.Number -> (v.value as Long).compareTo(value as Long)
-            DbEnumType.Boolean -> (v.value as Boolean).compareTo(value as Boolean)
+            DbEnumType.STRING -> v.value.toString().compareTo(value.toString())
+            DbEnumType.DECIMAL -> (v.value as Double).compareTo(value as Double)
+            DbEnumType.NUMBER -> (v.value as Long).compareTo(value as Long)
+            DbEnumType.BOOLEAN -> (v.value as Boolean).compareTo(value as Boolean)
         }
     }
 }
 
-class DbString(value: String) : DbValue<String>(value, DbEnumType.String)
-class DbNumber(value: Long) : DbValue<Long>(value, DbEnumType.Number)
-class DbDecimal(value: Double) : DbValue<Double>(value, DbEnumType.Decimal)
-class DbBoolean(value: Boolean) : DbValue<Boolean>(value, DbEnumType.Boolean)
+class DbString(value: String) : DbValue<String>(value, DbEnumType.STRING)
+class DbNumber(value: Long) : DbValue<Long>(value, DbEnumType.NUMBER)
+class DbDecimal(value: Double) : DbValue<Double>(value, DbEnumType.DECIMAL)
+class DbBoolean(value: Boolean) : DbValue<Boolean>(value, DbEnumType.BOOLEAN)

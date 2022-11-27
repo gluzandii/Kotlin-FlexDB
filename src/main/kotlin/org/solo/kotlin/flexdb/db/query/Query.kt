@@ -5,7 +5,7 @@ import org.solo.kotlin.flexdb.db.engine.DbEngine
 import org.solo.kotlin.flexdb.db.query.children.CreateQuery
 import org.solo.kotlin.flexdb.db.query.children.ParallelSelectQuery
 import org.solo.kotlin.flexdb.db.query.children.SelectQuery
-import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
+import org.solo.kotlin.flexdb.internal.JsonCreatePayload
 import org.springframework.expression.ExpressionParser
 import org.springframework.expression.spel.standard.SpelExpressionParser
 import java.io.IOException
@@ -14,7 +14,7 @@ abstract class Query<T>(
     val tableName: String,
     val engine: DbEngine,
     val where: String?,
-    val columns: JsonColumns?,
+    val columns: JsonCreatePayload?,
     val sortingType: SortingType
 ) {
     protected val parser: ExpressionParser = SpelExpressionParser()
@@ -30,16 +30,23 @@ abstract class Query<T>(
             tableName: String,
             engine: DbEngine,
             where: String?,
-            columns: JsonColumns?,
+            columns: JsonCreatePayload?,
             sortingType: SortingType
         ): Query<*> {
             return when (command.lowercase()) {
-                "select" -> ParallelSelectQuery(tableName, engine, where ?: "true", sortingType)
-                
+                "select" -> ParallelSelectQuery(
+                    tableName,
+                    engine,
+                    where ?: "true",
+                    columns,
+                    sortingType
+                )
+
                 "normal select", "normal-select", "normalselect" -> SelectQuery(
                     tableName,
                     engine,
                     where ?: "true",
+                    columns,
                     sortingType
                 )
 

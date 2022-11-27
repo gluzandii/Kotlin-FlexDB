@@ -4,14 +4,14 @@ import org.solo.kotlin.flexdb.db.structure.Schema
 import org.solo.kotlin.flexdb.db.structure.primitive.Column
 import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbEnumType
+import org.solo.kotlin.flexdb.internal.JsonCreatePayload
 import org.solo.kotlin.flexdb.json.JsonUtil
-import org.solo.kotlin.flexdb.json.query.classes.JsonColumns
 import java.io.IOException
 import java.util.*
 
 @Suppress("unused")
-data class DbColumnFile(var columns: JsonColumns) {
-    constructor() : this(JsonColumns())
+data class DbColumnFile(var columns: JsonCreatePayload) {
+    constructor() : this(JsonCreatePayload())
 
     @Throws(IOException::class)
     fun serialize(): ByteArray {

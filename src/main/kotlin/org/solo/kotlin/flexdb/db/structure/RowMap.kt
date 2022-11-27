@@ -15,7 +15,7 @@ class RowMap(val schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbVa
 
     init {
         for (i in schema) {
-            content[i] = if (i.hasConstraint(DbConstraint.NotNull)) {
+            content[i] = if (i.hasConstraint(DbConstraint.NOTNULL)) {
                 i.type.default
             } else {
                 null
@@ -48,7 +48,7 @@ class RowMap(val schema: Schema) : Iterable<MutableMap.MutableEntry<Column, DbVa
         }
         val c = cols[col]!!
 
-        if ((c.hasConstraint(DbConstraint.NotNull) || c.hasConstraint(DbConstraint.Unique)) && (value == null)) {
+        if ((c.hasConstraint(DbConstraint.NOTNULL) || c.hasConstraint(DbConstraint.UNIQUE)) && (value == null)) {
             throw NullUsedInNonNullColumnException("The value provided is null, for a NonNull constraint column")
         }
 
