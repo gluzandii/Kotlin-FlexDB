@@ -80,7 +80,7 @@ fun main(args: Array<String>) {
         val name = Path(readln())
 
         if (DbUtil.dbExists(name)) {
-            DbUtil.setGlobalDB(name)
+            DbUtil.setThisInstanceDm(name)
         } else if (name.exists()) {
             println("Something exists at the path: $name, please delete it.")
 

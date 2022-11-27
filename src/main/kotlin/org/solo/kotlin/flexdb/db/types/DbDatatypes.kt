@@ -2,12 +2,18 @@ package org.solo.kotlin.flexdb.db.types
 
 import org.solo.kotlin.flexdb.InvalidTypeException
 
+/**
+ * The enum that stores all possible datatypes in FlexDB
+ */
 enum class DbEnumType {
     STRING,
     NUMBER,
     DECIMAL,
     BOOLEAN;
 
+    /**
+     * Returns the default value of a given datatype.
+     */
     val default: DbValue<*>
         get() {
             return when (this) {
@@ -21,6 +27,9 @@ enum class DbEnumType {
 
 // CREATE JSON SERIALIZATION AND DESERIALIZATION LOGIC
 
+/**
+ * The base class for any database value in FlexDB
+ */
 sealed class DbValue<T>(val value: T, val type: DbEnumType) {
     override fun hashCode(): Int {
         return value.hashCode()
@@ -40,25 +49,45 @@ sealed class DbValue<T>(val value: T, val type: DbEnumType) {
         return value == other.value
     }
 
+    /**
+     * Compares 2 values of [DbValue]
+     *
+     * @param other the other value to compare to
+     */
     @Throws(InvalidTypeException::class)
-    operator fun compareTo(v: DbValue<*>): Int {
-        if (this === v) {
+    operator fun compareTo(other: DbValue<*>): Int {
+        if (this === other) {
             return 0
         }
-        if (v.type != type) {
+        if (other.type != type) {
             throw InvalidTypeException("The DbValue provided has a type not equal to this.")
         }
 
         return when (type) {
-            DbEnumType.STRING -> v.value.toString().compareTo(value.toString())
-            DbEnumType.DECIMAL -> (v.value as Double).compareTo(value as Double)
-            DbEnumType.NUMBER -> (v.value as Long).compareTo(value as Long)
-            DbEnumType.BOOLEAN -> (v.value as Boolean).compareTo(value as Boolean)
+            DbEnumType.STRING -> other.value.toString().compareTo(value.toString())
+            DbEnumType.DECIMAL -> (other.value as Double).compareTo(value as Double)
+            DbEnumType.NUMBER -> (other.value as Long).compareTo(value as Long)
+            DbEnumType.BOOLEAN -> (other.value as Boolean).compareTo(value as Boolean)
         }
     }
 }
 
+/**
+ * [DbValue] which stores a string.
+ */
 class DbString(value: String) : DbValue<String>(value, DbEnumType.STRING)
+
+/**
+ * [DbValue] which stores a whole number.
+ */
 class DbNumber(value: Long) : DbValue<Long>(value, DbEnumType.NUMBER)
+
+/**
+ * [DbValue] which stores a decimal.
+ */
 class DbDecimal(value: Double) : DbValue<Double>(value, DbEnumType.DECIMAL)
+
+/**
+ * [DbValue] which stores a boolean.
+ */
 class DbBoolean(value: Boolean) : DbValue<Boolean>(value, DbEnumType.BOOLEAN)

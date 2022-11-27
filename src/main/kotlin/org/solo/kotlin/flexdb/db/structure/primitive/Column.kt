@@ -3,12 +3,13 @@ package org.solo.kotlin.flexdb.db.structure.primitive
 import org.solo.kotlin.flexdb.db.types.DbEnumType
 import java.util.*
 
-@Suppress("unused")
-class Column(val name: String, val type: DbEnumType, private val constraints: EnumSet<DbConstraint>) {
-    override fun hashCode(): Int {
-        return name.hashCode()
-    }
-
+/**
+ * A dataclass that is used for storing a column and its metadata, not the contents of the column.
+ */
+data class Column(val name: String, val type: DbEnumType, private val constraints: EnumSet<DbConstraint>) {
+    /**
+     * Returns a [Set] containing its contents but in a [String] format.
+     */
     val stringConstraints: Set<String>
         get() {
             val ms = hashSetOf<String>()
@@ -30,15 +31,14 @@ class Column(val name: String, val type: DbEnumType, private val constraints: En
         return name == other.name
     }
 
-    fun trueEquals(other: Column): Boolean {
-        return (other.type == type) && (other.constraints == constraints) && equals(other)
+    override fun hashCode(): Int {
+        return name.hashCode()
     }
 
+    /**
+     * Checks if the given [DbConstraint] is present in this [Column].
+     */
     fun hasConstraint(c: DbConstraint): Boolean {
         return constraints.contains(c)
-    }
-
-    fun constraints(): Iterator<DbConstraint> {
-        return constraints.iterator()
     }
 }

@@ -1,13 +1,17 @@
 package org.solo.kotlin.flexdb.db.structure
 
 import org.solo.kotlin.flexdb.MismatchedSchemaException
+import org.solo.kotlin.flexdb.db.bson.DbColumnFile
 import org.solo.kotlin.flexdb.db.structure.primitive.Row
 import org.solo.kotlin.flexdb.internal.JsonCreatePayload
 import org.solo.kotlin.flexdb.json.query.classes.JsonQueryColumn
 import java.util.*
 
-@Suppress("unused")
+
 class Table(val name: String, val schema: Schema) : Iterable<Row> {
+    /**
+     * Rows in table
+     */
     private val rows = TreeSet<Row>()
 
     init {
@@ -16,23 +20,34 @@ class Table(val name: String, val schema: Schema) : Iterable<Row> {
         }
     }
 
-    val schemaSet: JsonCreatePayload
+    /**
+     * Returns the [DbColumnFile] of this table, that can be serialized.
+     */
+    val dbColumnFile: DbColumnFile
         get() {
             val j = JsonCreatePayload()
             for (i in schema) {
                 j[i.name] = JsonQueryColumn(i.type.name, i.stringConstraints)
             }
 
-            return j
+            return DbColumnFile(j)
         }
 
-    fun schemaMatches(schema: Schema): Boolean {
-        return this.schema == schema
+    /**
+     * Checks if the schema of given [Table] is the same as this table.
+     *
+     * @param t The [Table] to check
+     */
+    fun tableSchemaMatches(t: Table): Boolean {
+        return this.schema == t.schema
     }
 
+    /**
+     * Adds 2 tables together.
+     */
     @Throws(MismatchedSchemaException::class)
     operator fun plus(table: Table): Table {
-        if (!table.schemaMatches(schema)) {
+        if (!table.tableSchemaMatches(this)) {
             throw MismatchedSchemaException("Cannot add table with schema ${table.schema} to table with schema $schema")
         }
         val t = Table(name, schema)
@@ -43,10 +58,12 @@ class Table(val name: String, val schema: Schema) : Iterable<Row> {
         return t
     }
 
-    fun containsRow(row: Row): Boolean {
-        return rows.contains(row)
-    }
 
+    /**
+     * Adds a [Row] to the current table, unless it already exists.
+     *
+     * @param row [Row] to add
+     */
     @Throws(MismatchedSchemaException::class)
     fun add(row: Row) {
         if (!row.schemaMatches(schema)) {
@@ -58,13 +75,21 @@ class Table(val name: String, val schema: Schema) : Iterable<Row> {
         rows.add(row)
     }
 
+    /**
+     * Adds the [Collection] of rows to this [Table]
+     *
+     * @param rows [Collection] of [Row] to add
+     */
     @Throws(MismatchedSchemaException::class)
-    fun addAll(row: Collection<Row>) {
-        for (i in row) {
+    fun addAll(rows: Collection<Row>) {
+        for (i in rows) {
             add(i)
         }
     }
 
+    /**
+     * [Iterator] that iterates over the rows in this table.
+     */
     override fun iterator(): Iterator<Row> {
         return rows.iterator()
     }

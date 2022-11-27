@@ -5,6 +5,9 @@ import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbEnumType
 import java.util.*
 
+/**
+ * A dataclass that is used for storing the schema of a table.
+ */
 data class Schema(val schemaSet: MutableSet<Column>) : Iterable<Column> {
 
     init {
@@ -16,11 +19,14 @@ data class Schema(val schemaSet: MutableSet<Column>) : Iterable<Column> {
             Column(
                 "id",
                 DbEnumType.NUMBER,
-                EnumSet.of(DbConstraint.UNIQUE, DbConstraint.NOTNULL/*, DbConstraint.Immutable*/)!!
+                EnumSet.of(DbConstraint.UNIQUE, DbConstraint.NOTNULL)!!
             )
         schemaSet.add(col)
     }
 
+    /**
+     * Returns an [Iterator] with all the [Column] in this schema.
+     */
     override fun iterator(): Iterator<Column> {
         return schemaSet.iterator()
     }

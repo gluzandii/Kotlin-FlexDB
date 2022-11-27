@@ -7,22 +7,59 @@ import java.nio.file.Path
 import java.time.LocalDateTime
 import kotlin.io.path.*
 
+/**
+ * Static utilities for getting `paths` inside the database.
+ *
+ * It has methods to check if database is a proper one, or to create databases.
+ */
 object DbUtil {
+    /**
+     * Schemafull path in db.
+     *
+     * ```
+     *  Schemafull Path: ../{db_name}/schemafull
+     *  ```
+     *
+     *  @param root the name of the database
+     */
     @JvmStatic
     fun schemafullPath(root: Path): Path {
         return root.resolve("schemafull")
     }
 
+    /**
+     * Logs path in db.
+     *
+     * ```
+     *  Logs Path: ../{db_name}/logs
+     *  ```
+     *
+     *  @param root the name of the database
+     */
     @JvmStatic
     fun logsPath(root: Path): Path {
         return root.resolve("logs")
     }
 
+    /**
+     * Index path in db.
+     *
+     * ```
+     *  Index Path: ../{db_name}/index
+     *  ```
+     *
+     *  @param root the name of the database
+     */
     @JvmStatic
     fun indexPath(root: Path): Path {
         return root.resolve("index")
     }
 
+    /**
+     * Checks if the given [Path] leads to a valid database.
+     *
+     * @param name the path to the database
+     */
     @JvmStatic
     fun dbExists(name: Path): Boolean {
         try {
@@ -46,19 +83,29 @@ object DbUtil {
         }
     }
 
+    /**
+     * Sets the [DB] object for this FlexDB instance on the JVM
+     *
+     * @param path path to db
+     */
     @JvmStatic
     @Throws(InvalidPasswordProvidedException::class)
-    fun setGlobalDB(path: Path): DB {
+    fun setThisInstanceDm(path: Path): DB {
         if (!dbExists(path)) {
             error("The path: $path is not FlexDB")
         }
 
-        ThisFlexDBInstance.thisDbInstance = DB(
+        ThisFlexDBInstance.thisInstanceDb = DB(
             root = path,
         )
-        return ThisFlexDBInstance.thisDbInstance!!
+        return ThisFlexDBInstance.thisInstanceDb!!
     }
 
+    /**
+     * Creates a new database at the given path.
+     *
+     * @param path the path to the database
+     */
     @JvmStatic
     @Throws(IOException::class)
     fun createDB(path: Path): DB? {

@@ -10,7 +10,7 @@ object ThisFlexDBInstance {
      * Stores the [DB] of this FlexDB instance.
      */
     @JvmStatic
-    var thisDbInstance: DB? = null
+    var thisInstanceDb: DB? = null
         @Synchronized get
         @Synchronized set
 }

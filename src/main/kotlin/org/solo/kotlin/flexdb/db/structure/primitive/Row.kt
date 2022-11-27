@@ -7,10 +7,13 @@ import org.solo.kotlin.flexdb.db.structure.RowMap
 import org.solo.kotlin.flexdb.db.structure.Schema
 import org.solo.kotlin.flexdb.db.types.DbValue
 
+/**
+ *
+ */
 data class Row(
     val id: Int,
     val schema: Schema
-) : Iterable<MutableMap.MutableEntry<Column, DbValue<*>?>>, Comparator<Row>, Comparable<Row> {
+) : Iterable<Map.Entry<Column, DbValue<*>?>>, Comparator<Row>, Comparable<Row> {
     private val content: RowMap = RowMap(schema)
 
     @Suppress("unused")
@@ -39,7 +42,7 @@ data class Row(
         return content[colName]
     }
 
-    override fun iterator(): Iterator<MutableMap.MutableEntry<Column, DbValue<*>?>> {
+    override fun iterator(): Iterator<Map.Entry<Column, DbValue<*>?>> {
         return content.iterator()
     }
 

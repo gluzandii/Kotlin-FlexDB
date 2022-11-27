@@ -193,7 +193,7 @@ abstract class DbEngine protected constructor(
         val path = db.tablePath(table.name)
         path.createDirectories()
 
-        writeColumnInTable(table.name, DbColumnFile(table.schemaSet))
+        writeColumnInTable(table.name, table.dbColumnFile)
         serializeTable0(table)
     }
 
@@ -229,7 +229,7 @@ abstract class DbEngine protected constructor(
         loadEntireTable(tableName)
 
         val t = tablesMap[tableName]!!
-        if (!t.schemaMatches(table.schema)) {
+        if (!t.tableSchemaMatches(table)) {
             throw IllegalArgumentException("The table: $tableName does not match the current schema.")
         }
 
