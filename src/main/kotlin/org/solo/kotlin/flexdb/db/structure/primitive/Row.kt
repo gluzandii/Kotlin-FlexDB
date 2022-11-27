@@ -10,7 +10,7 @@ import org.solo.kotlin.flexdb.db.types.DbValue
 data class Row(
     val id: Int,
     val schema: Schema
-) : Iterable<MutableMap.MutableEntry<Column, DbValue<*>?>>, Comparator<Row> {
+) : Iterable<MutableMap.MutableEntry<Column, DbValue<*>?>>, Comparator<Row>, Comparable<Row> {
     private val content: RowMap = RowMap(schema)
 
     @Suppress("unused")
@@ -51,6 +51,10 @@ data class Row(
         } else {
             -1
         }
+    }
+
+    override fun compareTo(other: Row): Int {
+        return compare(this, other)
     }
 
     override fun hashCode(): Int {

@@ -1,7 +1,5 @@
 package org.solo.kotlin.flexdb.db.bson
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.solo.kotlin.flexdb.db.structure.Schema
 import org.solo.kotlin.flexdb.db.structure.primitive.Column
 import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
@@ -40,24 +38,9 @@ data class DbColumnFile(var columns: JsonColumns) {
     companion object {
         @JvmStatic
         @Throws(IOException::class)
-        suspend fun deserialize(byte: ByteArray): DbColumnFile {
-            var exp: IOException? = null
-            val b = withContext(Dispatchers.Default) {
-                return@withContext try {
-                    val mapper = JsonUtil.newBinaryObjectMapper()
-                    val b = mapper.readValue(byte, DbColumnFile::class.java)
-
-                    b
-                } catch (io: IOException) {
-                    exp = io
-                    null
-                }
-            }
-            if (exp != null) {
-                throw exp!!
-            }
-
-            return b ?: throw IOException("Could not serialize this rowc")
+        fun deserialize(byte: ByteArray): DbColumnFile {
+            return JsonUtil.newBinaryObjectMapper().readValue(byte, DbColumnFile::class.java)
+                ?: throw IOException("Could not parse column file.")
         }
     }
 }
