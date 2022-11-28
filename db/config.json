@@ -1,8 +1,14 @@
 {
     "schemafull": {
-        "engine": "ParallelSchemafullDbEngine"
+        "engine": {
+            "name": "ParallelSchemafullDbEngine",
+            "rowsPerFile": 1000
+        }
     },
     "schemaless": {
-        "engine": "SequentialSchemalessDbEngine"
+        "engine": {
+            "name": "SequentialSchemalessDbEngine",
+            "rowsPerFile": 1000
+        }
     }
 }

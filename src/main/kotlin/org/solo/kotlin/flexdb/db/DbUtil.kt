@@ -1,5 +1,8 @@
 package org.solo.kotlin.flexdb.db
 
+import org.solo.kotlin.flexdb.db.json.DbConfig
+import org.solo.kotlin.flexdb.db.json.DbConfigSchemafullAndSchemaless
+import org.solo.kotlin.flexdb.json.JsonUtil.newObjectMapper
 import java.io.IOException
 import java.nio.file.Path
 import java.time.LocalDateTime
@@ -78,25 +81,26 @@ object DbUtil {
      */
     @JvmStatic
     fun configPath(root: Path): Path {
-        return root.resolve("config")
+        return root.resolve("config.json")
     }
 
     /**
      * Checks if the given [Path] leads to a valid database.
      *
-     * @param name the path to the database
+     * @param root the path to the database
      */
     @JvmStatic
-    fun dbExists(name: Path): Boolean {
+    fun dbExists(root: Path): Boolean {
         try {
-            if (!name.isDirectory()) {
+            if (!root.isDirectory()) {
                 return false
             }
 
-            val schemafull = schemafullPath(name)
-            val schemaless = schemalessPath(name)
-            val logs = logsPath(name)
-            val index = indexPath(name)
+            val schemafull = schemafullPath(root)
+            val schemaless = schemalessPath(root)
+            val logs = logsPath(root)
+            val index = indexPath(root)
+            val config = configPath(root)
 
             if (!schemafull.isDirectory()) {
                 return false
@@ -107,7 +111,10 @@ object DbUtil {
             if (!index.isDirectory()) {
                 return false
             }
-            return logs.isRegularFile()
+            if (!logs.isDirectory()) {
+                return false
+            }
+            return config.isRegularFile()
         } catch (ex: Exception) {
             return false
         }
@@ -146,17 +153,13 @@ object DbUtil {
         index.createDirectories()
 
         logs.resolve("log1.log").writeText("[${LocalDateTime.now()}] - DB: \"$name\" created.")
-        config.writeText(
-            """
-            {
-                "schemafull": {
-                    "engine": "SequentialSchemafullDbEngine"
-                },
-                "schemaless": {
-                    "engine": "SequentialSchemalessDbEngine"
-                }
-            }
-            """.trimIndent()
+
+        newObjectMapper().writeValue(
+            config.toFile(),
+            DbConfig(
+                schemafull = DbConfigSchemafullAndSchemaless(),
+                schemaless = DbConfigSchemafullAndSchemaless()
+            )
         )
 
         return DB(

@@ -26,9 +26,10 @@ import kotlin.io.path.name
 /**
  * A Thread-Safe abstract SchemafullDbEngine.
  */
+@Suppress("unused")
 abstract class SchemafullDbEngine protected constructor(
     protected val db: DB,
-    protected val rowsPerFile: Int = 1000
+    protected val rowsPerFile: Int
 ) {
     /**
      * Stores each table.

@@ -23,7 +23,10 @@ import kotlin.io.path.name
  * Where the tables are loaded and serialized parallely.
  */
 @Suppress("unused", "unchecked_cast")
-class ParallelSchemafullDbEngine(db: DB) : SchemafullDbEngine(db) {
+class ParallelSchemafullDbEngine(
+    db: DB,
+    rowsPerFile: Int
+) : SchemafullDbEngine(db, rowsPerFile) {
     @Throws(IOException::class)
     override suspend fun loadTable0(tableName: String) {
         val rgx = super.initLoadTableCall(tableName)
