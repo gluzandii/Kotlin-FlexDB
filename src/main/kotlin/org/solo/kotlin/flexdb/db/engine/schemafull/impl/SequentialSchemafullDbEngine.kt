@@ -16,6 +16,11 @@ import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
 
 
+/**
+ * A sequential non-blocking implementation of [SchemafullDbEngine].
+ *
+ * Where the tables are loaded and serialized sequentially.
+ */
 class SequentialSchemafullDbEngine(db: DB) : SchemafullDbEngine(db) {
     @Throws(IOException::class)
     override suspend fun loadTable0(tableName: String) {

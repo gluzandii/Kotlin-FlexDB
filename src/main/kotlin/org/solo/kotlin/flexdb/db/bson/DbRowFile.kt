@@ -21,6 +21,23 @@ import java.io.IOException
 import java.util.*
 
 
+/**
+ * Implementation of a row file (row0, row1000) in the database.
+ * ```
+ * {
+ *      "data": {
+ *          "0": {
+ *              "name": "Sushant Nariangadu",
+ *              "email": "nsushant2007@gmail.com"
+ *          },
+ *          "1": {
+ *              "name": "Radhakrishnan Nariangadu",
+ *              "email": "reachnrk@gmail.com"
+ *          }
+ *      }
+ * }
+ * ```
+ */
 @JsonDeserialize(using = DbRowDeserializer::class)
 @JsonSerialize(using = DbRowSerializer::class)
 data class DbRowFile(var data: TreeMap<Int, Map<String, DbValue<*>?>>) {

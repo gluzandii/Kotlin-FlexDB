@@ -17,6 +17,11 @@ import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
 
 
+/**
+ * A parallel non-blocking implementation of [SchemafullDbEngine].
+ *
+ * Where the tables are loaded and serialized parallely.
+ */
 class ParallelSchemaFullDbEngine(db: DB) : SchemafullDbEngine(db) {
     @Throws(IOException::class)
     override suspend fun loadTable0(tableName: String) {

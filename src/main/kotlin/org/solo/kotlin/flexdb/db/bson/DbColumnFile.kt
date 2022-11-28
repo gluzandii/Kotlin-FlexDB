@@ -9,7 +9,27 @@ import org.solo.kotlin.flexdb.json.JsonUtil
 import java.io.IOException
 import java.util.*
 
-
+/**
+ * Implementation of a column file in the database.
+ *
+ * ```
+ * {
+ *      "columns": {
+ *          "name": {
+ *              "type": "String",
+ *              "constraints": [
+ *                  "NotNull"
+ *              ]
+ *          },
+ *          "email": {
+ *              "type": "String",
+ *              "constraints": [
+ *                  "Unique"
+ *              ]
+ *          }
+ *      }
+ * }
+ */
 data class DbColumnFile(var columns: JsonCreatePayload) {
     constructor() : this(JsonCreatePayload())
 
