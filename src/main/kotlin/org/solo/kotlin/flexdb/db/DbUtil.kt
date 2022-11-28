@@ -1,7 +1,5 @@
 package org.solo.kotlin.flexdb.db
 
-import org.solo.kotlin.flexdb.InvalidPasswordProvidedException
-import org.solo.kotlin.flexdb.ThisFlexDBInstance
 import java.io.IOException
 import java.nio.file.Path
 import java.time.LocalDateTime
@@ -70,6 +68,20 @@ object DbUtil {
     }
 
     /**
+     * Config file path in db.
+     *
+     * ```
+     *  Index Path: ../{db_name}/config.json
+     *  ```
+     *
+     *  @param root the name of the database
+     */
+    @JvmStatic
+    fun configPath(root: Path): Path {
+        return root.resolve("config")
+    }
+
+    /**
      * Checks if the given [Path] leads to a valid database.
      *
      * @param name the path to the database
@@ -101,23 +113,6 @@ object DbUtil {
         }
     }
 
-    /**
-     * Sets the [DB] object for this FlexDB instance on the JVM
-     *
-     * @param path path to db
-     */
-    @JvmStatic
-    @Throws(InvalidPasswordProvidedException::class)
-    fun setThisInstanceDb(path: Path): DB {
-        if (!dbExists(path)) {
-            error("The path: $path is not FlexDB")
-        }
-
-        ThisFlexDBInstance.thisInstanceDb = DB(
-            root = path,
-        )
-        return ThisFlexDBInstance.thisInstanceDb!!
-    }
 
     /**
      * Creates a new database at the given path.
@@ -126,7 +121,7 @@ object DbUtil {
      */
     @JvmStatic
     @Throws(IOException::class)
-    fun createDB(path: Path, setGlobal: Boolean = false): DB? {
+    fun createDB(path: Path): DB? {
         if (dbExists(path)) {
             return null
         }
@@ -136,6 +131,7 @@ object DbUtil {
         val schemaless = schemalessPath(path)
         val logs = logsPath(path)
         val index = indexPath(path)
+        val config = configPath(path)
 
         if (path.isDirectory() && !dbExists(path)) {
             throw IllegalArgumentException("Invalid path: $path given, cannot create FlexDB here.")
@@ -150,13 +146,21 @@ object DbUtil {
         index.createDirectories()
 
         logs.resolve("log1.log").writeText("[${LocalDateTime.now()}] - DB: \"$name\" created.")
-        val d = DB(
-            path,
+        config.writeText(
+            """
+            {
+                "schemafull": {
+                    "engine": "SequentialSchemafullDbEngine"
+                },
+                "schemaless": {
+                    "engine": "SequentialSchemalessDbEngine"
+                }
+            }
+            """.trimIndent()
         )
 
-        if (setGlobal) {
-            ThisFlexDBInstance.thisInstanceDb = d
-        }
-        return d
+        return DB(
+            path,
+        )
     }
 }

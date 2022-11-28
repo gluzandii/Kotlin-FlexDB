@@ -2,8 +2,8 @@ package org.solo.kotlin.flexdb.db.query
 
 import org.solo.kotlin.flexdb.InvalidQueryException
 import org.solo.kotlin.flexdb.db.engine.schemafull.SchemafullDbEngine
-import org.solo.kotlin.flexdb.db.query.children.CreateQuery
-import org.solo.kotlin.flexdb.db.query.children.SelectQuery
+import org.solo.kotlin.flexdb.db.query.impl.CreateQuery
+import org.solo.kotlin.flexdb.db.query.impl.SelectQuery
 import org.solo.kotlin.flexdb.internal.JsonCreatePayload
 import org.springframework.context.expression.MapAccessor
 import org.springframework.expression.EvaluationContext

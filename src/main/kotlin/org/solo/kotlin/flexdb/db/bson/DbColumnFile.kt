@@ -6,6 +6,7 @@ import org.solo.kotlin.flexdb.db.structure.schemafull.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbEnumType
 import org.solo.kotlin.flexdb.internal.JsonCreatePayload
 import org.solo.kotlin.flexdb.json.JsonUtil
+import org.solo.kotlin.flexdb.json.JsonUtil.newBinaryObjectMapper
 import java.io.IOException
 import java.util.*
 
@@ -30,6 +31,7 @@ import java.util.*
  *      }
  * }
  */
+@Suppress("unused")
 data class DbColumnFile(var columns: JsonCreatePayload) {
     constructor() : this(JsonCreatePayload())
 
@@ -59,7 +61,7 @@ data class DbColumnFile(var columns: JsonCreatePayload) {
         @JvmStatic
         @Throws(IOException::class)
         fun deserialize(byte: ByteArray): DbColumnFile {
-            return JsonUtil.newBinaryObjectMapper().readValue(byte, DbColumnFile::class.java)
+            return newBinaryObjectMapper().readValue(byte, DbColumnFile::class.java)
                 ?: throw IOException("Could not parse column file.")
         }
     }

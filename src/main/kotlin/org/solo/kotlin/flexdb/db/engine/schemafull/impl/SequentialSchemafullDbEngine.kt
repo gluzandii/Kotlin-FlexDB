@@ -21,6 +21,7 @@ import kotlin.io.path.name
  *
  * Where the tables are loaded and serialized sequentially.
  */
+@Suppress("unused", "unchecked_cast")
 class SequentialSchemafullDbEngine(db: DB) : SchemafullDbEngine(db) {
     @Throws(IOException::class)
     override suspend fun loadTable0(tableName: String) {

@@ -1,4 +1,4 @@
-package org.solo.kotlin.flexdb.db.query.children
+package org.solo.kotlin.flexdb.db.query.impl
 
 import org.solo.kotlin.flexdb.db.engine.schemafull.SchemafullDbEngine
 import org.solo.kotlin.flexdb.db.query.Query

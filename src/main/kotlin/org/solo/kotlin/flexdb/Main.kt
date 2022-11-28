@@ -1,5 +1,6 @@
 package org.solo.kotlin.flexdb
 
+import org.solo.kotlin.flexdb.db.DB
 import org.solo.kotlin.flexdb.db.DbUtil
 import org.solo.kotlin.flexdb.json.JsonUtil.newObjectMapper
 import org.solo.kotlin.flexdb.json.query.JsonQueryTypes
@@ -10,10 +11,13 @@ import org.springframework.boot.runApplication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
+import java.io.IOException
 import javax.servlet.http.HttpServletRequest
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.system.exitProcess
+
+private lateinit var db: DB
 
 @SpringBootApplication
 class FlexDbApplication
@@ -22,7 +26,7 @@ class FlexDbApplication
 class DbRestController {
     @GetMapping("/")
     fun root(): Map<String, String> {
-        return mapOf(Pair("status", "OK"))
+        return mapOf("status" to "OK")
     }
 
     @PostMapping("/query")
@@ -80,7 +84,7 @@ fun main(args: Array<String>) {
         val name = Path(readln())
 
         if (DbUtil.dbExists(name)) {
-            DbUtil.setThisInstanceDb(name)
+            db = DB(name)
         } else if (name.exists()) {
             println("Something exists at the path: $name, please delete it.")
 
@@ -91,7 +95,7 @@ fun main(args: Array<String>) {
             val input = System.`in`.read().toChar()
 
             if ((input == 'Y') || (input == 'y')) {
-                DbUtil.createDB(name, true)
+                db = DbUtil.createDB(name) ?: throw IOException("Could not create DB at: $name")
             } else {
                 println("Exiting...")
                 exitProcess(1)

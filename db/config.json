@@ -1,0 +1,8 @@
+{
+    "schemafull": {
+        "engine": "ParallelSchemafullDbEngine"
+    },
+    "schemaless": {
+        "engine": "SequentialSchemalessDbEngine"
+    }
+}

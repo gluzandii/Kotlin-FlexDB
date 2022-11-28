@@ -17,6 +17,7 @@ import org.solo.kotlin.flexdb.db.structure.schemafull.Schema
 import org.solo.kotlin.flexdb.db.structure.schemafull.primitive.Row
 import org.solo.kotlin.flexdb.db.types.*
 import org.solo.kotlin.flexdb.json.JsonUtil
+import org.solo.kotlin.flexdb.json.JsonUtil.newBinaryObjectMapper
 import java.io.IOException
 import java.util.*
 
@@ -79,7 +80,7 @@ data class DbRowFile(var data: TreeMap<Int, Map<String, DbValue<*>?>>) {
         @JvmStatic
         @Throws(IOException::class)
         fun deserialize(byte: ByteArray): DbRowFile {
-            return JsonUtil.newBinaryObjectMapper().readValue(byte, DbRowFile::class.java)
+            return newBinaryObjectMapper().readValue(byte, DbRowFile::class.java)
                 ?: throw IOException("Could not parse row file.")
         }
     }

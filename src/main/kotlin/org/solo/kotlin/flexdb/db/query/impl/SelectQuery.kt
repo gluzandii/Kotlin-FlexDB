@@ -1,4 +1,4 @@
-package org.solo.kotlin.flexdb.db.query.children
+package org.solo.kotlin.flexdb.db.query.impl
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -38,7 +38,7 @@ class SelectQuery(
     @Throws(IOException::class)
     override suspend fun execute(): List<Row> {
         // Filter and only provide those columns that are needed by teh query
-        
+
         val (linkedList, mutexList) = Pair(LinkedList<Row>(), Mutex())
 
         coroutineScope {
