@@ -39,20 +39,20 @@ class DbRestController {
                     val query = mapper.readValue(body, JsonCreateQuery::class.java)!!
                 }
 
-                JsonQueryTypes.READ -> {
-                    val query = mapper.readValue(body, JsonRead::class.java)!!
+                JsonQueryTypes.SELECT -> {
+                    val query = mapper.readValue(body, JsonSelectQuery::class.java)!!
                 }
 
                 JsonQueryTypes.UPDATE -> {
-                    val query = mapper.readValue(body, JsonUpdate::class.java)!!
+                    val query = mapper.readValue(body, JsonUpdateQuery::class.java)!!
                 }
 
                 JsonQueryTypes.DELETE -> {
-                    val query = mapper.readValue(body, JsonDelete::class.java)!!
+                    val query = mapper.readValue(body, JsonDeleteQuery::class.java)!!
                 }
 
                 JsonQueryTypes.RESET -> {
-                    val query = mapper.readValue(body, JsonReset::class.java)!!
+                    val query = mapper.readValue(body, JsonResetQuery::class.java)!!
                 }
             }
         } catch (ex: Exception) {

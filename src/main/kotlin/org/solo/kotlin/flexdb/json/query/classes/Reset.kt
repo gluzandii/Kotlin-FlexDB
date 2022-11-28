@@ -17,12 +17,12 @@ package org.solo.kotlin.flexdb.json.query.classes
  * ```
  */
 
-data class JsonReset(var tableName: String, var action: String, var payload: JsonResetPayload) {
+data class JsonResetQuery(var tableName: String, var action: String, var payload: JsonResetPayload) {
     constructor() : this("", "", JsonResetPayload())
 }
 
 /**
- * Stores condition for [JsonReset]
+ * Stores condition for [JsonResetQuery]
  */
 data class JsonResetPayload(var condition: String) {
     constructor() : this("")

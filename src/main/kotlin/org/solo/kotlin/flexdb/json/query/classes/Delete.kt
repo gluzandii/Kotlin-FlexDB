@@ -13,7 +13,7 @@ package org.solo.kotlin.flexdb.json.query.classes
  * ```
  */
 
-data class JsonDelete(var tableName: String, var action: String, var payload: JsonDeletePayload) {
+data class JsonDeleteQuery(var tableName: String, var action: String, var payload: JsonDeletePayload) {
     constructor() : this("", "", JsonDeletePayload())
 }
 
@@ -27,7 +27,7 @@ data class JsonDelete(var tableName: String, var action: String, var payload: Js
  *    }
  * }
  * ```
- * Stores condition in above `JSON` for [JsonDelete]
+ * Stores condition in above `JSON` for [JsonDeleteQuery]
  */
 data class JsonDeletePayload(var condition: String) {
     constructor() : this("")

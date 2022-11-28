@@ -17,13 +17,13 @@ package org.solo.kotlin.flexdb.json.query.classes
  * ```
  */
 
-data class JsonRead(var tableName: String, var action: String, var payload: JsonReadPayload) {
-    constructor() : this("", "", JsonReadPayload())
+data class JsonSelectQuery(var tableName: String, var action: String, var payload: JsonSelectPayload) {
+    constructor() : this("", "", JsonSelectPayload())
 }
 
 /**
- * Stores the columns and condition for [JsonRead]
+ * Stores the columns and condition for [JsonSelectQuery]
  */
-data class JsonReadPayload(var columns: Set<String>, var condition: String?) {
+data class JsonSelectPayload(var columns: Set<String>, var condition: String?) {
     constructor() : this(setOf(), null)
 }

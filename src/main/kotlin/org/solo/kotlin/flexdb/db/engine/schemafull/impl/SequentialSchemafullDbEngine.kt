@@ -1,13 +1,13 @@
-package org.solo.kotlin.flexdb.db.engine.impl
+package org.solo.kotlin.flexdb.db.engine.schemafull.impl
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import org.solo.kotlin.flexdb.db.DB
 import org.solo.kotlin.flexdb.db.bson.DbRowFile
-import org.solo.kotlin.flexdb.db.engine.DbEngine
-import org.solo.kotlin.flexdb.db.structure.Schema
-import org.solo.kotlin.flexdb.db.structure.Table
+import org.solo.kotlin.flexdb.db.engine.schemafull.SchemafullDbEngine
+import org.solo.kotlin.flexdb.db.structure.schemafull.Schema
+import org.solo.kotlin.flexdb.db.structure.schemafull.Table
 import org.solo.kotlin.flexdb.internal.AsyncIOUtil
 import java.io.IOException
 import java.nio.file.Path
@@ -16,7 +16,7 @@ import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
 
 
-class SequentialDbEngine(db: DB) : DbEngine(db) {
+class SequentialSchemafullDbEngine(db: DB) : SchemafullDbEngine(db) {
     @Throws(IOException::class)
     override suspend fun loadTable0(tableName: String) {
         val rgx = super.initLoadTableCall(tableName)
@@ -30,7 +30,9 @@ class SequentialDbEngine(db: DB) : DbEngine(db) {
                     return@async super.loadColumnInTableFolder(tableName).toSchema()
                 },
                 async {
-                    return@async AsyncIOUtil.walk(super.db.schema.resolve(tableName)) { it.isRegularFile() && rgx matches it.name }
+                    return@async AsyncIOUtil.walk(super.db.schemaPath.resolve(tableName)) {
+                        return@walk it.isRegularFile() && rgx matches it.name
+                    }
                 }
             )
 
@@ -47,7 +49,7 @@ class SequentialDbEngine(db: DB) : DbEngine(db) {
         }
 
         super.tablesMap[tableName] = table
-        super.allTablesSet.add(tableName)
+        super.allTablesInThisDatabaseSet.add(tableName)
     }
 
     @Throws(IOException::class)

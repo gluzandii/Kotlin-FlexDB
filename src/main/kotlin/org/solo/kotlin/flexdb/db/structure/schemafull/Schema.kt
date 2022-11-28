@@ -1,7 +1,7 @@
-package org.solo.kotlin.flexdb.db.structure
+package org.solo.kotlin.flexdb.db.structure.schemafull
 
-import org.solo.kotlin.flexdb.db.structure.primitive.Column
-import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
+import org.solo.kotlin.flexdb.db.structure.schemafull.primitive.Column
+import org.solo.kotlin.flexdb.db.structure.schemafull.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbEnumType
 import java.util.*
 

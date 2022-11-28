@@ -1,14 +1,14 @@
-package org.solo.kotlin.flexdb.db.structure
+package org.solo.kotlin.flexdb.db.structure.schemafull
 
 import org.solo.kotlin.flexdb.MismatchedSchemaException
 import org.solo.kotlin.flexdb.db.bson.DbColumnFile
-import org.solo.kotlin.flexdb.db.structure.primitive.Row
+import org.solo.kotlin.flexdb.db.structure.schemafull.primitive.Row
 import org.solo.kotlin.flexdb.internal.JsonCreatePayload
 import org.solo.kotlin.flexdb.json.query.classes.JsonQueryColumn
 import java.util.*
 
 
-class Table(val name: String, val schema: Schema) : Iterable<Row> {
+data class Table(val name: String, val schema: Schema) : Iterable<Row> {
     /**
      * Rows in table
      */

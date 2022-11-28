@@ -1,8 +1,8 @@
 package org.solo.kotlin.flexdb.db.bson
 
-import org.solo.kotlin.flexdb.db.structure.Schema
-import org.solo.kotlin.flexdb.db.structure.primitive.Column
-import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
+import org.solo.kotlin.flexdb.db.structure.schemafull.Schema
+import org.solo.kotlin.flexdb.db.structure.schemafull.primitive.Column
+import org.solo.kotlin.flexdb.db.structure.schemafull.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbEnumType
 import org.solo.kotlin.flexdb.internal.JsonCreatePayload
 import org.solo.kotlin.flexdb.json.JsonUtil

@@ -1,10 +1,10 @@
-package org.solo.kotlin.flexdb.db.structure.primitive
+package org.solo.kotlin.flexdb.db.structure.schemafull.primitive
 
 import org.solo.kotlin.flexdb.InvalidColumnProvidedException
 import org.solo.kotlin.flexdb.MismatchedTypeException
 import org.solo.kotlin.flexdb.NullUsedInNonNullColumnException
-import org.solo.kotlin.flexdb.db.structure.RowMap
-import org.solo.kotlin.flexdb.db.structure.Schema
+import org.solo.kotlin.flexdb.db.structure.schemafull.RowMap
+import org.solo.kotlin.flexdb.db.structure.schemafull.Schema
 import org.solo.kotlin.flexdb.db.types.DbValue
 
 /**
@@ -15,13 +15,19 @@ data class Row(
     val schema: Schema
 ) : Iterable<Map.Entry<Column, DbValue<*>?>>, Comparator<Row>, Comparable<Row> {
     private val content: RowMap = RowMap(schema)
-    
+
     fun schemaMatches(schema: Schema): Boolean {
         return this.schema == schema
     }
 
-    fun map(): Map<Column, DbValue<*>?> {
-        return content.map()
+    fun map(): Map<String, DbValue<*>?> {
+        val m = content.map()
+        val mp = hashMapOf<String, DbValue<*>?>()
+
+        for ((k, v) in m) {
+            mp[k.name] = v
+        }
+        return mp
     }
 
     @Throws(

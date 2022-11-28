@@ -1,4 +1,4 @@
-package org.solo.kotlin.flexdb.db.structure.primitive
+package org.solo.kotlin.flexdb.db.structure.schemafull.primitive
 
 import org.solo.kotlin.flexdb.db.types.DbEnumType
 import java.util.*

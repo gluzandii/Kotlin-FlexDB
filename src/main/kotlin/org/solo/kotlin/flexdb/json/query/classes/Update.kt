@@ -16,13 +16,13 @@ package org.solo.kotlin.flexdb.json.query.classes
  * ```
  */
 
-data class JsonUpdate(var tableName: String, var action: String, var payload: JsonUpdatePayload) {
+data class JsonUpdateQuery(var tableName: String, var action: String, var payload: JsonUpdatePayload) {
     constructor() : this("", "", JsonUpdatePayload())
 }
 
 
 /**
- * Stores columns and condition for [JsonUpdate]
+ * Stores columns and condition for [JsonUpdateQuery]
  */
 data class JsonUpdatePayload(var columns: Map<String, String>, var condition: String?) {
     constructor() : this(mapOf(), null)

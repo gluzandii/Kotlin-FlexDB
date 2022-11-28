@@ -1,10 +1,10 @@
-package org.solo.kotlin.flexdb.db.structure
+package org.solo.kotlin.flexdb.db.structure.schemafull
 
 import org.solo.kotlin.flexdb.InvalidColumnProvidedException
 import org.solo.kotlin.flexdb.MismatchedTypeException
 import org.solo.kotlin.flexdb.NullUsedInNonNullColumnException
-import org.solo.kotlin.flexdb.db.structure.primitive.Column
-import org.solo.kotlin.flexdb.db.structure.primitive.DbConstraint
+import org.solo.kotlin.flexdb.db.structure.schemafull.primitive.Column
+import org.solo.kotlin.flexdb.db.structure.schemafull.primitive.DbConstraint
 import org.solo.kotlin.flexdb.db.types.DbValue
 import java.util.concurrent.ConcurrentHashMap
 

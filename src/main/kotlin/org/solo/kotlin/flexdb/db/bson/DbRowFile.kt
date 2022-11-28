@@ -13,8 +13,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import org.solo.kotlin.flexdb.InvalidColumnProvidedException
 import org.solo.kotlin.flexdb.MismatchedTypeException
 import org.solo.kotlin.flexdb.NullUsedInNonNullColumnException
-import org.solo.kotlin.flexdb.db.structure.Schema
-import org.solo.kotlin.flexdb.db.structure.primitive.Row
+import org.solo.kotlin.flexdb.db.structure.schemafull.Schema
+import org.solo.kotlin.flexdb.db.structure.schemafull.primitive.Row
 import org.solo.kotlin.flexdb.db.types.*
 import org.solo.kotlin.flexdb.json.JsonUtil
 import java.io.IOException

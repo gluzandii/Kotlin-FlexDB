@@ -10,9 +10,9 @@ import kotlin.io.path.isRegularFile
  */
 
 data class DB(val root: Path) {
-    val schema: Path = DbUtil.schemafullPath(root)
-    val logs: Path = DbUtil.logsPath(root)
-    val index: Path = DbUtil.indexPath(root)
+    val schemaPath: Path = DbUtil.schemafullPath(root)
+    val logsPath: Path = DbUtil.logsPath(root)
+    val indexPath: Path = DbUtil.indexPath(root)
 
     /**
      * Checks if the given table name exists in this database
@@ -29,6 +29,6 @@ data class DB(val root: Path) {
      * @param tableName the table name to get the path for
      */
     fun tablePath(tableName: String): Path {
-        return schema.resolve(tableName)
+        return schemaPath.resolve(tableName)
     }
 }

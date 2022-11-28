@@ -1,9 +1,9 @@
 package org.solo.kotlin.flexdb.db.query.children
 
-import org.solo.kotlin.flexdb.db.engine.DbEngine
+import org.solo.kotlin.flexdb.db.engine.schemafull.SchemafullDbEngine
 import org.solo.kotlin.flexdb.db.query.Query
 import org.solo.kotlin.flexdb.db.query.SortingType
-import org.solo.kotlin.flexdb.db.structure.Table
+import org.solo.kotlin.flexdb.db.structure.schemafull.Table
 import org.solo.kotlin.flexdb.internal.JsonCreatePayload
 import org.solo.kotlin.flexdb.internal.toSchema
 import java.io.IOException
@@ -13,7 +13,7 @@ import java.io.IOException
  */
 class CreateQuery(
     tableName: String,
-    engine: DbEngine,
+    engine: SchemafullDbEngine,
     columns: JsonCreatePayload,
 ) : Query<Unit>(tableName, engine, null, columns, SortingType.NONE) {
 

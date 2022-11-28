@@ -1,9 +1,8 @@
 package org.solo.kotlin.flexdb.db.query
 
 import org.solo.kotlin.flexdb.InvalidQueryException
-import org.solo.kotlin.flexdb.db.engine.DbEngine
+import org.solo.kotlin.flexdb.db.engine.schemafull.SchemafullDbEngine
 import org.solo.kotlin.flexdb.db.query.children.CreateQuery
-import org.solo.kotlin.flexdb.db.query.children.ParallelSelectQuery
 import org.solo.kotlin.flexdb.db.query.children.SelectQuery
 import org.solo.kotlin.flexdb.internal.JsonCreatePayload
 import org.springframework.context.expression.MapAccessor
@@ -19,13 +18,12 @@ import java.io.IOException
  * It has to implemented for each type of query.
  *
  * The implementations are:
- * + [SelectQuery]
  * + [CreateQuery]
- * + [ParallelSelectQuery]
+ * + [SelectQuery]
  */
 abstract class Query<T>(
     val tableName: String,
-    val engine: DbEngine,
+    val engine: SchemafullDbEngine,
     val where: String?,
     val columns: JsonCreatePayload?,
     val sortingType: SortingType
@@ -56,21 +54,13 @@ abstract class Query<T>(
         fun build(
             command: String,
             tableName: String,
-            engine: DbEngine,
+            engine: SchemafullDbEngine,
             where: String?,
             columns: JsonCreatePayload?,
             sortingType: SortingType
         ): Query<*> {
             return when (command.lowercase()) {
-                "select" -> ParallelSelectQuery(
-                    tableName,
-                    engine,
-                    where ?: "true",
-                    columns,
-                    sortingType
-                )
-
-                "normal select", "normal-select", "normalselect" -> SelectQuery(
+                "select" -> SelectQuery(
                     tableName,
                     engine,
                     where ?: "true",
