@@ -10,7 +10,8 @@ import kotlin.io.path.isRegularFile
  */
 
 data class DB(val root: Path) {
-    val schemaPath: Path = DbUtil.schemafullPath(root)
+    val schemafullPath: Path = DbUtil.schemafullPath(root)
+    val schemalessPath: Path = DbUtil.indexPath(root)
     val logsPath: Path = DbUtil.logsPath(root)
     val indexPath: Path = DbUtil.indexPath(root)
 
@@ -29,6 +30,6 @@ data class DB(val root: Path) {
      * @param tableName the table name to get the path for
      */
     fun tablePath(tableName: String): Path {
-        return schemaPath.resolve(tableName)
+        return schemafullPath.resolve(tableName)
     }
 }

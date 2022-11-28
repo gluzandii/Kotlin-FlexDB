@@ -35,7 +35,7 @@ class SequentialSchemafullDbEngine(db: DB) : SchemafullDbEngine(db) {
                     return@async super.loadColumnInTableFolder(tableName).toSchema()
                 },
                 async {
-                    return@async AsyncIOUtil.walk(super.db.schemaPath.resolve(tableName)) {
+                    return@async AsyncIOUtil.walk(super.db.schemafullPath.resolve(tableName)) {
                         return@walk it.isRegularFile() && rgx matches it.name
                     }
                 }

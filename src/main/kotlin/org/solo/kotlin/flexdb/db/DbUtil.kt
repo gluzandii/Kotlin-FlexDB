@@ -28,6 +28,20 @@ object DbUtil {
     }
 
     /**
+     * Schemafull path in db.
+     *
+     * ```
+     *  Schemafull Path: ../{db_name}/schemaless
+     *  ```
+     *
+     *  @param root the name of the database
+     */
+    @JvmStatic
+    fun schemalessPath(root: Path): Path {
+        return root.resolve("schemaless")
+    }
+
+    /**
      * Logs path in db.
      *
      * ```
@@ -67,11 +81,15 @@ object DbUtil {
                 return false
             }
 
-            val schema = schemafullPath(name)
+            val schemafull = schemafullPath(name)
+            val schemaless = schemalessPath(name)
             val logs = logsPath(name)
             val index = indexPath(name)
 
-            if (!schema.isDirectory()) {
+            if (!schemafull.isDirectory()) {
+                return false
+            }
+            if (!schemaless.isDirectory()) {
                 return false
             }
             if (!index.isDirectory()) {
@@ -90,7 +108,7 @@ object DbUtil {
      */
     @JvmStatic
     @Throws(InvalidPasswordProvidedException::class)
-    fun setThisInstanceDm(path: Path): DB {
+    fun setThisInstanceDb(path: Path): DB {
         if (!dbExists(path)) {
             error("The path: $path is not FlexDB")
         }
@@ -108,13 +126,14 @@ object DbUtil {
      */
     @JvmStatic
     @Throws(IOException::class)
-    fun createDB(path: Path): DB? {
+    fun createDB(path: Path, setGlobal: Boolean = false): DB? {
         if (dbExists(path)) {
             return null
         }
 
         val name = path.name
-        val schema = schemafullPath(path)
+        val schemafull = schemafullPath(path)
+        val schemaless = schemalessPath(path)
         val logs = logsPath(path)
         val index = indexPath(path)
 
@@ -125,13 +144,19 @@ object DbUtil {
             throw IllegalArgumentException("The path: $path leads to a file.")
         }
 
-        schema.createDirectories()
+        schemafull.createDirectories()
+        schemaless.createDirectories()
         logs.createDirectories()
         index.createDirectories()
 
         logs.resolve("log1.log").writeText("[${LocalDateTime.now()}] - DB: \"$name\" created.")
-        return DB(
+        val d = DB(
             path,
         )
+
+        if (setGlobal) {
+            ThisFlexDBInstance.thisInstanceDb = d
+        }
+        return d
     }
 }

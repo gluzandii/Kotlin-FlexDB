@@ -68,7 +68,7 @@ class DbRestController {
  *
  * @return password read from stdin or [java.io.Console] stdin
  */
-
+@Suppress("unused")
 fun readPassword(): String {
     return String((System.console() ?: return readln()).readPassword()!!)
 }
@@ -80,7 +80,7 @@ fun main(args: Array<String>) {
         val name = Path(readln())
 
         if (DbUtil.dbExists(name)) {
-            DbUtil.setThisInstanceDm(name)
+            DbUtil.setThisInstanceDb(name)
         } else if (name.exists()) {
             println("Something exists at the path: $name, please delete it.")
 
@@ -91,12 +91,13 @@ fun main(args: Array<String>) {
             val input = System.`in`.read().toChar()
 
             if ((input == 'Y') || (input == 'y')) {
-                DbUtil.createDB(name)
+                DbUtil.createDB(name, true)
             } else {
                 println("Exiting...")
                 exitProcess(1)
             }
         }
+
         runApplication<FlexDbApplication>(*args)
     } catch (ex: Throwable) {
         println("An error occurred.")

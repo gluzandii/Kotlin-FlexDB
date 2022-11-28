@@ -49,7 +49,7 @@ abstract class SchemafullDbEngine protected constructor(
     private val tableRemoveTimerMap: MutableMap<String, Timer> = ConcurrentHashMap<String, Timer>()
 
     init {
-        val p = db.schemaPath
+        val p = db.schemafullPath
 
         for (i in Files.walk(p).filter {
             return@filter it.isDirectory()
@@ -70,7 +70,7 @@ abstract class SchemafullDbEngine protected constructor(
      */
     @Throws(IOException::class)
     protected suspend fun loadColumnInTableFolder(tableName: String): DbColumnFile {
-        val table = db.schemaPath.resolve(tableName)
+        val table = db.schemafullPath.resolve(tableName)
         val c = table.resolve("column")
 
         return DbColumnFile.deserialize(AsyncIOUtil.readBytes(c))
@@ -170,7 +170,7 @@ abstract class SchemafullDbEngine protected constructor(
      */
     @Throws(IOException::class)
     protected suspend fun writeRowFileInTable(tableName: String, id: Int, row: DbRowFile) {
-        val table = db.schemaPath.resolve(tableName)
+        val table = db.schemafullPath.resolve(tableName)
         val rgx = table.resolve("row_$id")
 
         AsyncIOUtil.writeBytes(
@@ -184,7 +184,7 @@ abstract class SchemafullDbEngine protected constructor(
      */
     @Throws(IOException::class)
     protected suspend fun writeColumnInTable(tableName: String, row: DbColumnFile) {
-        val table = db.schemaPath.resolve(tableName)
+        val table = db.schemafullPath.resolve(tableName)
         val r = table.resolve("column")
 
         AsyncIOUtil.writeBytes(
