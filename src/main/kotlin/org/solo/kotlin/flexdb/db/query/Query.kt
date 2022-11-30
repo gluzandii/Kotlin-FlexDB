@@ -5,7 +5,6 @@ import org.solo.kotlin.flexdb.db.engine.schemafull.SchemafullDbEngine
 import org.solo.kotlin.flexdb.db.query.impl.CreateQuery
 import org.solo.kotlin.flexdb.db.query.impl.SelectQuery
 import org.solo.kotlin.flexdb.internal.JsonCreatePayload
-import org.springframework.context.expression.MapAccessor
 import org.springframework.expression.EvaluationContext
 import org.springframework.expression.ExpressionParser
 import org.springframework.expression.spel.standard.SpelExpressionParser
