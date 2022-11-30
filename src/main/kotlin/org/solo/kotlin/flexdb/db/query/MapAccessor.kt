@@ -40,8 +40,10 @@ class MapAccessor : CompilablePropertyAccessor {
     }
 
     @Throws(AccessException::class)
+    @Suppress("unchecked_cast")
     override fun write(context: EvaluationContext, @Nullable target: Any?, name: String, @Nullable newValue: Any?) {
-        Assert.state(target is Map<*, *>, "Target must be a Map")
+        assert(target is MutableMap<*, *>) { "Target must be of type MutableMap" }
+
         val map = target as MutableMap<Any, Any?>
         map[name] = newValue
     }

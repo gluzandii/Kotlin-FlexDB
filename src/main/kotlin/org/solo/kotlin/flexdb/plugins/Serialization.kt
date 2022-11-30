@@ -1,4 +1,4 @@
-package org.solo.kotlin.plugins
+package org.solo.kotlin.flexdb.plugins
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import io.ktor.serialization.jackson.*

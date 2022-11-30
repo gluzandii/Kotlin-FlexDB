@@ -1,14 +1,14 @@
-package org.solo.kotlin
+package org.solo.kotlin.flexdb
 
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import org.solo.kotlin.flexdb.db.DB
 import org.solo.kotlin.flexdb.db.DbUtil
-import org.solo.kotlin.plugins.configureRouting
-import org.solo.kotlin.plugins.configureSecurity
-import org.solo.kotlin.plugins.configureSerialization
-import org.solo.kotlin.plugins.configureSockets
+import org.solo.kotlin.flexdb.plugins.configureRouting
+import org.solo.kotlin.flexdb.plugins.configureSecurity
+import org.solo.kotlin.flexdb.plugins.configureSerialization
+import org.solo.kotlin.flexdb.plugins.configureSockets
 import java.io.IOException
 import kotlin.io.path.Path
 import kotlin.io.path.exists

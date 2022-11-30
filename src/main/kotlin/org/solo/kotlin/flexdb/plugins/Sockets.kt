@@ -1,4 +1,4 @@
-package org.solo.kotlin.plugins
+package org.solo.kotlin.flexdb.plugins
 
 import io.ktor.server.application.*
 import io.ktor.server.websocket.*
