@@ -8,7 +8,7 @@ import org.solo.kotlin.flexdb.db.DbUtil
 import org.solo.kotlin.flexdb.plugins.configureRouting
 import org.solo.kotlin.flexdb.plugins.configureSecurity
 import org.solo.kotlin.flexdb.plugins.configureSerialization
-import org.solo.kotlin.flexdb.plugins.configureSockets
+import org.solo.kotlin.flexdb.plugins.sockets.configureSockets
 import java.io.IOException
 import kotlin.io.path.Path
 import kotlin.io.path.exists

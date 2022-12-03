@@ -1,3 +1,5 @@
+@file:Suppress("PropertyName")
+
 val ktor_version = "2.1.3"
 val kotlin_version = "1.7.22"
 val logback_version = "1.4.5"
@@ -25,8 +27,7 @@ dependencies {
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktor_version")
-    implementation("io.ktor:ktor-serialization-jackson-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-websockets-jvm:$ktor_version")
+    implementation(dependencyNotation = "io.ktor:ktor-serialization-jackson-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
@@ -37,7 +38,7 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4")
 
-    implementation("org.springframework:spring-expression:6.0.0")
+    implementation("org.springframework:spring-expression:6.0.2")
 
 
 }

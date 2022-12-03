@@ -29,7 +29,7 @@ import kotlin.io.path.name
 @Suppress("unused")
 abstract class SchemafullDbEngine protected constructor(
     protected val db: DB,
-    protected val rowsPerFile: Int
+    protected val rowsPerFile: Int,
 ) {
     /**
      * Stores each table.
@@ -200,7 +200,8 @@ abstract class SchemafullDbEngine protected constructor(
      *
      * Usually only called in the [serializeTable0] method.
      *
-     * @return The split table, and start number of rows
+     * @return The split table, and start number of rows, where start is used for naming
+     * the row files.
      */
     @Throws(IOException::class)
     protected suspend inline fun initSerializeTableCall(table: Table): Pair<Queue<DbRowFile>, Int> {
@@ -222,7 +223,10 @@ abstract class SchemafullDbEngine protected constructor(
      * @return A regex for matching rows in the given table.
      */
     @Throws(IOException::class)
-    protected fun initLoadTableCall(tableName: String): Regex {
+    protected inline fun initLoadTableCall(
+        tableName: String,
+        @Suppress("UNUSED_PARAMETER") func: () -> Unit = { },
+    ): Regex {
         if (!db.tableExists(tableName)) {
             throw IOException("Table $tableName does not exist")
         }
@@ -343,7 +347,7 @@ abstract class SchemafullDbEngine protected constructor(
         tableName: String,
         where: String?,
         columns: JsonCreatePayload?,
-        sortingType: SortingType
+        sortingType: SortingType,
     ): Query<*> {
         return Query.build(command, tableName, this, where, columns, sortingType)
     }

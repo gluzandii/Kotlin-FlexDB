@@ -25,11 +25,11 @@ import kotlin.io.path.name
 @Suppress("unused", "unchecked_cast")
 class ParallelSchemafullDbEngine(
     db: DB,
-    rowsPerFile: Int
+    rowsPerFile: Int,
 ) : SchemafullDbEngine(db, rowsPerFile) {
     @Throws(IOException::class)
     override suspend fun loadTable0(tableName: String) {
-        val rgx = super.initLoadTableCall(tableName)
+        val rgx = initLoadTableCall(tableName)
         coroutineScope {
             val al = awaitAll(
                 async {
