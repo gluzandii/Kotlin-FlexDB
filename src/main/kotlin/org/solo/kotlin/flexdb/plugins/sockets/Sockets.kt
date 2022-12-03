@@ -1,13 +1,13 @@
 package org.solo.kotlin.flexdb.plugins.sockets
 
-import java.io.IOException
+import org.solo.kotlin.flexdb.loop
 import java.net.ServerSocket
 import java.time.LocalDateTime
 import kotlin.concurrent.thread
 import kotlin.random.Random
 import kotlin.random.nextInt
 
-@Throws(IOException::class)
+@Throws(Throwable::class)
 fun configureSockets(
     port: Int = Random(
         LocalDateTime.now().nano
@@ -21,11 +21,13 @@ fun configureSockets(
             server.accept()!!.use { socket ->
                 FlexDBSocketOutputStream(socket).use { out ->
                     FlexDBSocketInputStream(socket).use { `in` ->
-                        while (true) {
+                        loop {
                             val input = `in`.readUntilNull()
                             if (input.equals("exit", true)) {
-                                break
+                                return@loop null
                             }
+
+                            return@loop Unit
                         }
                     }
                 }

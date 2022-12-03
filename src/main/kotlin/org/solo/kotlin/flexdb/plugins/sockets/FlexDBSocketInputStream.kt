@@ -48,7 +48,7 @@ class FlexDBSocketInputStream(
      */
     @Throws(IOException::class)
     inline fun readUntilNull(
-        @Suppress("UNUSED_PARAMETER") func: () -> Unit = { },
+        @Suppress("UNUSED_PARAMETER") func: () -> Unit = {},
     ): String {
         val sb = StringBuilder()
         var c = read()
