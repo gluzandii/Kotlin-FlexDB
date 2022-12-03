@@ -17,6 +17,7 @@ inline fun CharSequence.append(
  * It has some nice utility methods for writing to a socket,
  * for the FlexDB database.
  */
+@Suppress("unused")
 class FlexDBSocketOutputStream(
     /**
      * The socket to write to.

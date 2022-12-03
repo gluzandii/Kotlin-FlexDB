@@ -39,6 +39,7 @@ internal class RowMap(val schema: Schema) : Iterable<Map.Entry<Column, DbValue<*
     /**
      * Checks if the given column name exists in this [RowMap]
      */
+    @Suppress("unused")
     fun containsColumn(col: String): Boolean {
         return concurrentStringColumnMap.containsKey(col)
     }

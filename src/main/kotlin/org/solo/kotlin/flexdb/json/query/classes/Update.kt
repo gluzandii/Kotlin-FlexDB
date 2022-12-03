@@ -15,7 +15,7 @@ package org.solo.kotlin.flexdb.json.query.classes
  * }
  * ```
  */
-
+@Suppress("unused")
 data class JsonUpdateQuery(var tableName: String, var action: String, var payload: JsonUpdatePayload) {
     constructor() : this("", "", JsonUpdatePayload())
 }

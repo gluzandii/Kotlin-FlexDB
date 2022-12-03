@@ -1,3 +1,5 @@
+@file:Suppress("BooleanMethodIsAlwaysInverted")
+
 package org.solo.kotlin.flexdb.db
 
 import org.solo.kotlin.flexdb.InvalidConfigException
@@ -14,13 +16,15 @@ import kotlin.io.path.isRegularFile
 /**
  * Data class that stores the database configuration, and paths in the database.
  */
-@Suppress("unused")
+@Suppress("unused", "BooleanMethodIsAlwaysInverted")
 data class DB(val root: Path) {
     val schemafullPath = DbUtil.schemafullPath(root)
     val schemalessPath = DbUtil.indexPath(root)
 
     val logsPath = DbUtil.logsPath(root)
     val indexPath = DbUtil.indexPath(root)
+
+    @Suppress("MemberVisibilityCanBePrivate")
     val configPath = DbUtil.configPath(root)
 
     init {
@@ -70,7 +74,7 @@ data class DB(val root: Path) {
 
             const.newInstance(this, config.schemafull.engine.rowsPerFile)
         } catch (e: ClassNotFoundException) {
-            throw InvalidConfigException("Invalid engine class for schemacall: $engineClassString")
+            throw InvalidConfigException("Invalid engine class for schemafull: $engineClassString")
         }
     }
 }

@@ -6,7 +6,7 @@ import io.ktor.server.auth.*
 fun Application.configureSecurity() {
 
     authentication {
-        basic(name = "myauth1") {
+        basic(name = "query") {
             realm = "Ktor Server"
             validate { credentials ->
                 if (credentials.name == credentials.password) {
@@ -14,14 +14,6 @@ fun Application.configureSecurity() {
                 } else {
                     null
                 }
-            }
-        }
-
-        form(name = "myauth2") {
-            userParamName = "user"
-            passwordParamName = "password"
-            challenge {
-                /**/
             }
         }
     }

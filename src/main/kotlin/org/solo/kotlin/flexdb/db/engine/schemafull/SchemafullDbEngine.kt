@@ -363,7 +363,7 @@ abstract class SchemafullDbEngine protected constructor(
     }
 
     /**
-     * Adds the timer of the given tableName if it doesn't exists.
+     * Adds the timer of the given tableName if it doesn't exist.
      */
     private fun checkAndAddTimer(tableName: String) {
         if (!tableRemoveTimerMap.containsKey(tableName)) {

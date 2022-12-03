@@ -63,7 +63,7 @@ data class JsonQueryColumn(var type: String, var constraints: Set<String>) {
  *
  * along with table and action.
  */
-
+@Suppress("unused")
 data class JsonCreateQuery(var table: String, var action: String, var payload: JsonCreatePayload) {
     constructor() : this("", "", JsonCreatePayload())
 }
