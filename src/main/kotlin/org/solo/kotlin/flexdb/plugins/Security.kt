@@ -10,6 +10,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.solo.kotlin.flexdb.db
 import org.solo.kotlin.flexdb.db.query.SortingType
+import org.solo.kotlin.flexdb.db.structure.schemafull.primitive.Row
 import org.solo.kotlin.flexdb.json.JsonUtil
 import org.solo.kotlin.flexdb.json.query.JsonQueryTypes
 import org.solo.kotlin.flexdb.json.query.JsonQueryUtil
@@ -95,12 +96,29 @@ fun Application.configureSecurity() {
                                 tableName = query.table,
                                 where = null,
                                 columns = query.payload,
-                                sortingType = SortingType.NONE,
+                                sortingType = SortingType.NONE to null,
                             )
+
+                            call.respond(HttpStatusCode.OK, "Table: ${query.table} created")
+                            return@post
                         }
 
                         JsonQueryTypes.SELECT -> {
                             val query = mapper.readValue(body, JsonSelectQuery::class.java)!!
+
+                            // Impl sorting in select query l8r
+                            @Suppress("UNCHECKED_CAST") val list: List<Row> = engine.query(
+                                command = query.action,
+                                tableName = query.table,
+                                where = query.payload.condition,
+                                columns = query.payload.toJsonCreatePayload(),
+                                sortingType = Pair(query.sorting.toEnum(), query.sorting.column),
+                            ) as List<Row>
+
+                            // Conert the list of rows to something that can be serialized
+                            // and sent over the wire
+
+                            return@post
                         }
 
                         JsonQueryTypes.UPDATE -> {
@@ -115,8 +133,6 @@ fun Application.configureSecurity() {
                             val query = mapper.readValue(body, JsonResetQuery::class.java)!!
                         }
                     }
-
-                    call.respond(mapOf("status" to "ok"))
                 } catch (ex: Throwable) {
                     handleError(ex, call)
                 }

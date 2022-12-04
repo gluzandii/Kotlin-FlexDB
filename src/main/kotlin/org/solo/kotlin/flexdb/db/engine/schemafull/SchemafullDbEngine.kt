@@ -118,7 +118,7 @@ abstract class SchemafullDbEngine protected constructor(
     protected suspend fun splitTableIntoDbRowFiles(table: Table): Queue<DbRowFile> {
         val q = ConcurrentLinkedQueue<DbRowFile>()
         coroutineScope {
-            var (rowLHM, rowLHMutex) = Pair(DbRowFile(), Mutex())
+            var (rowLHM, rowLHMutex) = DbRowFile() to Mutex()
 
             for (i in table) {
                 launch(Dispatchers.Default) {
@@ -208,10 +208,7 @@ abstract class SchemafullDbEngine protected constructor(
         if (!db.tableExists(table.name)) {
             throw IOException("Table ${table.name} does not exist")
         }
-        return Pair(
-            splitTableIntoDbRowFiles(table),
-            0
-        )
+        return splitTableIntoDbRowFiles(table) to 0
     }
 
     /**
@@ -347,7 +344,7 @@ abstract class SchemafullDbEngine protected constructor(
         tableName: String,
         where: String?,
         columns: JsonCreatePayload?,
-        sortingType: SortingType,
+        sortingType: Pair<SortingType, String?>,
     ): Any? {
         return Query.build(command, tableName, this, where, columns, sortingType).execute()
     }

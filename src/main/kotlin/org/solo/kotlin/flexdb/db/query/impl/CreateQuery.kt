@@ -15,7 +15,7 @@ class CreateQuery(
     tableName: String,
     engine: SchemafullDbEngine,
     columns: JsonCreatePayload,
-) : Query<Unit>(tableName, engine, null, columns, SortingType.NONE) {
+) : Query<Unit>(tableName, engine, null, columns, SortingType.NONE to null) {
 
     /**
      * Executes the query, and creates a table in the database in a non-blocking way.

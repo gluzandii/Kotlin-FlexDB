@@ -6,6 +6,10 @@
             "name",
             "email"
         ],
+        "sorting": {
+            "column": "name",
+            "order": "ASCENDING"
+        },
         "condition": "name == 'Sushant Nariangadu' && email == 'nsushant2007@gmail.com'"
     }
 }

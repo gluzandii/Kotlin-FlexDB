@@ -25,7 +25,7 @@ abstract class Query<T>(
     val engine: SchemafullDbEngine,
     val where: String?,
     val columns: JsonCreatePayload?,
-    val sortingType: SortingType
+    val sortingType: Pair<SortingType, String?>,
 ) {
     protected val parser: ExpressionParser = SpelExpressionParser()
 
@@ -56,7 +56,7 @@ abstract class Query<T>(
             engine: SchemafullDbEngine,
             where: String?,
             columns: JsonCreatePayload?,
-            sortingType: SortingType
+            sortingType: Pair<SortingType, String?>,
         ): Query<*> {
             return when (command.lowercase()) {
                 "select" -> SelectQuery(

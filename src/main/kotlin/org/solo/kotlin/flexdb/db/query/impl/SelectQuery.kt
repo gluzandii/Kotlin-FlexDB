@@ -23,7 +23,7 @@ class SelectQuery(
     engine: SchemafullDbEngine,
     where: String,
     columns: JsonCreatePayload?,
-    sortingType: SortingType
+    sortingType: Pair<SortingType, String?>,
 ) : Query<List<Row>>(tableName, engine, where, columns, sortingType) {
     private val expression: Expression
 
@@ -39,8 +39,8 @@ class SelectQuery(
     override suspend fun execute(): List<Row> {
         // Filter and only provide those columns that are needed by teh query
 
-        val (linkedList, mutexList) = Pair(LinkedList<Row>(), Mutex())
-
+        val (linkedList, mutexList) = LinkedList<Row>() to Mutex()
+// Impl sorting in select query l8r
         coroutineScope {
             for (row in engine.get(tableName)) {
                 launch(Dispatchers.Default) {

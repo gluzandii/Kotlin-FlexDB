@@ -1,3 +1,5 @@
+@file:Suppress("EqualsOrHashCode")
+
 package org.solo.kotlin.flexdb.db.types
 
 import org.solo.kotlin.flexdb.InvalidEmailException
@@ -41,19 +43,7 @@ sealed class DbValue<T>(
         return value.hashCode()
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-        if (other !is DbValue<*>) {
-            return false
-        }
-        if (other.type != type) {
-            return false
-        }
-
-        return value == other.value
-    }
+    abstract override fun equals(other: Any?): Boolean
 
     /**
      * Compares 2 values of [DbValue]
@@ -99,7 +89,25 @@ fun emailMatches(email: String): String? {
 /**
  * [DbValue] which stores a string.
  */
-class DbString(value: String) : DbValue<String>(value, DbEnumType.STRING)
+class DbString(value: String) : DbValue<String>(value, DbEnumType.STRING) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other is String) {
+            return value == other
+        }
+
+        if (other !is DbValue<*>) {
+            return false
+        }
+        if (other.type != type) {
+            return false
+        }
+
+        return value == other.value
+    }
+}
 
 /**
  * [DbValue] which stores an email.
@@ -109,19 +117,91 @@ class DbEmail(
 ) : DbValue<String>(
     emailMatches(value) ?: throw InvalidEmailException("The email provided: $value is invalid."),
     DbEnumType.STRING
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other is String) {
+            return value == other
+        }
+
+        if (other !is DbValue<*>) {
+            return false
+        }
+        if (other.type != type) {
+            return false
+        }
+
+        return value == other.value
+    }
+}
 
 /**
  * [DbValue] which stores a whole number.
  */
-class DbNumber(value: Long) : DbValue<Long>(value, DbEnumType.NUMBER)
+class DbNumber(value: Long) : DbValue<Long>(value, DbEnumType.NUMBER) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other is Byte || other is Short || other is Int || other is Long) {
+            return value == other
+        }
+
+        if (other !is DbValue<*>) {
+            return false
+        }
+        if (other.type != type) {
+            return false
+        }
+
+        return value == other.value
+    }
+}
 
 /**
  * [DbValue] which stores a decimal.
  */
-class DbDecimal(value: Double) : DbValue<Double>(value, DbEnumType.DECIMAL)
+class DbDecimal(value: Double) : DbValue<Double>(value, DbEnumType.DECIMAL) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other is Byte || other is Short || other is Int || other is Long || other is Float || other is Double) {
+            return value == other
+        }
+
+        if (other !is DbValue<*>) {
+            return false
+        }
+        if (other.type != type) {
+            return false
+        }
+
+        return value == other.value
+    }
+}
 
 /**
  * [DbValue] which stores a boolean.
  */
-class DbBoolean(value: Boolean) : DbValue<Boolean>(value, DbEnumType.BOOLEAN)
+class DbBoolean(value: Boolean) : DbValue<Boolean>(value, DbEnumType.BOOLEAN) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other is Boolean) {
+            return value == other
+        }
+
+        if (other !is DbValue<*>) {
+            return false
+        }
+        if (other.type != type) {
+            return false
+        }
+
+        return value == other.value
+    }
+}
