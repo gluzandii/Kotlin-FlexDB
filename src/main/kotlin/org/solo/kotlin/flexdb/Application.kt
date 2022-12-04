@@ -14,7 +14,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.system.exitProcess
 
-private lateinit var db: DB
+lateinit var db: DB
 
 /**
  * Reads password from stdin using [java.io.Console].

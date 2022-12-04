@@ -61,7 +61,7 @@ data class DB(val root: Path) {
     )
 
     @Suppress("unchecked_cast")
-    fun schemafullEngine(): SchemafullDbEngine? {
+    fun schemafullEngine(): SchemafullDbEngine {
         val mapper = newObjectMapper()
         val config = mapper.readValue(configPath.inputStream(), DbConfig::class.java)
 

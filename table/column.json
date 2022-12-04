@@ -3,13 +3,14 @@
         "name": {
             "type": "String",
             "constraints": [
-                "NotNull"
+                "NOTNULL"
             ]
         },
         "email": {
             "type": "String",
             "constraints": [
-                "Unique"
+                "NOTNULL",
+                "UNIQUE"
             ]
         }
     }

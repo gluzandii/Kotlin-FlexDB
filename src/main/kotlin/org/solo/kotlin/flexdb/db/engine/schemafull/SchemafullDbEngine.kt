@@ -342,14 +342,14 @@ abstract class SchemafullDbEngine protected constructor(
      * @param where An optional where clause for queries like *select* or *reset*
      * @param columns The columns to return after query.
      */
-    fun query(
+    suspend fun query(
         command: String,
         tableName: String,
         where: String?,
         columns: JsonCreatePayload?,
         sortingType: SortingType,
-    ): Query<*> {
-        return Query.build(command, tableName, this, where, columns, sortingType)
+    ): Any? {
+        return Query.build(command, tableName, this, where, columns, sortingType).execute()
     }
 
     /**

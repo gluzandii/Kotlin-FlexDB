@@ -1,11 +1,13 @@
 package org.solo.kotlin.flexdb.db.types
 
+import org.solo.kotlin.flexdb.InvalidEmailException
 import org.solo.kotlin.flexdb.InvalidTypeException
 
 /**
  * The enum that stores all possible datatypes in FlexDB
  */
 enum class DbEnumType {
+    EMAIL,
     STRING,
     NUMBER,
     DECIMAL,
@@ -17,6 +19,7 @@ enum class DbEnumType {
     val default: DbValue<*>
         get() {
             return when (this) {
+                EMAIL -> DbEmail("")
                 STRING -> DbString("")
                 NUMBER -> DbNumber(0)
                 DECIMAL -> DbDecimal(0.0)
@@ -32,7 +35,7 @@ enum class DbEnumType {
  */
 sealed class DbValue<T>(
     val value: T,
-    val type: DbEnumType
+    val type: DbEnumType,
 ) : Comparable<DbValue<*>>, Comparator<DbValue<*>> {
     override fun hashCode(): Int {
         return value.hashCode()
@@ -67,7 +70,7 @@ sealed class DbValue<T>(
         }
 
         return when (type) {
-            DbEnumType.STRING -> other.value.toString().compareTo(value.toString())
+            DbEnumType.STRING, DbEnumType.EMAIL -> other.value.toString().compareTo(value.toString())
             DbEnumType.DECIMAL -> (other.value as Double).compareTo(value as Double)
             DbEnumType.NUMBER -> (other.value as Long).compareTo(value as Long)
             DbEnumType.BOOLEAN -> (other.value as Boolean).compareTo(value as Boolean)
@@ -85,10 +88,28 @@ sealed class DbValue<T>(
     }
 }
 
+fun emailMatches(email: String): String? {
+    return if (Regex("^[A-Za-z0-9+_.-]+@(.+)\$").matches(email)) {
+        email
+    } else {
+        null
+    }
+}
+
 /**
  * [DbValue] which stores a string.
  */
 class DbString(value: String) : DbValue<String>(value, DbEnumType.STRING)
+
+/**
+ * [DbValue] which stores an email.
+ */
+class DbEmail(
+    value: String,
+) : DbValue<String>(
+    emailMatches(value) ?: throw InvalidEmailException("The email provided: $value is invalid."),
+    DbEnumType.STRING
+)
 
 /**
  * [DbValue] which stores a whole number.

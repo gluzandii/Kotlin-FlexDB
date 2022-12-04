@@ -8,6 +8,8 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.solo.kotlin.flexdb.db
+import org.solo.kotlin.flexdb.db.query.SortingType
 import org.solo.kotlin.flexdb.json.JsonUtil
 import org.solo.kotlin.flexdb.json.query.JsonQueryTypes
 import org.solo.kotlin.flexdb.json.query.JsonQueryUtil
@@ -19,8 +21,6 @@ suspend inline fun handleError(ex: Throwable, call: ApplicationCall) {
     when (ex) {
         is JsonParseException -> {
             msg = "Couldn't parse query: ${ex.message}"
-            ex.printStackTrace()
-
             call.respond(
                 status = HttpStatusCode.BadRequest,
                 message = mapOf(
@@ -33,8 +33,6 @@ suspend inline fun handleError(ex: Throwable, call: ApplicationCall) {
 
         is MismatchedInputException -> {
             msg = "Invalid query: ${ex.message}"
-            ex.printStackTrace()
-
             call.respond(
                 status = HttpStatusCode.BadRequest,
                 message = mapOf(
@@ -47,8 +45,6 @@ suspend inline fun handleError(ex: Throwable, call: ApplicationCall) {
 
         else -> {
             msg = "An error occurred: ${ex.message}"
-            ex.printStackTrace()
-
             call.respond(
                 status = HttpStatusCode.InternalServerError,
                 message = mapOf(
@@ -61,6 +57,7 @@ suspend inline fun handleError(ex: Throwable, call: ApplicationCall) {
     }
 
     System.err.println(msg)
+    ex.printStackTrace()
 }
 
 fun Application.configureSecurity() {
@@ -86,11 +83,20 @@ fun Application.configureSecurity() {
                 try {
                     val body = call.receiveText()
                     val mapper = JsonUtil.newObjectMapper()
+                    val engine = db.schemafullEngine()
 
                     @Suppress("UNUSED_VARIABLE")
                     when (JsonQueryUtil.getQueryType(body)) {
                         JsonQueryTypes.CREATE -> {
                             val query = mapper.readValue(body, JsonCreateQuery::class.java)!!
+
+                            engine.query(
+                                command = query.action,
+                                tableName = query.table,
+                                where = null,
+                                columns = query.payload,
+                                sortingType = SortingType.NONE,
+                            )
                         }
 
                         JsonQueryTypes.SELECT -> {

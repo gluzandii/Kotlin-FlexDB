@@ -8,6 +8,8 @@ class MismatchedTypeException(msg: String) : Exception(msg)
 
 class InvalidColumnProvidedException(msg: String) : Exception(msg)
 
+class InvalidEmailException(msg: String) : Exception(msg)
+
 class InvalidConfigException(msg: String) : Exception(msg)
 
 class InvalidQueryException(msg: String) : Exception(msg)

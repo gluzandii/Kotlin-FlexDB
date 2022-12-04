@@ -5,13 +5,13 @@
         "name": {
             "type": "String",
             "constraints": [
-                "NotNull",
-                "Immutable"
+                "NotNull"
             ]
         },
         "email": {
             "type": "Email",
             "constraints": [
+                "NotNull",
                 "Unique"
             ]
         },
