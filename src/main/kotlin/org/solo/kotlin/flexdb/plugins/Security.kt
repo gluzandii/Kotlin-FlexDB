@@ -118,6 +118,7 @@ fun Application.configureSecurity() {
                             // Conert the list of rows to something that can be serialized
                             // and sent over the wire
 
+                            call.respond(HttpStatusCode.OK, list.toSerializable())
                             return@post
                         }
 
