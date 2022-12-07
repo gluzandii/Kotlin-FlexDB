@@ -8,8 +8,9 @@ import org.solo.kotlin.flexdb.db.DbUtil
 import org.solo.kotlin.flexdb.plugins.configureRouting
 import org.solo.kotlin.flexdb.plugins.configureSecurity
 import org.solo.kotlin.flexdb.plugins.configureSerialization
-import org.solo.kotlin.flexdb.plugins.sockets.configureSockets
+import org.solo.kotlin.flexdb.plugins.configureSockets
 import java.io.IOException
+import kotlin.concurrent.thread
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.system.exitProcess
@@ -52,8 +53,17 @@ fun main() {
             }
         }
 
+        val serverThread = thread(
+            name = "socket server thread~1",
+            priority = Thread.MAX_PRIORITY
+        ) {
+            configureSockets()
+        }
+
         embeddedServer(Netty, port = 8080, host = "127.0.0.1", module = Application::module)
             .start(wait = true)
+
+        serverThread.join()
     } catch (ex: Throwable) {
         println("An error occurred.")
         ex.printStackTrace()
@@ -63,6 +73,5 @@ fun main() {
 fun Application.module() {
     configureSecurity()
     configureSerialization()
-    configureSockets()
     configureRouting()
 }
