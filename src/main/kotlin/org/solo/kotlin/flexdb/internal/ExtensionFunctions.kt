@@ -3,7 +3,7 @@ package org.solo.kotlin.flexdb.internal
 import org.solo.kotlin.flexdb.db.structure.schemafull.Schema
 import org.solo.kotlin.flexdb.db.structure.schemafull.primitive.Column
 import org.solo.kotlin.flexdb.db.structure.schemafull.primitive.DbConstraint
-import org.solo.kotlin.flexdb.db.types.DbEnumType
+import org.solo.kotlin.flexdb.db.types.DbValue
 import org.solo.kotlin.flexdb.json.query.classes.JsonQueryColumn
 import java.util.*
 
@@ -50,7 +50,7 @@ fun JsonCreatePayload.toSchema(): Schema {
 
     for ((k, v) in this) {
         val type =
-            DbEnumType.valueOf(v.type.uppercase())
+            DbValue.fromClassName(v.type)
         val consts = EnumSet.noneOf(DbConstraint::class.java)!!
 
         for (i in v.constraints) {

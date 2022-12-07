@@ -1,12 +1,12 @@
 package org.solo.kotlin.flexdb.db.structure.schemafull.primitive
 
-import org.solo.kotlin.flexdb.db.types.DbEnumType
+import org.solo.kotlin.flexdb.db.types.DbValue
 import java.util.*
 
 /**
  * A dataclass that is used for storing a column and its metadata, not the contents of the column.
  */
-data class Column(val name: String, val type: DbEnumType, private val constraints: EnumSet<DbConstraint>) {
+data class Column(val name: String, val type: DbValue<*>, private val constraints: EnumSet<DbConstraint>) {
     /**
      * Returns a [Set] containing its contents but in a [String] format.
      */

@@ -2,7 +2,7 @@ package org.solo.kotlin.flexdb.db.structure.schemafull
 
 import org.solo.kotlin.flexdb.db.structure.schemafull.primitive.Column
 import org.solo.kotlin.flexdb.db.structure.schemafull.primitive.DbConstraint
-import org.solo.kotlin.flexdb.db.types.DbEnumType
+import org.solo.kotlin.flexdb.db.types.DbValue
 import java.util.*
 
 /**
@@ -18,7 +18,7 @@ data class Schema(val schemaSet: MutableSet<Column>) : Iterable<Column> {
         val col =
             Column(
                 "id",
-                DbEnumType.NUMBER,
+                DbValue.Number,
                 EnumSet.of(DbConstraint.UNIQUE, DbConstraint.NOTNULL)!!
             )
         schemaSet.add(col)

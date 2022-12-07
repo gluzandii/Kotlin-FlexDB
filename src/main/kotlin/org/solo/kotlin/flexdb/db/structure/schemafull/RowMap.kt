@@ -27,7 +27,7 @@ internal class RowMap(val schema: Schema) : Iterable<Map.Entry<Column, DbValue<*
     init {
         for (i in schema) {
             concurrentContentMap[i] = if (i.hasConstraint(DbConstraint.NOTNULL)) {
-                i.type.default
+                i.type
             } else {
                 null
             }
@@ -82,8 +82,8 @@ internal class RowMap(val schema: Schema) : Iterable<Map.Entry<Column, DbValue<*
             throw NullUsedInNonNullColumnException("The value provided is null, for a NonNull constraint column")
         }
 
-        if ((value != null) && (c.type != value.type)) {
-            throw MismatchedTypeException("Cannot put value of type: ${value.type} in ${c.type}")
+        if ((value != null) && (c.type != value)) {
+            throw MismatchedTypeException("Cannot put value of type: $value in ${c.type}")
         }
         concurrentContentMap[c] = value
     }

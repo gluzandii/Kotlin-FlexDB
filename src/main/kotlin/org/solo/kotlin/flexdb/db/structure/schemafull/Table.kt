@@ -27,7 +27,7 @@ data class Table(val name: String, val schema: Schema) : Iterable<Row> {
         get() {
             val j = JsonCreatePayload()
             for (i in schema) {
-                j[i.name] = JsonQueryColumn(i.type.name, i.stringConstraints)
+                j[i.name] = JsonQueryColumn(i.type.className(), i.stringConstraints)
             }
 
             return DbColumnFile(j)

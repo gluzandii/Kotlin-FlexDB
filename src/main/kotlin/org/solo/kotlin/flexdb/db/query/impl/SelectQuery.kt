@@ -14,6 +14,21 @@ import org.springframework.expression.Expression
 import java.io.IOException
 import java.util.*
 
+fun LinkedList<Row>.sort() {
+    this.sortWith { o1, o2 ->
+        val o1Id = o1.id
+        val o2Id = o2.id
+
+        if (o1Id > o2Id) {
+            1
+        } else if (o1Id < o2Id) {
+            -1
+        } else {
+            0
+        }
+    }
+}
+
 /**
  * A query that is used to select rows from a table in the current [org.solo.kotlin.flexdb.db.DB]
  * It does it in parallel for higher efficiency.

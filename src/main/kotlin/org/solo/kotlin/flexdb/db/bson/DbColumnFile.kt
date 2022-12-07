@@ -3,7 +3,7 @@ package org.solo.kotlin.flexdb.db.bson
 import org.solo.kotlin.flexdb.db.structure.schemafull.Schema
 import org.solo.kotlin.flexdb.db.structure.schemafull.primitive.Column
 import org.solo.kotlin.flexdb.db.structure.schemafull.primitive.DbConstraint
-import org.solo.kotlin.flexdb.db.types.DbEnumType
+import org.solo.kotlin.flexdb.db.types.DbValue
 import org.solo.kotlin.flexdb.internal.JsonCreatePayload
 import org.solo.kotlin.flexdb.json.JsonUtil
 import org.solo.kotlin.flexdb.json.JsonUtil.newBinaryObjectMapper
@@ -44,11 +44,10 @@ data class DbColumnFile(var columns: JsonCreatePayload) {
         val set = hashSetOf<Column>()
 
         for ((k, v) in columns) {
-            val type = DbEnumType.valueOf(v.type)
-            val cs = v.constraints
+            val type = DbValue.fromClassName(v.type)
 
             val cons = EnumSet.noneOf(DbConstraint::class.java)
-            for (i in cs) {
+            for (i in v.constraints) {
                 cons.add(DbConstraint.valueOf(i))
             }
 
